@@ -15,6 +15,7 @@ const allHtmlEntries = fs
 
 // https://vitejs.dev/config/
 module.exports = defineConfig({
+  base: './',
   build: {
     rollupOptions: {
       input: allHtmlEntries,

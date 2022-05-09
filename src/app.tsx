@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import CSS from 'csstype';
-import FilteringApp from './components/filteringApp';
+import FilteringApp from './components/FilteringApp';
 import MatrixApp from './components/MatrixApp';
 
 // interface ITag {
