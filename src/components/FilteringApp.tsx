@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { SDK } from '../../typings/miro';
-import { buttonStyle, h3Style, inputContainer, inputStyle } from '../app';
+import { h3Style, inputContainer, inputStyle } from '../app';
 const miro = window.miro;
 
 const FilteringApp = () => {
@@ -8,6 +8,7 @@ const FilteringApp = () => {
 	const [tagWidgets, _setTagWidgets] = useState(true);
 	const [currentSelectedTag, setCurrentSelectedTag] = useState('all');
 	const tagWidgetsRef = React.useRef(tagWidgets);
+	const [widgetBackup, setWidgetBackup] = useState<SDK.IWidget[]>([]);
 	const [allTags, setAllTags] = useState<SDK.ITag[]>([]);
 	const setTagWidgets = (data: boolean) => {
 		tagWidgetsRef.current = data;
@@ -33,6 +34,7 @@ const FilteringApp = () => {
 		}
 	};
 
+	// TODO: Add dynamical update of selection box
 	const getAllTags = async () => {
 		setAllTags(await miro.board.tags.get());
 	};
@@ -127,7 +129,10 @@ const FilteringApp = () => {
 
 		allWidgets.forEach((widget) => {
 			// reset all widget visibilities before filtering
+			// TODO: add here
 			widget.clientVisible = true;
+
+			miro.board.widgets.update(widgetBackup);
 
 			allTags.every((tag) => {
 				// if widgetHasTagFilter is set
@@ -144,10 +149,20 @@ const FilteringApp = () => {
 			// check if widget tag existence does not match filter criteria
 			// if so, locally hide this widget
 			if (widgetHasTag !== widgetHasTagFilter) {
+				// TODO: add here
 				widget.clientVisible = false;
+				// TODO: remove here
+				// if (widgetBackup.includes(widget) === false) {
+				// 	const newWidgetBackup = widgetBackup;
+				// 	newWidgetBackup.push(widget);
+				// 	setWidgetBackup(newWidgetBackup);
+				// }
+				// TODO: remove here
+				// miro.board.widgets.deleteById(widget.id);
 			}
 		});
 
+		// TODO: add here
 		// update all widgets to make changes visible on miro board
 		miro.board.widgets.update(allWidgets);
 	};

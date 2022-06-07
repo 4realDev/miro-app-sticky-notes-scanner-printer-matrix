@@ -1,3 +1,5 @@
+// server: https://brazhnik.de/miro-app-poc/
+
 import React from 'react';
 import ReactDOM from 'react-dom';
 import CSS from 'csstype';
@@ -100,7 +102,7 @@ const App = () => {
 	return (
 		<div>
 			<h1 style={h1Style}>MIRO APP POC</h1>
-			<FilteringApp />
+			{/* <FilteringApp /> */}
 			<MatrixApp />
 		</div>
 	);
