@@ -198,13 +198,27 @@ const MatrixApp = () => {
 
 		allSelectedWidgets.forEach((widget) => {
 			if (widget.type === 'sticky_note' || widget.type === 'card') {
-				widget.tagIds.forEach((tagId) => {
-					const widgetTag = allTags.find((tag) => tag.id === tagId && isNumeric(tag.title));
+				widget.tagIds.forEach((tagId: string) => {
+					console.log('test', tagId);
+					const widgetTag = allTags.find((tag) => tag.id === tagId);
 					if (widgetTag !== undefined) {
-						sortedSelectedWidgetsAfterYValueWithNumericTag.push({
-							widget: widget,
-							numericTag: parseInt(widgetTag.title),
-						});
+						// This enables to use the Matrix even with the "Miro Estimation Tool"
+						// 'Estimate: [num]' is the tag title, which is used by the "Miro Estimation Tool"
+						// [num] can be 1,2,3,5,8,13,21
+						const widgetTagEstimationNumber = isNumeric(widgetTag.title)
+							? widgetTag.title
+							: widgetTag.title.replace('Estimate: ', '');
+
+						if (isNumeric(widgetTagEstimationNumber)) {
+							sortedSelectedWidgetsAfterYValueWithNumericTag.push({
+								widget: widget,
+								numericTag: parseInt(widgetTagEstimationNumber),
+							});
+						} else {
+							alert(
+								'One or more selected items are missing an estimation number.\nEnter a number tag (e.g "4")\nor use the Miro Estimation Tool (e.g "Estimate: 4").'
+							);
+						}
 					}
 				});
 			}
