@@ -3,8 +3,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import CSS from 'csstype';
-import FilteringApp from './components/FilteringApp';
 import MatrixApp from './components/MatrixApp';
+import GlobalFilteringApp from './components/GlobalFilteringApp';
 
 // interface ITag {
 // 	id: string;
@@ -83,6 +83,8 @@ export const h1Style: CSS.Properties = {
 	fontStretch: 'normal',
 	fontStyle: 'normal',
 	letterSpacing: 'normal',
+	marginTop: '0px',
+	paddingTop: '0px',
 };
 
 export const h3Style: CSS.Properties = {
@@ -92,8 +94,19 @@ export const h3Style: CSS.Properties = {
 	fontStretch: 'normal',
 	fontStyle: 'normal',
 	letterSpacing: 'normal',
-	marginTop: '42px',
+	marginTop: '0px',
+	paddingTop: '0px',
 	marginBottom: '8px',
+};
+
+export const labelStyle: CSS.Properties = {
+	marginBottom: '8px',
+	fontSize: '14px',
+	fontWeight: '600',
+};
+
+export const appContainer: CSS.Properties = {
+	marginBottom: '42px',
 };
 
 const App = () => {
@@ -101,8 +114,9 @@ const App = () => {
 	// return <h1>Counter: {counter}</h1>;
 	return (
 		<div>
-			<h1 style={h1Style}>MIRO APP POC</h1>
 			{/* <FilteringApp /> */}
+			{/* <GlobalFilteringFunctionDemo /> */}
+			{/* <GlobalFilteringApp /> */}
 			<MatrixApp />
 		</div>
 	);
@@ -126,13 +140,13 @@ const App = () => {
 };
 export default App;
 
-window.miro.onReady(() => {
-	ReactDOM.render(
-		<React.StrictMode>
-			<App />
-		</React.StrictMode>,
-		document.getElementById('root')
-	);
-});
+// window.miro.onReady(() => {
+// 	ReactDOM.render(
+// 		<React.StrictMode>
+// 			<App />
+// 		</React.StrictMode>,
+// 		document.getElementById('root')
+// 	);
+// });
 
-// ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(<App />, document.getElementById('root'));

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { SDK } from '../../typings/miro';
-import { h3Style, inputContainer, inputStyle } from '../app';
+import { appContainer, h3Style, inputContainer, inputStyle } from '../app';
 const miro = window.miro;
 
-const FilteringApp = () => {
+const FilteringAppSDK1 = () => {
 	// https://medium.com/geographit/accessing-react-state-in-event-listeners-with-usestate-and-useref-hooks-8cceee73c559
 	const [tagWidgets, _setTagWidgets] = useState(true);
 	const [currentSelectedTag, setCurrentSelectedTag] = useState('all');
@@ -217,7 +217,7 @@ const FilteringApp = () => {
 	};
 
 	return (
-		<div>
+		<div style={appContainer}>
 			<h3 style={h3Style}>FILTER FUNCTION</h3>
 			<div style={inputContainer}>
 				<label>Tag: </label>
@@ -299,4 +299,4 @@ const FilteringApp = () => {
 	}
 };
 
-export default FilteringApp;
+export default FilteringAppSDK1;

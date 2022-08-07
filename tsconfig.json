@@ -14,8 +14,9 @@
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "typeRoots": ["./node_modules/@types", "./node_modules/@mirohq"]
   },
-  "include": ["src", "typings"],
+  "include": ["global.d.ts", "src"],
   "exclude": ["node_modules"]
 }
