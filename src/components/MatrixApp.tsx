@@ -1,4 +1,4 @@
-import { Item, Shape, Tag, Text } from '@mirohq/websdk-types';
+import { FontFamily, Item, Shape, Tag, Text } from '@mirohq/websdk-types';
 import React, { useEffect, useState } from 'react'; // react is needed for Miro
 import { h3Style, inputContainer, inputStyle, buttonStyle, appContainer, labelStyle } from '../app';
 const miro = window.miro;
@@ -37,6 +37,14 @@ const MATRIX_QUARTER_CATEGORIES = {
 	BOTTOM_RIGHT: { color: '#FFDCE4', prio: 1 },
 } as const;
 
+const MATRIX_LABELS_FONT_FAMILY: FontFamily = 'plex_sans';
+const MATRIX_AXIS_COLOR = '#000000';
+const MATRIX_AXIS_LINE_WIDTH = 8;
+const MATRIX_AXIS_LABEL_COLOR = '#000000';
+const MATRIX_CATEGORY_QUARTER_CONTENT_COLOR = '#000000';
+const MATRIX_PRIORITY_LIST_TITLE_COLOR = '#000000';
+const MATRIX_PRIORITY_LIST_ITEMS_COLOR = '#000000';
+
 const DEBUG_DOT = false;
 
 const MatrixApp = () => {
@@ -49,15 +57,6 @@ const MatrixApp = () => {
 		showCategorizationRef.current = data;
 		_setShowCategorization(data);
 	};
-
-	// let minWidgetPosX: number | undefined = undefined;
-	// let minWidgetPosY: number | undefined = undefined;
-
-	// let minCoorPosX: number | undefined = undefined;
-	// let minCoorPosY: number | undefined = undefined;
-
-	// let totalWidgetWidth: number = 0;
-	// let totalWidgetHeight: number = 0;
 
 	const [minWidgetPosX, setMinWidgetPosX] = useState<number | undefined>(undefined);
 	const [minWidgetPosY, setMinWidgetPosY] = useState<number | undefined>(undefined);
@@ -80,11 +79,6 @@ const MatrixApp = () => {
 
 	const [matrixCategoryList, setMatrixCategoryList] = useState<MatrixCategoryListElement[] | undefined>(undefined);
 	const [matrixCategoryListWidgets, setMatrixCategoryListWidgets] = useState<Text[] | undefined>(undefined);
-
-	// let bottomLeftQuarter: Shape;
-	// let bottomRightQuarter: Shape;
-	// let topLeftQuarter: Shape;
-	// let topRightQuarter: Shape;
 
 	useEffect(() => {
 		showCategorizationOfMatrix(showCategorization);
@@ -145,12 +139,6 @@ const MatrixApp = () => {
 		// let widgetTagCount = -1;
 		let updatedWidgetDistanceX = 0;
 		sortedSelectedWidgetsAfterXValue.forEach(async (widget) => {
-			// widgetTagCount = widgetTagCount + 1;
-			// await miro.board.widgets.update({
-			// 	...widget,
-			// 	x: minPosX + widget.width * widgetTagCount,
-			// 	y: minPosY,
-			// });
 			if (widget.type === 'sticky_note' || widget.type === 'card') {
 				// widget.x = minPosX + widget.width * widgetTagCount;
 				widget.x = minPosX + updatedWidgetDistanceX;
@@ -167,13 +155,6 @@ const MatrixApp = () => {
 		let updatedWidgetDistanceX = 0;
 		sortedSelectedWidgetsAfterXValue.forEach(async (widget) => {
 			if (widget.type === 'sticky_note' || widget.type === 'card') {
-				// widgetTagCount = widgetTagCount + 1;
-				// await miro.board.widgets.update({
-				// 	...widget,
-				// 	x: minCoorPosX + widget.width * widgetTagCount,
-				// });
-				// widget.x = minCoorPosX + widget.width * widgetTagCount;
-
 				// TODO: Understand why I have to add widget.width / 2 to widget.x position
 				widget.x = minCoorPosX + updatedWidgetDistanceX + widget.width / 2;
 				widget.sync();
@@ -184,18 +165,6 @@ const MatrixApp = () => {
 
 	const addNumericTags = (allTags: Tag[], allSelectedWidgets: Item[]) => {
 		let sortedSelectedWidgetsAfterYValueWithNumericTag: NumericTaggedWidget[] = [];
-		// allTags.forEach((tag) => {
-		// 	if (isNumeric(tag.title)) {
-		// 		const widgetWithNumericTag = allSelectedWidgets.find((widget) => tag.widgetIds.includes(widget.id));
-		// 		if (widgetWithNumericTag) {
-		// 			sortedSelectedWidgetsAfterYValueWithNumericTag.push({
-		// 				widget: widgetWithNumericTag,
-		// 				numericTag: parseInt(tag.title),
-		// 			});
-		// 		}
-		// 	}
-		// });
-
 		allSelectedWidgets.forEach((widget) => {
 			if (widget.type === 'sticky_note' || widget.type === 'card') {
 				widget.tagIds.forEach((tagId: string) => {
@@ -247,14 +216,6 @@ const MatrixApp = () => {
 		let updatedWidgetDistanceY = 0;
 		sortedSelectedWidgetsAfterYValue.forEach(async (widget) => {
 			if (widget.type === 'sticky_note' || widget.type === 'card') {
-				// widgetTagCount = widgetTagCount + 1;
-				// await miro.board.widgets.update({
-				// 	...widget,
-				// 	x: widget.bounds.x,
-				// 	y: minCoorPosY!! + widget.bounds.height * widgetTagCount + widget.bounds.height / 2,
-				// });
-				// widget.y = minCoorPosY!! + widget.height * widgetTagCount + widget.height / 2;
-
 				widget.x = widget.x;
 				widget.y = minCoorPosY!! + updatedWidgetDistanceY + widget.height / 2;
 				widget.sync();
@@ -274,18 +235,18 @@ const MatrixApp = () => {
 		totalWidgetWidth: number,
 		totalWidgetHeight: number
 	) => {
-		// const totalWidgetWidth = widgets.length * widgetWidth;
-		// const totalWidgetHeight = widgets.length * widgetHeight;
 		const paddingToWidgets = widgetHeight * 2;
-		const distanceTextToAxis = 50;
+		const distanceAxisLabelTextToAxis = 65;
+		// length of the x or y-axis line, which is additionally added to the width or height of the matrix
+		// the result is, that the axis line is longer then the matrix itself, which in this case is called "overlapping"
+		const additionalAxisMatrixOverlapping = 50;
 
 		// bottom left edge point of the coordinate system
 		// TODO: Understand why I have to subtract "widgetWidth / 2 from coorOriginX"
 		const coorOriginX = minWidgetPosX - widgetWidth / 2;
 		const coorOriginY = minWidgetPosY - totalWidgetHeight - paddingToWidgets;
 
-		/*** CREATE AXIS ***/
-		// create Y-Axis
+		// TODO: Replace reactangles with LINE widget, when LINE widget is finally developed in MIRO SDK 2.0
 		// await miro.board.widgets.create({
 		// 	type: 'LINE',
 		// 	startPosition: {
@@ -306,26 +267,6 @@ const MatrixApp = () => {
 		// 	},
 		// });
 
-		await miro.board.createShape({
-			// startPosition: {
-			// 	x: coorOriginX,
-			// 	y: coorOriginY,
-			// },
-			// endPosition: {
-			// 	x: coorOriginX,
-			// 	y: minWidgetPosY!! - paddingToWidgets,
-			// },
-			shape: 'rectangle',
-			x: coorOriginX,
-			y: coorOriginY + (minWidgetPosY - paddingToWidgets - coorOriginY) / 2,
-			height: minWidgetPosY - paddingToWidgets - coorOriginY,
-			width: 8,
-			style: {
-				fillColor: '#000000',
-			},
-		});
-
-		// create X-Axis
 		// await miro.board.widgets.create({
 		// 	type: 'LINE',
 		// 	startPosition: {
@@ -346,14 +287,28 @@ const MatrixApp = () => {
 		// 	},
 		// });
 
+		/*** CREATE AXIS ***/
+		// create Y-Axis
 		await miro.board.createShape({
 			shape: 'rectangle',
-			x: coorOriginX + totalWidgetWidth / 2,
-			y: coorOriginY + (minWidgetPosY - paddingToWidgets - coorOriginY),
-			height: 8,
-			width: totalWidgetWidth,
+			x: coorOriginX,
+			y: coorOriginY + (minWidgetPosY - paddingToWidgets - coorOriginY) / 2 - additionalAxisMatrixOverlapping / 2,
+			height: minWidgetPosY - paddingToWidgets - coorOriginY + additionalAxisMatrixOverlapping,
+			width: MATRIX_AXIS_LINE_WIDTH,
 			style: {
-				fillColor: '#000000',
+				fillColor: MATRIX_AXIS_COLOR,
+			},
+		});
+
+		// create X-Axis
+		await miro.board.createShape({
+			shape: 'rectangle',
+			x: coorOriginX + totalWidgetWidth / 2 + additionalAxisMatrixOverlapping / 2,
+			y: coorOriginY + (minWidgetPosY - paddingToWidgets - coorOriginY),
+			height: MATRIX_AXIS_LINE_WIDTH,
+			width: totalWidgetWidth + additionalAxisMatrixOverlapping,
+			style: {
+				fillColor: MATRIX_AXIS_COLOR,
 			},
 		});
 
@@ -363,30 +318,67 @@ const MatrixApp = () => {
 		// -20px is because of the positioning of the label underneith the x-axis
 		await miro.board.createText({
 			x: coorOriginX + totalWidgetWidth / 2,
-			y: coorOriginY + (minWidgetPosY - paddingToWidgets - coorOriginY) + distanceTextToAxis,
-			width: 350,
-			content: inputXAxis,
-			// scale: 1.2857142857142858,
+			y: coorOriginY + (minWidgetPosY - paddingToWidgets - coorOriginY) + distanceAxisLabelTextToAxis,
+			width: 360,
+			content: `<p style="color: ${MATRIX_AXIS_LABEL_COLOR};"><strong>${inputXAxis}</strong></p>`,
 			style: {
-				// bold: 1,
 				textAlign: 'center',
-				fontSize: 64,
+				fontSize: 36,
+				fontFamily: MATRIX_LABELS_FONT_FAMILY,
 			},
 		});
 
 		// Create Y-Axis Label
 		// -180px is because of the position changing caused by the rotation of the label
 		await miro.board.createText({
-			x: coorOriginX - distanceTextToAxis,
+			x: coorOriginX - distanceAxisLabelTextToAxis,
 			y: coorOriginY + totalWidgetHeight / 2,
-			width: 350,
+			width: 360,
 			rotation: -90,
-			content: inputYAxis,
-			// scale: 1.2857142857142858,
+			content: `<p style="color: ${MATRIX_AXIS_LABEL_COLOR};"><strong>${inputYAxis}</strong></p>`,
 			style: {
-				// bold: 1,
 				textAlign: 'center',
-				fontSize: 64,
+				fontSize: 36,
+				fontFamily: MATRIX_LABELS_FONT_FAMILY,
+			},
+		});
+
+		// Create X-Axis High
+		await miro.board.createText({
+			x: coorOriginX - distanceAxisLabelTextToAxis,
+			y: coorOriginY,
+			width: 360,
+			content: `<p style="color: ${MATRIX_AXIS_LABEL_COLOR};"><strong>High</strong></p>`,
+			style: {
+				textAlign: 'center',
+				fontSize: 36,
+				fontFamily: MATRIX_LABELS_FONT_FAMILY,
+			},
+		});
+
+		// Create X-Axis / Y-Axis Low
+		await miro.board.createText({
+			x: coorOriginX - distanceAxisLabelTextToAxis,
+			y: coorOriginY + (minWidgetPosY - paddingToWidgets - coorOriginY) + distanceAxisLabelTextToAxis,
+			width: 360,
+			content: `<p style="color: ${MATRIX_AXIS_LABEL_COLOR};"><strong>Low</strong></p>`,
+			style: {
+				textAlign: 'center',
+				fontSize: 36,
+				fontFamily: MATRIX_LABELS_FONT_FAMILY,
+			},
+		});
+
+		// Create Y-Axis High
+		await miro.board.createText({
+			x: coorOriginX + totalWidgetWidth,
+			y: coorOriginY + (minWidgetPosY - paddingToWidgets - coorOriginY) + distanceAxisLabelTextToAxis,
+			width: 360,
+			content: `<p style="color: ${MATRIX_AXIS_LABEL_COLOR};"><strong>High</strong></p>`,
+			style: {
+				textAlign: 'center',
+				fontSize: 36,
+				fontFamily: MATRIX_LABELS_FONT_FAMILY,
 			},
 		});
 
@@ -508,11 +500,12 @@ const MatrixApp = () => {
 			y: quarter.centerPoint.y,
 			height: Math.abs(quarter.height),
 			width: Math.abs(quarter.width),
-			content: quarter.content,
+			content: `<p style="color: ${MATRIX_CATEGORY_QUARTER_CONTENT_COLOR};">${quarter.content}</p>`,
 			style: {
 				fillColor: quarter.contentColor,
 				textAlign: 'center',
 				fontSize: 48,
+				fontFamily: { MATRIX_LABELS_FONT_FAMILY },
 			},
 		});
 
@@ -536,7 +529,7 @@ const MatrixApp = () => {
 					centerPoint: { x: minCoorPosX + totalWidgetWidth * 0.75, y: minCoorPosY + totalWidgetHeight / 4 },
 					width: totalWidgetWidth / 2,
 					height: totalWidgetHeight / 2,
-					content: 'Strategisch',
+					content: 'Strategic',
 					contentColor: MATRIX_QUARTER_CATEGORIES.TOP_RIGHT.color,
 				};
 				const bottomLeftQuarterData: MatrixQuarterData = {
@@ -550,7 +543,7 @@ const MatrixApp = () => {
 					centerPoint: { x: minCoorPosX + totalWidgetWidth * 0.75, y: minCoorPosY + totalWidgetHeight * 0.75 },
 					width: totalWidgetWidth / 2,
 					height: totalWidgetHeight / 2,
-					content: 'Fokus',
+					content: 'Focus',
 					contentColor: MATRIX_QUARTER_CATEGORIES.BOTTOM_RIGHT.color,
 				};
 
@@ -709,9 +702,10 @@ const MatrixApp = () => {
 				width: categoryListElementWidth,
 				// height is read-only, is calculated automatically based on content and font size
 				// element.text = "<p>...</p>" -> to add number in front without line break,"<p>" must be removed
-				content: '<p>PRIORITÄTEN LISTE</p>',
+				content: `<p style="color: ${MATRIX_PRIORITY_LIST_TITLE_COLOR};"><strong>PRIORITY LIST</strong></p>`,
 				style: {
 					fontSize: 92,
+					fontFamily: { MATRIX_LABELS_FONT_FAMILY },
 				},
 			});
 			categorizedListTitle.y = minCoorPosY + categorizedListTitle.height / 2;
@@ -726,10 +720,13 @@ const MatrixApp = () => {
 					width: categoryListElementWidth,
 					// height is read-only, is calculated automatically based on content and font size
 					// element.text = "<p>...</p>" -> to add number in front without line break,"<p>" must be removed
-					content: `<p>${(index + 1).toString()}. ${element.text.replace('<p>', '')}</p>`,
+					content: `<p style="color: ${MATRIX_PRIORITY_LIST_ITEMS_COLOR};">${(
+						index + 1
+					).toString()}. ${element.text.replace('<p>', '')}</p>`,
 					style: {
 						fontSize: 72,
 						fillColor: element.category.color,
+						fontFamily: MATRIX_LABELS_FONT_FAMILY,
 					},
 				});
 				textWidget.y =
