@@ -1,6 +1,6 @@
 import { StickyNote } from '@mirohq/websdk-types';
 import React from 'react';
-import { appContainer, h3Style } from '../app';
+import styles from '../../index.module.scss';
 
 const GlobalFilteringAppFunctionDemo = () => {
 	let searchedWidget: StickyNote | undefined = undefined;
@@ -46,11 +46,17 @@ const GlobalFilteringAppFunctionDemo = () => {
 		}
 	};
 	return (
-		<div style={appContainer}>
-			<div style={h3Style}>FILTERING RE-POSITIONING WORKAROUND DEMO</div>
-			<button onClick={() => createElement()}>CREATE</button>
-			<button onClick={() => deleteElement()}>DELETE</button>
-			<button onClick={() => restoreElement()}>RESTORE</button>
+		<div className={styles.appContainer}>
+			<div className={styles.h3Style}>FILTERING RE-POSITIONING WORKAROUND DEMO</div>
+			<button className={styles.buttonStyle} onClick={() => createElement()}>
+				CREATE
+			</button>
+			<button className={styles.buttonStyle} onClick={() => deleteElement()}>
+				DELETE
+			</button>
+			<button className={styles.buttonStyle} onClick={() => restoreElement()}>
+				RESTORE
+			</button>
 		</div>
 	);
 };

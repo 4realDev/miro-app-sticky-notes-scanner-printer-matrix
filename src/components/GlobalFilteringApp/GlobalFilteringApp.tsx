@@ -1,6 +1,6 @@
 import { Tag } from '@mirohq/websdk-types';
 import React, { useEffect, useState } from 'react';
-import { appContainer, h3Style, inputContainer, inputStyle, labelStyle } from '../app';
+import styles from '../../index.module.scss';
 const miro = window.miro;
 
 type WidgetPositionStorage = {
@@ -225,10 +225,10 @@ const GlobalFilteringApp = () => {
 	};
 
 	return (
-		<div style={appContainer}>
-			<h3 style={h3Style}>FILTER FUNCTION</h3>
-			<div style={inputContainer}>
-				<label style={labelStyle}>Tag: </label>
+		<div className={styles.appContainer}>
+			<h3 className={styles.h3Style}>FILTER FUNCTION</h3>
+			<div className={styles.inputContainer}>
+				<label className={styles.labelStyle}>Tag: </label>
 				<div
 					style={{
 						display: 'flex',
@@ -240,7 +240,7 @@ const GlobalFilteringApp = () => {
 					}}
 				>
 					<select
-						style={inputStyle}
+						className={styles.inputStyle}
 						onChange={(event) => setCurrentSelectedTag(event.target.value)}
 						value={currentSelectedTag}
 					>

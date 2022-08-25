@@ -1,0 +1,27 @@
+.MuiTabs-root {
+    background: white;
+    font-size: 0.875rem;
+	line-height: 1.125rem;
+	border-radius: 3px;
+    margin-bottom: 16px;
+}
+
+.MuiTab-root {
+    color: black !important;
+    font-weight: 700 !important;
+	text-transform: uppercase;
+	text-align: center;
+	font-family: sans-serif;
+	font-stretch: normal;
+	font-style: normal;
+	letter-spacing: normal;
+}
+
+.MuiTabs-flexContainer {
+    border-bottom: 2px solid #dee2e6;
+}
+
+.MuiTabs-indicator {
+    background-color: #459fd8 !important;
+    height: 2px !important;
+}

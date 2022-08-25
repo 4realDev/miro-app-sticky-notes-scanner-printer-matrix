@@ -1,11 +1,15 @@
 // server: https://brazhnik.de/miro-app-poc/
 
-import React from 'react';
+import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import CSS from 'csstype';
-import MatrixApp from './components/MatrixApp';
-import GlobalFilteringApp from './components/GlobalFilteringApp';
-
+import MatrixApp from './components/MatrixApp/MatrixApp';
+import GlobalFilteringApp from './components/GlobalFilteringApp/GlobalFilteringApp';
+import SwipeableViews from 'react-swipeable-views';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
+import GlobalFilteringAppFunctionDemo from './components/GlobalFilteringAppFunctionDemo/GlobalFilteringAppFunctionDemo';
+import './app.scss';
 // interface ITag {
 // 	id: string;
 // 	title: string;
@@ -30,94 +34,85 @@ import GlobalFilteringApp from './components/GlobalFilteringApp';
 // 	// await miro.board.viewport.zoomToObject(sticker);
 // }
 
-export const buttonStyle: CSS.Properties = {
-	fontSize: '0.875rem',
-	lineHeight: '1.125rem',
-	borderRadius: '3px',
-	border: '1px solid transparent',
-	fontWeight: '700',
-	textTransform: 'uppercase',
-	padding: '8px 16px',
-	textAlign: 'center',
-	backgroundColor: '#459fd8',
-	color: '#fff',
-	fontFamily: 'Inter,sans-serif',
-	fontStretch: 'normal',
-	fontStyle: 'normal',
-	letterSpacing: 'normal',
-	marginTop: '16px',
-	marginBottom: '4px',
-	width: '100%',
+interface TabPanelProps {
+	children?: React.ReactNode;
+	index: number;
+	value: number;
+}
+
+const TabPanel = (props: TabPanelProps) => {
+	const { children, value, index, ...other } = props;
+
+	return (
+		<div
+			role='tabpanel'
+			hidden={value !== index}
+			id={`full-width-tabpanel-${index}`}
+			aria-labelledby={`full-width-tab-${index}`}
+			{...other}
+		>
+			{value === index &&
+				// <Box sx={{ p: 3 }}>
+				// 	<Typography>{children}</Typography>
+				// </Box>
+				children}
+		</div>
+	);
 };
 
-export const inputStyle: CSS.Properties = {
-	fontSize: '0.875rem',
-	lineHeight: '1.125rem',
-	borderRadius: '3px',
-	border: '1px solid transparent',
-	outline: '2px solid #459fd8',
-	fontWeight: '500',
-	padding: '8px 16px',
-	textAlign: 'left',
-	backgroundColor: '#fff',
-	color: '#000',
-	fontFamily: 'Inter,sans-serif',
-	fontStretch: 'normal',
-	fontStyle: 'normal',
-	letterSpacing: 'normal',
-	width: ' 100%',
-};
-
-export const inputContainer: CSS.Properties = {
-	display: 'flex',
-	justifyContent: 'center',
-	flexDirection: 'column',
-	marginBottom: '8px',
-	height: 'auto',
-};
-
-export const h1Style: CSS.Properties = {
-	fontSize: '1.8rem',
-	fontWeight: '700',
-	fontFamily: 'Inter,sans-serif',
-	fontStretch: 'normal',
-	fontStyle: 'normal',
-	letterSpacing: 'normal',
-	marginTop: '0px',
-	paddingTop: '0px',
-};
-
-export const h3Style: CSS.Properties = {
-	fontSize: '1.2rem',
-	fontWeight: '500',
-	fontFamily: 'Inter,sans-serif',
-	fontStretch: 'normal',
-	fontStyle: 'normal',
-	letterSpacing: 'normal',
-	marginTop: '0px',
-	paddingTop: '0px',
-	marginBottom: '8px',
-};
-
-export const labelStyle: CSS.Properties = {
-	marginBottom: '8px',
-	fontSize: '14px',
-	fontWeight: '600',
-};
-
-export const appContainer: CSS.Properties = {
-	marginBottom: '42px',
-};
+function a11yProps(index: number) {
+	return {
+		id: `full-width-tab-${index}`,
+		'aria-controls': `full-width-tabpanel-${index}`,
+	};
+}
 
 const App = () => {
 	// const [counter, updateCounter] = useState(0);
 	// return <h1>Counter: {counter}</h1>;
+
+	const [value, setValue] = React.useState(0);
+
+	const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+		setValue(newValue);
+	};
+
+	const handleChangeIndex = (index: number) => {
+		setValue(index);
+	};
+
 	return (
 		<div>
+			<Tabs
+				value={value}
+				onChange={handleChange}
+				indicatorColor='secondary'
+				textColor='inherit'
+				variant='fullWidth'
+				aria-label='full width tabs example'
+			>
+				<Tab label='Matrix App' {...a11yProps(0)} />
+				<Tab label='Filtering Demo' {...a11yProps(1)} />
+				<Tab label='Filtering App' {...a11yProps(2)} />
+			</Tabs>
+			<SwipeableViews axis='x' index={value} onChangeIndex={handleChangeIndex}>
+				<TabPanel value={value} index={0}>
+					<div style={{ padding: 8 + 'px' }}>
+						<MatrixApp />
+					</div>
+				</TabPanel>
+				<TabPanel value={value} index={1}>
+					<div style={{ padding: 8 + 'px' }}>
+						<GlobalFilteringAppFunctionDemo />
+					</div>
+				</TabPanel>
+				<TabPanel value={value} index={2}>
+					<div style={{ padding: 8 + 'px' }}>
+						<GlobalFilteringApp />
+					</div>
+				</TabPanel>
+			</SwipeableViews>
 			{/* <FilteringApp /> */}
-			{/* <GlobalFilteringFunctionDemo /> */}
-			{/* <GlobalFilteringApp /> */}
-			<MatrixApp />
 		</div>
 	);
 

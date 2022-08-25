@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { SDK } from '../../typings/miro';
-import { appContainer, h3Style, inputContainer, inputStyle } from '../app';
+import { appContainer, h3Style, inputContainer, inputStyle } from '../../app';
 const miro = window.miro;
 
 const FilteringAppSDK1 = () => {

@@ -1,6 +1,7 @@
 import { FontFamily, Item, Shape, Tag, Text } from '@mirohq/websdk-types';
 import React, { useEffect, useState } from 'react'; // react is needed for Miro
-import { h3Style, inputContainer, inputStyle, buttonStyle, appContainer, labelStyle } from '../app';
+// import styles from './MatrixApp.module.scss';
+import styles from '../../index.module.scss';
 const miro = window.miro;
 
 type NumericTaggedWidget = {
@@ -505,7 +506,7 @@ const MatrixApp = () => {
 				fillColor: quarter.contentColor,
 				textAlign: 'center',
 				fontSize: 48,
-				fontFamily: { MATRIX_LABELS_FONT_FAMILY },
+				fontFamily: MATRIX_LABELS_FONT_FAMILY,
 			},
 		});
 
@@ -705,7 +706,7 @@ const MatrixApp = () => {
 				content: `<p style="color: ${MATRIX_PRIORITY_LIST_TITLE_COLOR};"><strong>PRIORITY LIST</strong></p>`,
 				style: {
 					fontSize: 92,
-					fontFamily: { MATRIX_LABELS_FONT_FAMILY },
+					fontFamily: MATRIX_LABELS_FONT_FAMILY,
 				},
 			});
 			categorizedListTitle.y = minCoorPosY + categorizedListTitle.height / 2;
@@ -755,24 +756,24 @@ const MatrixApp = () => {
 	};
 
 	return (
-		<div style={appContainer}>
-			<h3 style={h3Style}>CREATE MATRIX</h3>
-			<div style={inputContainer}>
-				<label style={labelStyle}>x-Axis: </label>
-				<input style={inputStyle} value={inputXAxis} onChange={(e) => setInputXAxis(e.target.value)} />
+		<div className={styles.appContainer}>
+			<h3 className={styles.h3Style}>CREATE MATRIX</h3>
+			<div className={styles.inputContainer}>
+				<label className={styles.labelStyle}>x-Axis: </label>
+				<input className={styles.inputStyle} value={inputXAxis} onChange={(e) => setInputXAxis(e.target.value)} />
 			</div>
-			<div style={inputContainer}>
-				<label style={labelStyle}>y-Axis: </label>
-				<input style={inputStyle} value={inputYAxis} onChange={(e) => setInputYAxis(e.target.value)} />
+			<div className={styles.inputContainer}>
+				<label className={styles.labelStyle}>y-Axis: </label>
+				<input className={styles.inputStyle} value={inputYAxis} onChange={(e) => setInputYAxis(e.target.value)} />
 			</div>
-			<button style={buttonStyle} onClick={() => setupMatrixAndWidgets()}>
+			<button className={styles.buttonStyle} onClick={() => setupMatrixAndWidgets()}>
 				Setup Matrix
 			</button>
-			<button style={buttonStyle} onClick={() => sortMatrixAndWidgets()}>
+			<button className={styles.buttonStyle} onClick={() => sortMatrixAndWidgets()}>
 				Sort Matrix
 			</button>
 			{/* <div>
-				<label style={labelStyle}>Show Matrix Categories</label>
+				<label className={labelStyle}>Show Matrix Categories</label>
 				<input
 					type='checkbox'
 					id='showCategorizationOfMatrix'
@@ -781,15 +782,15 @@ const MatrixApp = () => {
 					onChange={() => setShowCategorization(!showCategorization)}
 				/>
 			</div> */}
-			<button style={buttonStyle} onClick={() => setShowCategorization(!showCategorization)}>
+			<button className={styles.buttonStyle} onClick={() => setShowCategorization(!showCategorization)}>
 				Show Matrix Categories
 			</button>
-			<button style={buttonStyle} onClick={() => createCategorizedList()}>
+			<button className={styles.buttonStyle} onClick={() => createCategorizedList()}>
 				Create List
 			</button>
 			<br />
 			<br />
-			<button style={buttonStyle} onClick={() => consoleLogSelection()}>
+			<button className={styles.buttonStyle} onClick={() => consoleLogSelection()}>
 				Log Selection
 			</button>
 		</div>
