@@ -1,29 +1,20 @@
-import { Tag } from '@mirohq/websdk-types';
+import { Item, Tag } from '@mirohq/websdk-types';
 import React, { useEffect, useState } from 'react';
 import styles from '../../index.module.scss';
 const miro = window.miro;
 
-type WidgetPositionStorage = {
-	id: string;
-	x: number;
-	y: number;
-};
-
-const GlobalFilteringApp = () => {
+const GlobalFilteringAppThroughForeground = () => {
 	// https://medium.com/geographit/accessing-react-state-in-event-listeners-with-usestate-and-useref-hooks-8cceee73c559
 	const [tagWidgets, _setTagWidgets] = useState(true);
 	const [currentSelectedTag, setCurrentSelectedTag] = useState('all');
 	const tagWidgetsRef = React.useRef(tagWidgets);
 	// const [widgetBackup, setWidgetBackup] = useState<Item[]>([]);
 	const [allTags, setAllTags] = useState<Tag[]>([]);
+	const [filteredWidgets, setFilteredWidgets] = useState<Item[]>([]);
 	const setTagWidgets = (data: boolean) => {
 		tagWidgetsRef.current = data;
 		_setTagWidgets(data);
 	};
-
-	const [widgetPositionStorage, setWidgetPositionStorage] = useState<WidgetPositionStorage[]>([]);
-	const removedWidgetX = 9999;
-	const removedWidgetY = 9999;
 
 	const isNumeric = (str: string) => {
 		return !isNaN(parseFloat(str)); // ...and ensure strings of whitespace fail
@@ -34,16 +25,6 @@ const GlobalFilteringApp = () => {
 		else if (selectedTag === 'withTag') filterByTagExistence(true);
 		else if (selectedTag === 'withoutTag') filterByTagExistence(false);
 		else filterByTagName(selectedTag);
-
-		// else {
-		// 	allTags.every((tag) => {
-		// 		if (tag.title === selectedTag) {
-		// 			filterByTagName(tag.title);
-		// 			return false;
-		// 		}
-		// 		return true;
-		// 	});
-		// }
 	};
 
 	// TODO: Add dynamical update of selection box
@@ -53,85 +34,8 @@ const GlobalFilteringApp = () => {
 
 	useEffect(() => {
 		console.log('app first init');
-		// init();
 		getAllTags();
-		// setListener();
 	}, []);
-
-	// useEffect(() => {
-	// 	init();
-	// 	console.log('APP INITIATED');
-	// 	miro.addListener('WIDGETS_CREATED', (widget) => {
-	// 		// Stickers and card widgets can be tagged. These tags can be read and modified using the Miro SDK.
-	// 		console.log(widget);
-	// 		// miro.board.tags.create({ title: 'Red tag', color: '#F24726', widgetIds: [widget.data] });
-	// 	});
-	// }, []);
-
-	// const setListener = () => {
-	// 	window.miro.addListener('WIDGETS_CREATED', (widget) => {
-	// 		// Stickers and card widgets can be tagged. These tags can be read and modified using the Miro SDK.
-	// 		console.log('WIDGET CREATED LISTENER CALLED');
-	// 		console.log(widget);
-	// 		console.log(widget.data[0].id);
-	// 		console.log('!!!', tagWidgets);
-	// 		if (tagWidgetsRef.current === true) {
-	// 			addTag(widget);
-	// 		}
-	// 	});
-	// 	// miro.addListener('SELECTION_UPDATED', (widget) => {
-	// 	// 	console.log('SELECTION UPDATED LISTENER CALLED');
-	// 	// 	console.log(widget);
-	// 	// 	updateCounter((counter) => counter + 1);
-	// 	// 	console.log('selection updated triggered');
-	// 	// 	console.log(counter);
-	// 	// });
-	// 	// miro.addListener('WIDGETS_DELETED', (widget) => {
-	// 	// 	// Stickers and card widgets can be tagged. These tags can be read and modified using the Miro SDK.
-	// 	// 	console.log('WIDGET DELETED LISTENER CALLED');
-	// 	// 	console.log(widget);
-	// 	// });
-	// };
-
-	// const stringToColour = (str: string) => {
-	// 	var hash = 0;
-	// 	for (var i = 0; i < str.length; i++) {
-	// 		hash = str.charCodeAt(i) + ((hash << 5) - hash);
-	// 	}
-	// 	var colour = '#';
-	// 	for (var i = 0; i < 3; i++) {
-	// 		var value = (hash >> (i * 8)) & 0xff;
-	// 		colour += ('00' + value.toString(16)).substr(-2);
-	// 	}
-	// 	return colour;
-	// };
-
-	// const addTag = async (widget: any) => {
-	// 	console.log('!!! ADD TAG CALLED');
-	// 	miro;
-	// 	const boardInfo = await miro.board.info.get();
-	// 	const lastModifyingUser = boardInfo.lastModifyingUser;
-
-	// 	// Automatically creates the wanted tag with users name,
-	// 	// individuel mapped color and widgetIds of the widget which was created,
-	// 	// to add it correctly in the new created widget inside "add tag" menu toolbar
-	// 	miro.board.tags.create({
-	// 		title: lastModifyingUser.name,
-	// 		color: stringToColour(lastModifyingUser.id),
-	// 		widgetIds: widget.data[0].id,
-	// 	});
-
-	// 	// Get the newest created tag
-	// 	const userTag = await miro.board.tags.get({
-	// 		title: lastModifyingUser.name,
-	// 	});
-
-	// 	// Add it to the new created widget
-	// 	userTag[0].widgetIds.push(widget.data[0].id);
-
-	// 	// Update tag to apply changes
-	// 	miro.board.tags.update(userTag);
-	// };
 
 	// if widgetHasTagFilter === true, remove all widgets without tag and show only widgets with tag
 	// if widgetHasTagFilter === false, remove all widgets with tag and show only widgets without tag
@@ -142,7 +46,8 @@ const GlobalFilteringApp = () => {
 
 		await filterReset();
 
-		allWidgets.forEach((widget) => {
+		let filteredWidgets: Item[] = [];
+		for await (const widget of allWidgets) {
 			if (widget.type === 'sticky_note' || widget.type === 'card') {
 				// check if widget has any tags
 				if (widget.tagIds.length === 0) widgetHasTag = false;
@@ -151,23 +56,13 @@ const GlobalFilteringApp = () => {
 				// check if widget tag existence does not match filter criteria
 				// if so, hide this widget
 				if (widgetHasTag !== widgetHasTagFilter) {
-					if (widgetPositionStorage.find((widgetData) => widgetData.id === widget.id) === undefined) {
-						setWidgetPositionStorage((previousState) => [
-							...previousState,
-							{ id: widget.id, x: widget.x, y: widget.y },
-						]);
-					}
-
-					// hide widget by moving it to position not visible for user
-					widget.x = removedWidgetX;
-					widget.y = removedWidgetY;
-					widget.sync(); // update all widgets to make changes visible on miro board
+					await miro.board.sendToBack(widget);
+					filteredWidgets.push(widget);
 				}
 			}
-		});
+		}
+		setFilteredWidgets(filteredWidgets);
 	};
-
-	console.log(widgetPositionStorage);
 
 	const filterByTagName = async (filterByTagName: string) => {
 		// Locally hide specific stickers according to provided filters
@@ -176,7 +71,8 @@ const GlobalFilteringApp = () => {
 
 		await filterReset();
 
-		allWidgets.forEach((widget) => {
+		let filteredWidgets: Item[] = [];
+		for await (const widget of allWidgets) {
 			if (widget.type === 'sticky_note' || widget.type === 'card') {
 				// reset array for every widget
 				let widgetTagNameArray: Tag[] = [];
@@ -189,20 +85,12 @@ const GlobalFilteringApp = () => {
 
 				// if filterByTagName string does not exist in widget tags, hide widget
 				if (!widgetTagNameArray.some((widgetTag) => widgetTag.title === filterByTagName)) {
-					if (widgetPositionStorage.find((widgetData) => widgetData.id === widget.id) === undefined) {
-						setWidgetPositionStorage((previousState) => [
-							...previousState,
-							{ id: widget.id, x: widget.x, y: widget.y },
-						]);
-					}
-
-					// hide widget by moving it to position not visible for user
-					widget.x = removedWidgetX;
-					widget.y = removedWidgetY;
-					widget.sync(); // update all widgets to make changes visible on miro board
+					await miro.board.sendToBack(widget);
+					filteredWidgets.push(widget);
 				}
 			}
-		});
+		}
+		setFilteredWidgets(filteredWidgets);
 	};
 
 	const filterReset = async () => {
@@ -221,17 +109,10 @@ const GlobalFilteringApp = () => {
 		// 	})
 		// );
 
-		for await (const widgetPositionStorageData of widgetPositionStorage) {
-			const widgetToRestore = await miro.board.getById(widgetPositionStorageData.id);
-			if ((widgetToRestore && widgetToRestore.type === 'sticky_note') || widgetToRestore.type === 'card') {
-				widgetToRestore.x = widgetPositionStorageData.x;
-				widgetToRestore.y = widgetPositionStorageData.y;
-			}
-			widgetToRestore.sync();
+		for await (const filteredWidget of filteredWidgets) {
+			await miro.board.bringToFront(filteredWidget);
+			filteredWidget.sync();
 		}
-
-		// TODO: Find way to reset the array without buggy behavior
-		// setWidgetPositionStorage([]);
 	};
 
 	return (
@@ -289,18 +170,8 @@ const GlobalFilteringApp = () => {
 					</button>
 				</div>
 			</div>
-			{/* <div>
-				<label style={labelStyle}>Tag Widgets with User Name</label>
-				<input
-					type='checkbox'
-					id='tagWidgets'
-					name='tagWidgets'
-					checked={tagWidgets}
-					onChange={() => setTagWidgets(!tagWidgets)}
-				/>
-			</div> */}
 		</div>
 	);
 };
 
-export default GlobalFilteringApp;
+export default GlobalFilteringAppThroughForeground;

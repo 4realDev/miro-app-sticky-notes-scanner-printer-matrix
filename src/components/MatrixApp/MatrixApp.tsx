@@ -80,6 +80,7 @@ const MatrixApp = () => {
 
 	const [matrixCategoryList, setMatrixCategoryList] = useState<MatrixCategoryListElement[] | undefined>(undefined);
 	const [matrixCategoryListWidgets, setMatrixCategoryListWidgets] = useState<Text[] | undefined>(undefined);
+	const [matrixCoordinateSystemWidgets, setMatrixCoordinateSystemWidgets] = useState<Item[] | undefined>(undefined);
 
 	useEffect(() => {
 		showCategorizationOfMatrix(showCategorization);
@@ -288,9 +289,17 @@ const MatrixApp = () => {
 		// 	},
 		// });
 
+		// Delete already existing matrixCoordinateSystem before new coordinateSystem is created
+		if (matrixCoordinateSystemWidgets && matrixCoordinateSystemWidgets.length !== 0) {
+			console.log('IS TRUE');
+			matrixCoordinateSystemWidgets.forEach(async (widget) => {
+				widget && (await miro.board.remove(widget));
+			});
+		}
+
 		/*** CREATE AXIS ***/
 		// create Y-Axis
-		await miro.board.createShape({
+		const yAxis = await miro.board.createShape({
 			shape: 'rectangle',
 			x: coorOriginX,
 			y: coorOriginY + (minWidgetPosY - paddingToWidgets - coorOriginY) / 2 - additionalAxisMatrixOverlapping / 2,
@@ -302,7 +311,7 @@ const MatrixApp = () => {
 		});
 
 		// create X-Axis
-		await miro.board.createShape({
+		const xAxis = await miro.board.createShape({
 			shape: 'rectangle',
 			x: coorOriginX + totalWidgetWidth / 2 + additionalAxisMatrixOverlapping / 2,
 			y: coorOriginY + (minWidgetPosY - paddingToWidgets - coorOriginY),
@@ -317,7 +326,7 @@ const MatrixApp = () => {
 		// Create X-Axis Label
 		// https://developers.miro.com/reference/text
 		// -20px is because of the positioning of the label underneith the x-axis
-		await miro.board.createText({
+		const xAxisLabel = await miro.board.createText({
 			x: coorOriginX + totalWidgetWidth / 2,
 			y: coorOriginY + (minWidgetPosY - paddingToWidgets - coorOriginY) + distanceAxisLabelTextToAxis,
 			width: 360,
@@ -331,7 +340,7 @@ const MatrixApp = () => {
 
 		// Create Y-Axis Label
 		// -180px is because of the position changing caused by the rotation of the label
-		await miro.board.createText({
+		const yAxisLabel = await miro.board.createText({
 			x: coorOriginX - distanceAxisLabelTextToAxis,
 			y: coorOriginY + totalWidgetHeight / 2,
 			width: 360,
@@ -345,7 +354,7 @@ const MatrixApp = () => {
 		});
 
 		// Create X-Axis High
-		await miro.board.createText({
+		const xAxisHighText = await miro.board.createText({
 			x: coorOriginX - distanceAxisLabelTextToAxis,
 			y: coorOriginY,
 			width: 360,
@@ -358,7 +367,7 @@ const MatrixApp = () => {
 		});
 
 		// Create X-Axis / Y-Axis Low
-		await miro.board.createText({
+		const xyAxisLowText = await miro.board.createText({
 			x: coorOriginX - distanceAxisLabelTextToAxis,
 			y: coorOriginY + (minWidgetPosY - paddingToWidgets - coorOriginY) + distanceAxisLabelTextToAxis,
 			width: 360,
@@ -371,7 +380,7 @@ const MatrixApp = () => {
 		});
 
 		// Create Y-Axis High
-		await miro.board.createText({
+		const yAxisHighText = await miro.board.createText({
 			x: coorOriginX + totalWidgetWidth,
 			y: coorOriginY + (minWidgetPosY - paddingToWidgets - coorOriginY) + distanceAxisLabelTextToAxis,
 			width: 360,
@@ -393,6 +402,16 @@ const MatrixApp = () => {
 			padding: { top: 100, bottom: 400, left: 550, right: 100 },
 			animationDurationInMs: 200,
 		});
+
+		setMatrixCoordinateSystemWidgets([
+			xAxis,
+			yAxis,
+			xAxisLabel,
+			yAxisLabel,
+			xAxisHighText,
+			xyAxisLowText,
+			yAxisHighText,
+		]);
 
 		return [coorOriginX, coorOriginY];
 	};
@@ -486,11 +505,6 @@ const MatrixApp = () => {
 				fillColor: color,
 			},
 		});
-	};
-
-	const consoleLogSelection = async () => {
-		const selection = await miro.board.getSelection();
-		console.log(selection);
 	};
 
 	const drawCategoryQuarter = async (quarter: MatrixQuarterData) => {
@@ -753,6 +767,11 @@ const MatrixApp = () => {
 
 			setMatrixCategoryListWidgets(categoryListWidgets);
 		}
+	};
+
+	const consoleLogSelection = async () => {
+		const selection = await miro.board.getSelection();
+		console.log(selection);
 	};
 
 	return (

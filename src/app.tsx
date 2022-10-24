@@ -10,6 +10,7 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import GlobalFilteringAppFunctionDemo from './components/GlobalFilteringAppFunctionDemo/GlobalFilteringAppFunctionDemo';
 import './app.scss';
+import GlobalFilteringAppThroughForeground from './components/GlobalFilteringAppThroughForeground/GlobalFilteringAppThroughForeground';
 // interface ITag {
 // 	id: string;
 // 	title: string;
@@ -92,8 +93,9 @@ const App = () => {
 				aria-label='full width tabs example'
 			>
 				<Tab label='Matrix App' {...a11yProps(0)} />
-				<Tab label='Filtering Demo' {...a11yProps(1)} />
-				<Tab label='Filtering App' {...a11yProps(2)} />
+				{/* <Tab label='Filtering Demo' {...a11yProps(1)} /> */}
+				<Tab label='Filtering App' {...a11yProps(1)} />
+				<Tab label='Filtering App z-Index' {...a11yProps(2)} />
 			</Tabs>
 			<SwipeableViews axis='x' index={value} onChangeIndex={handleChangeIndex}>
 				<TabPanel value={value} index={0}>
@@ -101,14 +103,19 @@ const App = () => {
 						<MatrixApp />
 					</div>
 				</TabPanel>
-				<TabPanel value={value} index={1}>
+				{/* <TabPanel value={value} index={1}>
 					<div style={{ padding: 8 + 'px' }}>
 						<GlobalFilteringAppFunctionDemo />
+					</div>
+				</TabPanel> */}
+				<TabPanel value={value} index={1}>
+					<div style={{ padding: 8 + 'px' }}>
+						<GlobalFilteringApp />
 					</div>
 				</TabPanel>
 				<TabPanel value={value} index={2}>
 					<div style={{ padding: 8 + 'px' }}>
-						<GlobalFilteringApp />
+						<GlobalFilteringAppThroughForeground />
 					</div>
 				</TabPanel>
 			</SwipeableViews>
