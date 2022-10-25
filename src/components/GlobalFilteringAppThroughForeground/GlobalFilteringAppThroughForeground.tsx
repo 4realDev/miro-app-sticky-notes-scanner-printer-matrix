@@ -32,6 +32,30 @@ const GlobalFilteringAppThroughForeground = () => {
 		setAllTags(await miro.board.get({ type: 'tag' }));
 	};
 
+	const drawBackground = async (selection: Item[]) => {
+		// const selection = await miro.board.getSelection();
+		const minX = Math.min.apply(null,selection.map((widget) => widget.x)); // prettier-ignore
+		const maxX = Math.max.apply(null,selection.map((widget) => widget.x)); // prettier-ignore
+		const minY = Math.min.apply(null,selection.map((widget) => widget.y)); // prettier-ignore
+		const maxY = Math.max.apply(null,selection.map((widget) => widget.y)); // prettier-ignore
+		const maxHeight = Math.max.apply(null,selection.map((widget) => widget.height)); // prettier-ignore
+		const maxWidth = Math.max.apply(null,selection.map((widget) => widget.width)); // prettier-ignore
+
+		const background = await miro.board.createShape({
+			shape: 'rectangle',
+			x: minX + (maxX - minX) / 2,
+			y: minY + (maxY - minY) / 2,
+			height: maxY - minY + maxHeight,
+			width: maxX - minX + maxWidth,
+			style: {
+				fillColor: '#ffffff',
+			},
+		});
+
+		miro.board.sendToBack(background);
+		background.sync();
+	};
+
 	useEffect(() => {
 		console.log('app first init');
 		getAllTags();
@@ -41,13 +65,14 @@ const GlobalFilteringAppThroughForeground = () => {
 	// if widgetHasTagFilter === false, remove all widgets with tag and show only widgets without tag
 	const filterByTagExistence = async (widgetHasTagFilter: boolean) => {
 		// Locally hide specific stickers according to provided filters
-		const allWidgets = await miro.board.get({ type: ['sticky_note', 'card'] });
+		// const allWidgets = await miro.board.get({ type: ['sticky_note', 'card'] });
+		const selection = await miro.board.getSelection();
 		let widgetHasTag: boolean = false;
 
 		await filterReset();
 
 		let filteredWidgets: Item[] = [];
-		for await (const widget of allWidgets) {
+		for await (const widget of selection) {
 			if (widget.type === 'sticky_note' || widget.type === 'card') {
 				// check if widget has any tags
 				if (widget.tagIds.length === 0) widgetHasTag = false;
@@ -61,18 +86,20 @@ const GlobalFilteringAppThroughForeground = () => {
 				}
 			}
 		}
+		await drawBackground(selection);
 		setFilteredWidgets(filteredWidgets);
 	};
 
 	const filterByTagName = async (filterByTagName: string) => {
 		// Locally hide specific stickers according to provided filters
-		const allWidgets = await miro.board.get({ type: ['sticky_note', 'card'] });
+		// const allWidgets = await miro.board.get({ type: ['sticky_note', 'card'] });
+		const selection = await miro.board.getSelection();
 		const allTags = await miro.board.get({ type: 'tag' });
 
 		await filterReset();
 
 		let filteredWidgets: Item[] = [];
-		for await (const widget of allWidgets) {
+		for await (const widget of selection) {
 			if (widget.type === 'sticky_note' || widget.type === 'card') {
 				// reset array for every widget
 				let widgetTagNameArray: Tag[] = [];
@@ -90,6 +117,7 @@ const GlobalFilteringAppThroughForeground = () => {
 				}
 			}
 		}
+		await drawBackground(selection);
 		setFilteredWidgets(filteredWidgets);
 	};
 
@@ -118,8 +146,13 @@ const GlobalFilteringAppThroughForeground = () => {
 	return (
 		<div className={styles.appContainer}>
 			<h3 className={styles.h3Style}>FILTER FUNCTION</h3>
+			{/* <button className={styles.buttonStyle} onClick={() => drawBackground()}>
+				Create filter background
+			</button>
+			<br />
+			<br /> */}
 			<div className={styles.inputContainer}>
-				<label className={styles.labelStyle}>Tag: </label>
+				<label className={styles.labelStyle}>Show only widgets: </label>
 				<div
 					style={{
 						display: 'flex',
