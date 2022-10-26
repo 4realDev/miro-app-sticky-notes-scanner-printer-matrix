@@ -11,6 +11,7 @@ import Tab from '@mui/material/Tab';
 import GlobalFilteringAppFunctionDemo from './components/GlobalFilteringAppFunctionDemo/GlobalFilteringAppFunctionDemo';
 import './app.scss';
 import GlobalFilteringAppThroughForeground from './components/GlobalFilteringAppThroughForeground/GlobalFilteringAppThroughForeground';
+import MatrixAppGroup from './components/MatrixAppGroups/MatrixAppGroups';
 // interface ITag {
 // 	id: string;
 // 	title: string;
@@ -100,7 +101,7 @@ const App = () => {
 			<SwipeableViews axis='x' index={value} onChangeIndex={handleChangeIndex}>
 				<TabPanel value={value} index={0}>
 					<div style={{ padding: 8 + 'px' }}>
-						<MatrixApp />
+						<MatrixAppGroup />
 					</div>
 				</TabPanel>
 				{/* <TabPanel value={value} index={1}>

@@ -11,6 +11,8 @@ const GlobalFilteringAppThroughForeground = () => {
 	// const [widgetBackup, setWidgetBackup] = useState<Item[]>([]);
 	const [allTags, setAllTags] = useState<Tag[]>([]);
 	const [filteredWidgets, setFilteredWidgets] = useState<Item[]>([]);
+	const [backgroundRectWidgets, setbackgroundRectWidgets] = useState<Item[]>([]);
+
 	const setTagWidgets = (data: boolean) => {
 		tagWidgetsRef.current = data;
 		_setTagWidgets(data);
@@ -20,11 +22,11 @@ const GlobalFilteringAppThroughForeground = () => {
 		return !isNaN(parseFloat(str)); // ...and ensure strings of whitespace fail
 	};
 
-	const filterAfterSelection = (selectedTag: string) => {
-		if (selectedTag === 'all') filterReset();
-		else if (selectedTag === 'withTag') filterByTagExistence(true);
-		else if (selectedTag === 'withoutTag') filterByTagExistence(false);
-		else filterByTagName(selectedTag);
+	const filterAfterSelection = async (selectedTag: string) => {
+		if (selectedTag === 'all') await filterReset();
+		else if (selectedTag === 'withTag') await filterByTagExistence(true);
+		else if (selectedTag === 'withoutTag') await filterByTagExistence(false);
+		else await filterByTagName(selectedTag);
 	};
 
 	// TODO: Add dynamical update of selection box
@@ -41,19 +43,25 @@ const GlobalFilteringAppThroughForeground = () => {
 		const maxHeight = Math.max.apply(null,selection.map((widget) => widget.height)); // prettier-ignore
 		const maxWidth = Math.max.apply(null,selection.map((widget) => widget.width)); // prettier-ignore
 
-		const background = await miro.board.createShape({
-			shape: 'rectangle',
-			x: minX + (maxX - minX) / 2,
-			y: minY + (maxY - minY) / 2,
-			height: maxY - minY + maxHeight,
-			width: maxX - minX + maxWidth,
-			style: {
-				fillColor: '#ffffff',
-			},
-		});
+		const backgroundRectAlreadyExists = backgroundRectWidgets.some(
+			(backgroundRect) => backgroundRect.x === minX + (maxX - minX) / 2 || backgroundRect.y === minY + (maxY - minY) / 2
+		);
 
-		miro.board.sendToBack(background);
-		background.sync();
+		if (!backgroundRectAlreadyExists) {
+			const background = await miro.board.createShape({
+				shape: 'rectangle',
+				x: minX + (maxX - minX) / 2,
+				y: minY + (maxY - minY) / 2,
+				height: maxY - minY + maxHeight,
+				width: maxX - minX + maxWidth,
+				style: {
+					fillColor: '#ffffff',
+				},
+			});
+
+			setbackgroundRectWidgets((previousState) => [...previousState, background]);
+			miro.board.sendToBack(background);
+		}
 	};
 
 	useEffect(() => {
@@ -70,6 +78,7 @@ const GlobalFilteringAppThroughForeground = () => {
 		let widgetHasTag: boolean = false;
 
 		await filterReset();
+		await drawBackground(selection);
 
 		let filteredWidgets: Item[] = [];
 		for await (const widget of selection) {
@@ -81,12 +90,12 @@ const GlobalFilteringAppThroughForeground = () => {
 				// check if widget tag existence does not match filter criteria
 				// if so, hide this widget
 				if (widgetHasTag !== widgetHasTagFilter) {
-					await miro.board.sendToBack(widget);
 					filteredWidgets.push(widget);
+					await miro.board.sendToBack(widget);
 				}
 			}
 		}
-		await drawBackground(selection);
+
 		setFilteredWidgets(filteredWidgets);
 	};
 
@@ -97,6 +106,7 @@ const GlobalFilteringAppThroughForeground = () => {
 		const allTags = await miro.board.get({ type: 'tag' });
 
 		await filterReset();
+		await drawBackground(selection);
 
 		let filteredWidgets: Item[] = [];
 		for await (const widget of selection) {
@@ -117,11 +127,12 @@ const GlobalFilteringAppThroughForeground = () => {
 				}
 			}
 		}
-		await drawBackground(selection);
+
 		setFilteredWidgets(filteredWidgets);
 	};
 
 	const filterReset = async () => {
+		// TODO: Check if it is faster and make some research
 		// parallel -> faster then for (sequential)
 		// map return promises
 		// await Promise.all(
@@ -139,7 +150,6 @@ const GlobalFilteringAppThroughForeground = () => {
 
 		for await (const filteredWidget of filteredWidgets) {
 			await miro.board.bringToFront(filteredWidget);
-			filteredWidget.sync();
 		}
 	};
 
