@@ -10,6 +10,7 @@ import './app.scss';
 import GlobalFilteringAppThroughForeground from './components/GlobalFilteringAppThroughForeground/GlobalFilteringAppThroughForeground';
 import MatrixAppGroup from './components/MatrixAppGroups/MatrixAppGroups';
 import PostItPrinterApp from './components/PostItPrinterApp/PostItPrinterApp';
+import MiroTemplateApp from './components/MiroTemplateApp/MiroTemplateApp';
 // interface ITag {
 // 	id: string;
 // 	title: string;
@@ -96,6 +97,7 @@ const App = () => {
 				{/* <Tab label='Filtering App' {...a11yProps(1)} />
 				<Tab label='Filtering App z-Index' {...a11yProps(2)} /> */}
 				<Tab label='Post-It Printer App' {...a11yProps(1)} />
+				<Tab label='Miro Template App' {...a11yProps(2)} />
 			</Tabs>
 			<SwipeableViews axis='x' index={value} onChangeIndex={handleChangeIndex}>
 				<TabPanel value={value} index={0}>
@@ -123,6 +125,10 @@ const App = () => {
 						<PostItPrinterApp />
 					</div>
 				</TabPanel>
+				<TabPanel value={value} index={2}>
+					<div style={{ padding: 8 + 'px' }}>
+						<MiroTemplateApp />
+					</div>
 				</TabPanel>
 			</SwipeableViews>
 			{/* <FilteringApp /> */}
