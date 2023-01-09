@@ -1,17 +1,15 @@
 // server: https://brazhnik.de/miro-app-poc/
 
-import React, { useState } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
-import CSS from 'csstype';
-import MatrixApp from './components/MatrixApp/MatrixApp';
 import GlobalFilteringApp from './components/GlobalFilteringApp/GlobalFilteringApp';
 import SwipeableViews from 'react-swipeable-views';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import GlobalFilteringAppFunctionDemo from './components/GlobalFilteringAppFunctionDemo/GlobalFilteringAppFunctionDemo';
 import './app.scss';
 import GlobalFilteringAppThroughForeground from './components/GlobalFilteringAppThroughForeground/GlobalFilteringAppThroughForeground';
 import MatrixAppGroup from './components/MatrixAppGroups/MatrixAppGroups';
+import PostItPrinterApp from './components/PostItPrinterApp/PostItPrinterApp';
 // interface ITag {
 // 	id: string;
 // 	title: string;
@@ -95,8 +93,9 @@ const App = () => {
 			>
 				<Tab label='Matrix App' {...a11yProps(0)} />
 				{/* <Tab label='Filtering Demo' {...a11yProps(1)} /> */}
-				<Tab label='Filtering App' {...a11yProps(1)} />
-				<Tab label='Filtering App z-Index' {...a11yProps(2)} />
+				{/* <Tab label='Filtering App' {...a11yProps(1)} />
+				<Tab label='Filtering App z-Index' {...a11yProps(2)} /> */}
+				<Tab label='Post-It Printer App' {...a11yProps(1)} />
 			</Tabs>
 			<SwipeableViews axis='x' index={value} onChangeIndex={handleChangeIndex}>
 				<TabPanel value={value} index={0}>
@@ -109,7 +108,7 @@ const App = () => {
 						<GlobalFilteringAppFunctionDemo />
 					</div>
 				</TabPanel> */}
-				<TabPanel value={value} index={1}>
+				{/* <TabPanel value={value} index={1}>
 					<div style={{ padding: 8 + 'px' }}>
 						<GlobalFilteringApp />
 					</div>
@@ -118,6 +117,12 @@ const App = () => {
 					<div style={{ padding: 8 + 'px' }}>
 						<GlobalFilteringAppThroughForeground />
 					</div>
+				</TabPanel> */}
+				<TabPanel value={value} index={1}>
+					<div style={{ padding: 8 + 'px' }}>
+						<PostItPrinterApp />
+					</div>
+				</TabPanel>
 				</TabPanel>
 			</SwipeableViews>
 			{/* <FilteringApp /> */}
