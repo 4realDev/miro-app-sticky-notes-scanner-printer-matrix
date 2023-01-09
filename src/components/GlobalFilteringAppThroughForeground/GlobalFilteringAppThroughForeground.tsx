@@ -36,11 +36,11 @@ const GlobalFilteringAppThroughForeground = () => {
 
 	const drawBackground = async (selection: Item[]) => {
 		// const selection = await miro.board.getSelection();
-		const minX = Math.min.apply(null,selection.map((widget) => widget.x)); // prettier-ignore
-		const maxX = Math.max.apply(null,selection.map((widget) => widget.x)); // prettier-ignore
-		const minY = Math.min.apply(null,selection.map((widget) => widget.y)); // prettier-ignore
-		const maxY = Math.max.apply(null,selection.map((widget) => widget.y)); // prettier-ignore
-		const maxHeight = Math.max.apply(null,selection.map((widget) => widget.height)); // prettier-ignore
+		const minX = Math.min(...selection.map((widget) => widget.x)); // prettier-ignore
+		const maxX = Math.max(...selection.map((widget) => widget.x)); // prettier-ignore
+		const minY = Math.min(...selection.map((widget) => widget.y)); // prettier-ignore
+		const maxY = Math.max(...selection.map((widget) => widget.y)); // prettier-ignore
+		const maxHeight = Math.max(...selection.map((widget) => widget.height)); // prettier-ignore
 		const maxWidth = Math.max.apply(null,selection.map((widget) => widget.width)); // prettier-ignore
 
 		const backgroundRectAlreadyExists = backgroundRectWidgets.some(
