@@ -2,12 +2,10 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import GlobalFilteringApp from './components/GlobalFilteringApp/GlobalFilteringApp';
 import SwipeableViews from 'react-swipeable-views';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import './app.scss';
-import GlobalFilteringAppThroughForeground from './components/GlobalFilteringAppThroughForeground/GlobalFilteringAppThroughForeground';
 import MatrixAppGroup from './components/MatrixAppGroups/MatrixAppGroups';
 import PostItPrinterApp from './components/PostItPrinterApp/PostItPrinterApp';
 import MiroTemplateApp from './components/MiroTemplateApp/MiroTemplateApp';
