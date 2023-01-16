@@ -354,7 +354,8 @@ const MatrixApp = () => {
 		minWidgetPosY: number,
 		inputXAxis: string,
 		widgetMaxHeight: number,
-		totalWidgetWidth: number
+		totalWidgetWidth: number,
+		setViewport: boolean
 	) => {
 		const paddingToWidgets = widgetMaxHeight;
 
@@ -421,16 +422,18 @@ const MatrixApp = () => {
 			},
 		});
 
-		miro.board.viewport.set({
-			viewport: {
-				x: xAxisCoorOriginX,
-				y: yAxisCoorOriginY,
-				width: totalWidgetWidth,
-				height: widgetMaxHeight + paddingToWidgets,
-			},
-			padding: { top: 100, bottom: 400, left: 550, right: 100 },
-			animationDurationInMs: 200,
-		});
+		if (setViewport) {
+			miro.board.viewport.set({
+				viewport: {
+					x: xAxisCoorOriginX,
+					y: yAxisCoorOriginY,
+					width: totalWidgetWidth,
+					height: widgetMaxHeight + paddingToWidgets,
+				},
+				padding: { top: 100, bottom: 400, left: 550, right: 100 },
+				animationDurationInMs: 200,
+			});
+		}
 
 		setCoorXAxisWidgets([xAxis, xAxisLabel, xAxisHighText, xyAxisLowText]);
 
@@ -517,12 +520,17 @@ const MatrixApp = () => {
 		return [yAxisCoorOriginX, yAxisCoorOriginY];
 	};
 
-	const sortByXAxis = async () => {
-		console.log(matrixWidgetSelection);
+	// This method is called twice
+	// The first time, it will take the selected widgets and sort them by the x-axis
+	// Additionally, it will create the x-axis of the matrix, set the viewport to its position and save the widgets inside a state
+	// The second time, the method is called by the function sortByXAxis, which should typically by called afterwards
+	const sortByXAxis = async (setViewport = true) => {
+		console.log('matrixWidgetSelection ', matrixWidgetSelection);
 		let filteredSelectedWidgets = undefined;
-		if (matrixWidgetSelection !== undefined) {
-			filteredSelectedWidgets = matrixWidgetSelection;
-		} else {
+		// if selection does not exist / function is called the first time
+		// set the selection to the selected widgets in the miro board
+		// make sure, that the selected items are only sticky_notes and card without a parent (not inside a frame) and frames
+		if (matrixWidgetSelection === undefined) {
 			const selectedWidgets = await miro.board.getSelection();
 			filteredSelectedWidgets = selectedWidgets.filter(
 				(selectedWidget) =>
@@ -530,6 +538,19 @@ const MatrixApp = () => {
 					(selectedWidget.type === 'card' && selectedWidget.parentId === null) ||
 					selectedWidget.type === 'frame'
 			) as Array<StickyNote | Frame | Card>;
+		}
+		// if selection already exists (sortByXAxis method was already called and is called again)
+		else {
+			const updatedMatrixWidgetSelection = await Promise.all(
+				matrixWidgetSelection.map(async (alreadySelectedWidget) => {
+					const alreadySelectedWidgetWithNewPosition = (await miro.board.getById(alreadySelectedWidget.id)) as
+						| StickyNote
+						| Frame
+						| Card;
+					return alreadySelectedWidgetWithNewPosition;
+				})
+			);
+			filteredSelectedWidgets = updatedMatrixWidgetSelection;
 		}
 
 		const [totalWigdetWidth, totalWigdetHeight] = calculateTotalWidgetWidthAndHeight(filteredSelectedWidgets);
@@ -545,6 +566,8 @@ const MatrixApp = () => {
 
 		const minPosX = widgetWithMinPosX.x;
 		const minPosY = widgetWithMinPosY.y;
+		let xAxisCoorOriginX = 0;
+		let xAxisCoorOriginY = 0;
 
 		// necessary to setup the padding for the widgets to the matrix in the first step and to set the miro-zoom-viewport correctly
 		const widgetMaxHeight = Math.max(...filteredSelectedWidgets.map((selectedWidget) => selectedWidget.height)); // prettier-ignore
@@ -554,12 +577,13 @@ const MatrixApp = () => {
 		if (minPosX && minPosY) {
 			await alignWidgetsHorizontallyAndVerticallyInLine(sortedSelectedWidgetsByXValue, minPosX, minPosY);
 
-			const [xAxisCoorOriginX, xAxisCoorOriginY] = await drawCoordinateSystemXAxis(
+			[xAxisCoorOriginX, xAxisCoorOriginY] = await drawCoordinateSystemXAxis(
 				minPosX - widgetWithMinPosX.width / 2,
 				minPosY - widgetWithMinPosY.height / 2,
 				'Importance',
 				widgetMaxHeight,
-				totalWigdetWidth + additionalPaddingXAxisToLowestWidget
+				totalWigdetWidth + additionalPaddingXAxisToLowestWidget,
+				setViewport
 			);
 
 			setTotalWidgetWidth(totalWigdetWidth + additionalPaddingXAxisToLowestWidget);
@@ -573,23 +597,21 @@ const MatrixApp = () => {
 
 			setMatrixWidgetSelection(filteredSelectedWidgets);
 		}
+		return [xAxisCoorOriginX, xAxisCoorOriginY, filteredSelectedWidgets];
 	};
 
 	const sortByYAxis = async () => {
-		console.log(matrixWidgetSelection);
-		// use selection from sortByXAxis method
-		let filteredSelectedWidgets = matrixWidgetSelection as Array<StickyNote | Frame | Card>;
-		await sortByXAxis();
-
-		// if (matrixWidgetSelection !== undefined) {
-		// 	filteredSelectedWidgets = matrixWidgetSelection;
-		// } else {
-		// 	const selectedWidgets = await miro.board.getSelection();
-		// 	filteredSelectedWidgets = selectedWidgets.filter(
-		// 		(selectedWidget) =>
-		// 			selectedWidget.type === 'sticky_note' || selectedWidget.type === 'card' || selectedWidget.type === 'frame'
-		// 	) as Array<StickyNote | Card | Frame>;
-		// }
+		// call sortByXAxis method again
+		// necessary, if user moves the widgets around and changed their positions and the coordinate system origin points
+		// redraws xAxis, recalculates coordinate system x and y origin points
+		// updates filteredSelectedWidgets with their new positions (if they changed)
+		// return values, because state change will only happen in next render
+		// therefore states are the old one in this function context
+		const [coorOriginX, coorOriginY, filteredSelectedWidgets] = (await sortByXAxis(false)) as [
+			number,
+			number,
+			Array<StickyNote | Card | Frame>
+		];
 
 		const allTags = await miro.board.get({ type: 'tag' });
 
