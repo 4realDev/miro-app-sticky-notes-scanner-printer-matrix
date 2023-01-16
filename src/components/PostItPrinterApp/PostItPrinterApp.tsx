@@ -13,12 +13,25 @@
 // 3. PC mit Drucker reagiert auf POST requests von Server, indem dieser alle SVG Dateien die gesendet werden,
 // mit Hilfe des über USB angeschlossenen Druckers ausdruckt
 
-import { StickyNote } from '@mirohq/websdk-types';
+import { StickyNote, StickyNoteColor } from '@mirohq/websdk-types';
 import React from 'react';
 import styles from '../../index.module.scss';
 
+type StickyNoteTransferedData = {
+	id: string;
+	base64Url: string;
+	color: StickyNoteColor | `${StickyNoteColor}`;
+	xpos: number;
+	ypos: number;
+	miroBoardId: string;
+};
+
 const PostItPrinterApp = () => {
-	const svgToPng = async (iconSvg: SVGSVGElement, imgWidth: number, imgHeight: number): Promise<string> => {
+	const convertStickyNoteSVGToStickyNotePNG = async (
+		iconSvg: SVGSVGElement,
+		imgWidth: number,
+		imgHeight: number
+	): Promise<string> => {
 		// solution without third party libry
 		// canvg - doesn't support all of SVG capabilities
 		// D3 or other libraries - often something other doesn't work (e.g. textPath)
@@ -108,6 +121,103 @@ const PostItPrinterApp = () => {
 		return charNumDependentFontSize;
 	};
 
+	const convertStickyNoteDataToStickyNoteSVG = (stickyNote: StickyNote) => {
+		const iconSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+
+		// CREATE SVG
+		const iconSvgSize = stickyNote.width;
+		iconSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+		iconSvg.setAttribute('height', iconSvgSize.toString());
+		iconSvg.setAttribute('width', iconSvgSize.toString());
+		iconSvg.setAttribute('transform', 'rotate(90 0 0)');
+
+		// CREATE SVG RECT
+		const iconRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+		iconRect.setAttribute('fill', 'white');
+		iconRect.setAttribute('height', iconSvgSize.toString());
+		iconRect.setAttribute('width', iconSvgSize.toString());
+		iconRect.setAttribute('x', '0');
+		iconRect.setAttribute('y', '0');
+
+		// CREATE SVG TEXT
+		const iconText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+		iconText.setAttribute('fill', 'black');
+		iconText.setAttribute('text-anchor', 'middle');
+		iconText.setAttribute('dominant-baseline', 'middle');
+		iconText.setAttribute('x', '50%');
+		iconText.setAttribute('y', '50%');
+		iconText.setAttribute('height', iconSvgSize.toString());
+		iconText.setAttribute('width', iconSvgSize.toString());
+		iconText.setAttribute('font-family', 'Arial, Helvetica, sans-serif');
+		iconText.setAttribute('font-weight', 'bold');
+
+		// GET ALL ROWS IN ARRAY
+		const regexp = new RegExp('(?<=<s*p[^>]*>)(.*?)(?=<s*/s*p>)', 'g');
+		const textContentRows = [...stickyNote.content.matchAll(regexp)] as unknown as Array<string>;
+
+		// GET LONGEST ROW
+		const longestRow = textContentRows.reduce((prev, cur) => {
+			return cur[1].length > prev[1].length ? cur : prev;
+		});
+		console.log('longest row', longestRow[1]);
+
+		// GET NUM OF CHARACTER IN LONGEST ROW
+		const maxCharacterCount = longestRow[1].length;
+
+		// CREATE SVG TEXT SPAN FOR EACH ROW
+		textContentRows.forEach((textContentRow, index) => {
+			const iconTextSpan = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
+			if (index !== 0) iconTextSpan.setAttribute('dy', '1.2em');
+			iconTextSpan.setAttribute('x', '50%');
+			iconTextSpan.textContent = textContentRow[1];
+			iconText.appendChild(iconTextSpan);
+		});
+
+		// ADJUST Y POSITION OF TEXT ACCORDING TO NUMBER OF ROWS
+		iconText.setAttribute('dy', `${(-1.2 * (textContentRows.length - 1)) / 2}em`);
+
+		// ADJUST FONT SIZE OF TEXT ACCORDING TO NUMBER OF ROWS AND TO LONGEST ROW
+		const charNumDependentFontSize = calculateStickyNoteFontSize(maxCharacterCount, textContentRows);
+		iconText.setAttribute('font-size', `${charNumDependentFontSize * 2}`);
+
+		iconSvg.appendChild(iconRect);
+		iconSvg.appendChild(iconText);
+
+		return iconSvg;
+	};
+
+	const downloadStickyNotePNG = (base64Url: string, fileName: string) => {
+		var downloadLink = document.createElement('a');
+		downloadLink.href = base64Url;
+		downloadLink.download = fileName;
+		document.body.appendChild(downloadLink);
+		downloadLink.click();
+		document.body.removeChild(downloadLink);
+	};
+
+	const connectToWebSocketAndSendData = (data: StickyNoteTransferedData) => {
+		console.log('Client starts connection to websocket server! (Consumer)');
+		// https://developer.mozilla.org/en-US/docs/Web/API/WebSocket
+		const websocket = new WebSocket('ws://localhost:8080');
+
+		// Connection opened
+		websocket.addEventListener('open', () => {
+			console.log('Client has connected to websocket server! (Consumer)');
+			// as soon as connection is opened, send the printing data obj
+			websocket.send(JSON.stringify(data));
+		});
+
+		// Listen for messages
+		websocket.addEventListener('message', (event) => {
+			console.log('Server has send data to the Client!');
+			console.log(`data: ${event.data}`);
+			// Data is printing feedback forwarded from Provider - Show feedback to user
+			alert(event.data);
+			// disconnect client, when feedback has been received
+			websocket.close();
+		});
+	};
+
 	// mspaint /pt C:\Users\vbraz\Desktop\RADAR_SYNC_IMAGES\IMG_5566.jpg "nemonic MIP-001"
 	const createStickyNoteSvgForPrinting = async () => {
 		const selected_sticky_note = await miro.board.getSelection();
@@ -127,113 +237,26 @@ const PostItPrinterApp = () => {
 
 		if (selected_sticky_note[0].type === 'sticky_note') {
 			stickyNote = selected_sticky_note[0] as StickyNote;
-			const imgSize = stickyNote.width;
-			const iconSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-			iconSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-			iconSvg.setAttribute('height', imgSize.toString());
-			iconSvg.setAttribute('width', imgSize.toString());
-			iconSvg.setAttribute('transform', 'rotate(90 0 0)');
+			const iconSvg = convertStickyNoteDataToStickyNoteSVG(stickyNote);
+			const imgBase64Url: string = await convertStickyNoteSVGToStickyNotePNG(
+				iconSvg,
+				stickyNote.width,
+				stickyNote.width
+			);
 
-			const iconRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-			// iconRect.setAttribute('fill', stickyNote.style.fillColor);
-			iconRect.setAttribute('fill', 'white');
-			iconRect.setAttribute('height', imgSize.toString());
-			iconRect.setAttribute('width', imgSize.toString());
-			iconRect.setAttribute('x', '0');
-			iconRect.setAttribute('y', '0');
-			// iconRect.setAttribute('stroke-width', '50');
-			// iconRect.setAttribute('stroke', 'red');
-			// iconRect.classList.add('post-icon');
-
-			// <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="red">I love SVG!</text>
-			const iconText = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
-			iconText.setAttribute('fill', 'black');
-			iconText.setAttribute('text-anchor', 'middle');
-			iconText.setAttribute('dominant-baseline', 'middle');
-			iconText.setAttribute('x', '0');
-			iconText.setAttribute('y', '0');
-			iconText.setAttribute('height', imgSize.toString());
-			iconText.setAttribute('width', imgSize.toString());
-			iconText.setAttribute('font-family', 'Arial, Helvetica, sans-serif');
-			iconText.setAttribute('font-weight', 'bold');
-			// TODO: Count number of characters and scale font according to them
-
-			let textContent = stickyNote.content;
-
-			// escape character like "<", ">", "/" with "\"
-			const textContentRows = [...textContent.matchAll(/\<p\>(.*?)\<\/p\>/g)] as unknown as Array<string>;
-			const longestRow = textContentRows.reduce((prev, cur) => {
-				return cur[1].length > prev[1].length ? cur : prev;
-			});
-			const maxCharacterCount = longestRow[1].length;
-			console.log('longest row', longestRow[1]);
-
-			textContent = textContent.replaceAll('<p>', '');
-			textContent = textContent.replaceAll('</p>', '\n');
-			iconText.textContent = textContent;
-
-			const charNumDependentFontSize = calculateStickyNoteFontSize(maxCharacterCount, textContentRows);
-
-			iconText.setAttribute('font-size', `${charNumDependentFontSize * 2}`);
-
-			iconSvg.appendChild(iconRect);
-			iconSvg.appendChild(iconText);
-
-			console.log(iconSvg);
-
-			const imgBase64Url: string = await svgToPng(iconSvg, imgSize, imgSize);
-
-			console.log(imgBase64Url);
-
-			// var svgData = iconSvg.outerHTML;
-			// var preface = '<?xml version="1.0" standalone="no"?>\r\n';
-			// var svgBlob = new Blob([preface, svgData], { type: 'image/svg+xml;charset=utf-8' });
-			// var svgUrl = URL.createObjectURL(svgBlob);
-			// console.log(svgUrl);
-
-			// save the color and the x-, ypos inside the filename
-			// const fileName = `color[${stickyNote.style.fillColor}]_xpos[${Math.round(stickyNote.x)}]_ypos[${Math.round(
-			// 	stickyNote.y
-			// )}]`;
 			const fileName = Date.now().toString();
-
-			// Download the PNG image as base64
-			var downloadLink = document.createElement('a');
-			downloadLink.href = imgBase64Url;
-			downloadLink.download = fileName;
-			document.body.appendChild(downloadLink);
-			downloadLink.click();
-			document.body.removeChild(downloadLink);
-
-			return;
-
-			// https://developer.mozilla.org/en-US/docs/Web/API/WebSocket
-			const websocket = new WebSocket('ws://localhost:8080');
-
-			const imgObj = {
+			downloadStickyNotePNG(imgBase64Url, fileName); // TODO: CAN BE REMOVED AFTERWARDS (DOWNLOAD IS NOT NECESSARY)
+			const miroBoardInfo = await miro.board.getInfo();
+			const miroBoardId = miroBoardInfo.id;
+			const data: StickyNoteTransferedData = {
 				id: fileName,
 				base64Url: imgBase64Url,
 				color: stickyNote.style.fillColor,
 				xpos: Math.round(stickyNote.x),
 				ypos: Math.round(stickyNote.y),
+				miroBoardId: miroBoardId,
 			};
-
-			// Connection opened
-			websocket.addEventListener('open', () => {
-				websocket.send(JSON.stringify(imgObj));
-			});
-
-			// Listen for messages
-			websocket.addEventListener('message', (event) => {
-				console.log('Message from server that connection has been established', event.data);
-			});
-
-			// var downloadLink = document.createElement('a');
-			// downloadLink.href = svgUrl;
-			// downloadLink.download = fileName;
-			// document.body.appendChild(downloadLink);
-			// downloadLink.click();
-			// document.body.removeChild(downloadLink);
+			connectToWebSocketAndSendData(data);
 		} else {
 			alert(
 				`Your selected widget is a ${selected_sticky_note[0].type}. Please make sure that your selected widget is a sticky note.`
