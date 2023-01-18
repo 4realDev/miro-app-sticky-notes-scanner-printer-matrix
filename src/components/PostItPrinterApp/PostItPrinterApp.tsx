@@ -18,11 +18,13 @@ import React from 'react';
 import styles from '../../index.module.scss';
 
 type StickyNoteTransferedData = {
-	id: string;
-	base64Url: string;
-	color: StickyNoteColor | `${StickyNoteColor}`;
-	xpos: number;
-	ypos: number;
+	stickyNoteData: {
+		id: string;
+		base64Url: string;
+		color: StickyNoteColor | `${StickyNoteColor}`;
+		xpos: number;
+		ypos: number;
+	};
 	miroBoardId: string;
 };
 
@@ -249,11 +251,13 @@ const PostItPrinterApp = () => {
 			const miroBoardInfo = await miro.board.getInfo();
 			const miroBoardId = miroBoardInfo.id;
 			const data: StickyNoteTransferedData = {
-				id: fileName,
-				base64Url: imgBase64Url,
-				color: stickyNote.style.fillColor,
-				xpos: Math.round(stickyNote.x),
-				ypos: Math.round(stickyNote.y),
+				stickyNoteData: {
+					id: fileName,
+					base64Url: imgBase64Url,
+					color: stickyNote.style.fillColor,
+					xpos: Math.round(stickyNote.x),
+					ypos: Math.round(stickyNote.y),
+				},
 				miroBoardId: miroBoardId,
 			};
 			connectToWebSocketAndSendData(data);
