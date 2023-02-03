@@ -2,8 +2,13 @@ import customicon from './assets/customicon.svg?raw';
 import libraryIcon from './assets/libraryicon.svg?raw';
 
 async function init() {
+	// Enable the 'icon:click' event on the app icon
 	miro.board.ui.on('icon:click', async () => {
-		await miro.board.ui.openPanel({ url: 'app.html' });
+		// In this example: when the app icon is clicked, a method opens a panel
+		await miro.board.ui.openPanel({
+			// The content displayed on the panel is fetched from the specified HTML resource
+			url: 'app.html',
+		});
 	});
 }
 
