@@ -9,6 +9,9 @@ import './app.scss';
 import MatrixAppGroup from './components/MatrixAppGroups/MatrixAppGroups';
 import PostItPrinterApp from './components/PostItPrinterApp/PostItPrinterApp';
 import MiroTemplateApp from './components/MiroTemplateApp/MiroTemplateApp';
+import { MatrixWizard } from './components/MatrixWizard/MatrixWizard/MatrixWizard';
+import { ThemeProvider } from '@mui/material/styles';
+import { theme } from './theme';
 // interface ITag {
 // 	id: string;
 // 	title: string;
@@ -79,6 +82,12 @@ const App = () => {
 	const handleChangeIndex = (index: number) => {
 		setValue(index);
 	};
+
+	return (
+		<ThemeProvider theme={theme}>
+			<MatrixWizard />
+		</ThemeProvider>
+	);
 
 	return (
 		<div>
