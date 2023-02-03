@@ -15,16 +15,19 @@
 
 import { StickyNote, StickyNoteColor } from '@mirohq/websdk-types';
 import React from 'react';
+import { text } from 'stream/consumers';
 import styles from '../../index.module.scss';
 
-type StickyNoteTransferedData = {
-	stickyNoteData: {
-		id: string;
-		base64Url: string;
-		color: StickyNoteColor | `${StickyNoteColor}`;
-		xpos: number;
-		ypos: number;
-	};
+type StickyNoteDataObj = {
+	id: string;
+	base64Url: string;
+	color: StickyNoteColor | `${StickyNoteColor}`;
+	xpos: number;
+	ypos: number;
+};
+
+type StickyNoteTransferedDataObj = {
+	stickyNoteDataList: StickyNoteDataObj[];
 	miroBoardId: string;
 };
 
@@ -93,8 +96,29 @@ const PostItPrinterApp = () => {
 		return imgUrl;
 	};
 
+	const splitTextInMultipleRows = (textContentRows: string[]) => {
+		// // TODO: CODE FALLBACK FOR WHEN NO BREAKS ARE USED -> row = 1
+
+		const words = textContentRows[0].split(' ');
+		let rowSentence: string = '';
+		const newTextContentRows: Array<string> = [];
+		words.forEach((word, index) => {
+			console.log(rowSentence);
+			console.log(word);
+			if (rowSentence.length + 1 + word.length < 20) {
+				if (index === 0) rowSentence = word;
+				else rowSentence = `${rowSentence} ${word}`;
+			} else {
+				newTextContentRows.push(rowSentence);
+				rowSentence = word;
+			}
+		});
+		console.log(newTextContentRows);
+		return newTextContentRows;
+	};
+
 	const calculateStickyNoteFontSize = (maxCharacterCount: number, textContentRows: string[]) => {
-		let charNumDependentFontSize = 64;
+		let charNumDependentFontSize = 0;
 
 		// prettier-ignore
 		if(maxCharacterCount <= 3) charNumDependentFontSize = 64
@@ -108,13 +132,13 @@ const PostItPrinterApp = () => {
 
 		// prettier-ignore
 		if(textContentRows.length === 2) charNumDependentFontSize = 48
-		if (textContentRows.length === 3) charNumDependentFontSize = 32;
-		if (textContentRows.length === 4) charNumDependentFontSize = 24;
-		if (textContentRows.length === 5 || textContentRows.length === 6) charNumDependentFontSize = 18;
-		if (textContentRows.length === 7) charNumDependentFontSize = 14;
-		if (textContentRows.length === 8) charNumDependentFontSize = 12;
-		if (textContentRows.length === 8 || textContentRows.length === 9) charNumDependentFontSize = 12;
-		if (textContentRows.length > 9) charNumDependentFontSize = 10;
+		else if (textContentRows.length === 3) charNumDependentFontSize = 32;
+		else if (textContentRows.length === 4) charNumDependentFontSize = 24;
+		else if (textContentRows.length === 5 || textContentRows.length === 6) charNumDependentFontSize = 18;
+		else if (textContentRows.length === 7) charNumDependentFontSize = 14;
+		else if (textContentRows.length === 8) charNumDependentFontSize = 12;
+		else if (textContentRows.length === 8 || textContentRows.length === 9) charNumDependentFontSize = 12;
+		else if (textContentRows.length > 9) charNumDependentFontSize = 10;
 
 		console.log('max character', maxCharacterCount);
 		console.log('row count', textContentRows.length);
@@ -155,32 +179,41 @@ const PostItPrinterApp = () => {
 
 		// GET ALL ROWS IN ARRAY
 		const regexp = new RegExp('(?<=<s*p[^>]*>)(.*?)(?=<s*/s*p>)', 'g');
-		const textContentRows = [...stickyNote.content.matchAll(regexp)] as unknown as Array<string>;
+		let textContentRows = [...stickyNote.content.matchAll(regexp)].map(
+			(textContentRow) => textContentRow[1]
+		) as unknown as Array<string>;
 
 		// GET LONGEST ROW
 		const longestRow = textContentRows.reduce((prev, cur) => {
-			return cur[1].length > prev[1].length ? cur : prev;
+			return cur.length > prev.length ? cur : prev;
 		});
-		console.log('longest row', longestRow[1]);
+		console.log('longest row', longestRow);
 
 		// GET NUM OF CHARACTER IN LONGEST ROW
-		const maxCharacterCount = longestRow[1].length;
+		const maxCharacterCount = longestRow.length;
+
+		// ADJUST FONT SIZE OF TEXT ACCORDING TO NUMBER OF ROWS AND TO LONGEST ROW
+		let charNumDependentFontSize = 0;
+
+		if (textContentRows.length === 1 && maxCharacterCount > 16) {
+			textContentRows = splitTextInMultipleRows(textContentRows);
+			charNumDependentFontSize = 10;
+		} else {
+			charNumDependentFontSize = calculateStickyNoteFontSize(maxCharacterCount, textContentRows);
+		}
 
 		// CREATE SVG TEXT SPAN FOR EACH ROW
 		textContentRows.forEach((textContentRow, index) => {
 			const iconTextSpan = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
 			if (index !== 0) iconTextSpan.setAttribute('dy', '1.2em');
 			iconTextSpan.setAttribute('x', '50%');
-			iconTextSpan.textContent = textContentRow[1];
+			iconTextSpan.textContent = textContentRow;
 			iconText.appendChild(iconTextSpan);
 		});
 
 		// ADJUST Y POSITION OF TEXT ACCORDING TO NUMBER OF ROWS
 		iconText.setAttribute('dy', `${(-1.2 * (textContentRows.length - 1)) / 2}em`);
-
-		// ADJUST FONT SIZE OF TEXT ACCORDING TO NUMBER OF ROWS AND TO LONGEST ROW
-		const charNumDependentFontSize = calculateStickyNoteFontSize(maxCharacterCount, textContentRows);
-		iconText.setAttribute('font-size', `${charNumDependentFontSize * 2}`);
+		iconText.setAttribute('font-size', `${charNumDependentFontSize}`);
 
 		iconSvg.appendChild(iconRect);
 		iconSvg.appendChild(iconText);
@@ -197,7 +230,7 @@ const PostItPrinterApp = () => {
 		document.body.removeChild(downloadLink);
 	};
 
-	const connectToWebSocketAndSendData = (data: StickyNoteTransferedData) => {
+	const connectToWebSocketAndSendPrintingData = (data: StickyNoteTransferedDataObj) => {
 		console.log('Client starts connection to websocket server! (Consumer)');
 		// https://developer.mozilla.org/en-US/docs/Web/API/WebSocket
 		const websocket = new WebSocket('ws://localhost:8080');
@@ -211,8 +244,7 @@ const PostItPrinterApp = () => {
 
 		// Listen for messages
 		websocket.addEventListener('message', (event) => {
-			console.log('Server has send data to the Client!');
-			console.log(`data: ${event.data}`);
+			console.log(`Server has send data to the Client: ${event.data}.`);
 			// Data is printing feedback forwarded from Provider - Show feedback to user
 			alert(event.data);
 			// disconnect client, when feedback has been received
@@ -220,52 +252,49 @@ const PostItPrinterApp = () => {
 		});
 	};
 
-	// mspaint /pt C:\Users\vbraz\Desktop\RADAR_SYNC_IMAGES\IMG_5566.jpg "nemonic MIP-001"
 	const createStickyNoteSvgForPrinting = async () => {
-		const selected_sticky_note = await miro.board.getSelection();
-		let stickyNote: StickyNote;
+		const selectedWidgets = await miro.board.getSelection();
+		const selectedStickyNotes = selectedWidgets.filter(
+			(selectedWidget) => selectedWidget.type === 'sticky_note'
+		) as Array<StickyNote>;
 
-		if (selected_sticky_note.length === 0) {
-			alert('You have not selected a sticky note yet. Please select one sticky note for printing.');
+		if (selectedStickyNotes.length === 0) {
+			alert('You have not selected a sticky note yet. Please select one or more sticky notes for printing.');
 			return;
 		}
 
-		if (selected_sticky_note.length > 1) {
-			alert(
-				`You selected ${selected_sticky_note.length} widgets. Please only select one sticky note widget for printing.`
-			);
-			return;
-		}
+		// if (selected_sticky_notes.length > 1) {
+		// 	alert(
+		// 		`You selected ${selected_sticky_notes.length} widgets. Please only select one sticky note widget for printing.`
+		// 	);
+		// 	return;
+		// }
 
-		if (selected_sticky_note[0].type === 'sticky_note') {
-			stickyNote = selected_sticky_note[0] as StickyNote;
-			const iconSvg = convertStickyNoteDataToStickyNoteSVG(stickyNote);
+		let stickyNoteDataList: StickyNoteDataObj[] = [];
+		const miroBoardInfo = await miro.board.getInfo();
+		const miroBoardId = miroBoardInfo.id;
+
+		for await (const selectedStickyNote of selectedStickyNotes) {
+			const iconSvg = convertStickyNoteDataToStickyNoteSVG(selectedStickyNote);
 			const imgBase64Url: string = await convertStickyNoteSVGToStickyNotePNG(
 				iconSvg,
-				stickyNote.width,
-				stickyNote.width
+				selectedStickyNote.width,
+				selectedStickyNote.width
 			);
 
 			const fileName = Date.now().toString();
 			downloadStickyNotePNG(imgBase64Url, fileName); // TODO: CAN BE REMOVED AFTERWARDS (DOWNLOAD IS NOT NECESSARY)
-			const miroBoardInfo = await miro.board.getInfo();
-			const miroBoardId = miroBoardInfo.id;
-			const data: StickyNoteTransferedData = {
-				stickyNoteData: {
-					id: fileName,
-					base64Url: imgBase64Url,
-					color: stickyNote.style.fillColor,
-					xpos: Math.round(stickyNote.x),
-					ypos: Math.round(stickyNote.y),
-				},
-				miroBoardId: miroBoardId,
-			};
-			connectToWebSocketAndSendData(data);
-		} else {
-			alert(
-				`Your selected widget is a ${selected_sticky_note[0].type}. Please make sure that your selected widget is a sticky note.`
-			);
+
+			stickyNoteDataList.push({
+				id: fileName,
+				base64Url: imgBase64Url,
+				color: selectedStickyNote.style.fillColor,
+				xpos: Math.round(selectedStickyNote.x),
+				ypos: Math.round(selectedStickyNote.y),
+			});
 		}
+
+		connectToWebSocketAndSendPrintingData({ stickyNoteDataList: stickyNoteDataList, miroBoardId: miroBoardId });
 	};
 
 	// useEffect(() => {
