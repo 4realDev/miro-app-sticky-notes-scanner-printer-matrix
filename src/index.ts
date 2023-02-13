@@ -2,6 +2,11 @@ import customicon from './assets/customicon.svg?raw';
 import libraryIcon from './assets/libraryicon.svg?raw';
 
 async function init() {
+	// Clean the sessionStorage which is used,
+	// because the miro estimation tool closes and reopens the app
+	// which leads to a data lost without the usage of sessionStorage
+	sessionStorage.clear();
+
 	// Enable the 'icon:click' event on the app icon
 	miro.board.ui.on('icon:click', async () => {
 		// In this example: when the app icon is clicked, a method opens a panel

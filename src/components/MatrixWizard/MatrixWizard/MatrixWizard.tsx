@@ -1,7 +1,7 @@
 // TODO: Ensure that if function is called on same WizardView Twice or Multiple Times, the function won't take the highest position, but instead the lowest
 // TODO: Ensure that selection storage of widgets on first call of sortByXAxis is correct (bug from sonjas test)
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import styles from './MatrixWizard.module.scss';
 import { StepButton, StepLabel } from '@mui/material';
 import Stepper from '@mui/material/Stepper';
@@ -18,6 +18,7 @@ import GroupSelectionImg from '../../Icons/GroupSelectionImg';
 import ArrowRight from '../../Icons/ArrowRight';
 import ArrowLeft from '../../Icons/ArrowLeft';
 import { StickyNote, Frame, FontFamily, Item, Shape, Tag, Card, Text } from '@mirohq/websdk-types';
+import { useSessionStorage } from '../../useSessionStorage';
 
 const miro = window.miro;
 
@@ -74,6 +75,7 @@ export type StepData = {
 	buttonText: string;
 	img: React.ReactNode;
 	buttonIcon: React.ReactNode;
+	methodSucceed: boolean;
 };
 
 const steps: StepData[] = [
@@ -87,6 +89,7 @@ const steps: StepData[] = [
 		buttonText: 'Group Selection',
 		img: <GroupSelectionImg />,
 		buttonIcon: <GroupSelectionButtonIcon />,
+		methodSucceed: false,
 	},
 	{
 		title: 'Sort by Importance',
@@ -98,6 +101,7 @@ const steps: StepData[] = [
 		buttonText: 'Sort by Importance',
 		img: <SortByImportanceImg />,
 		buttonIcon: <SortByImportanceButtonIcon />,
+		methodSucceed: false,
 	},
 	{
 		title: 'Sort by Difficulty',
@@ -108,6 +112,7 @@ const steps: StepData[] = [
 		buttonText: 'Sort by Difficulty',
 		img: <ShowCategoriesImg />,
 		buttonIcon: <ShowCategoriesButtonIcon />,
+		methodSucceed: false,
 	},
 	{
 		title: 'Identify what to focus on',
@@ -115,6 +120,7 @@ const steps: StepData[] = [
 		buttonText: 'Show Categories',
 		img: <ShowCategoriesImg />,
 		buttonIcon: <ShowCategoriesButtonIcon />,
+		methodSucceed: false,
 	},
 	{
 		title: 'Create Priorities List',
@@ -126,53 +132,78 @@ const steps: StepData[] = [
 		buttonText: 'Create Priorities List',
 		img: <CreatePrioritiesListImg />,
 		buttonIcon: <CreatePrioritiesListButtonIcon />,
+		methodSucceed: false,
 	},
 ];
 
 const addNewTopicButtonText = 'Added a new Topic? Go back to step 1 to set the new selection.';
 
+// 	NoTag:
+// 		'One or more selected items are missing a tag.\nEnter a number tag (e.g "4")\n\
+// or use the Miro Estimation Tool to add a number tag to the widgets \n(e.g "Estimate: 4").',
+// 	WrongTag:
+// 		'It seems like one or more selected items have a wrong tag. Please make sure that your tag is a number tag (e.g "4") \n\
+// 		or use the Miro Estimation Tool to add a correct number tag (e.g "Estimate: 4").',
 const CustomErrorMessages = {
-	NoSelection: 'Please select widgets.',
-	WrongSelection: 'Please select correct widgets.',
-	// 	NoTag:
-	// 		'One or more selected items are missing a tag.\nEnter a number tag (e.g "4")\n\
-	// or use the Miro Estimation Tool to add a number tag to the widgets \n(e.g "Estimate: 4").',
-	// 	WrongTag:
-	// 		'It seems like one or more selected items have a wrong tag. Please make sure that your tag is a number tag (e.g "4") \n\
-	// 		or use the Miro Estimation Tool to add a correct number tag (e.g "Estimate: 4").',
-	NoTag: 'One or more selected items are missing a tag.',
-	WrongTag: 'One ore more selected items have a wrong tag.',
+	NoSelection: 'Please select all topics you want to prioritize.',
+	WrongSelection: "You have selected an object that can't be used. Please reselect.",
+	WrongOrNoTag: 'One or more topics have no estimation, please add one to proceed',
 };
 
 export const MatrixWizard = () => {
-	const [step, setStep] = useState(0);
+	const [step, setStep] = useSessionStorage('step', 0) as [number, React.Dispatch<React.SetStateAction<number>>];
 
-	// const [showCategorization, _setShowCategorization] = useState(false);
-	// const showCategorizationRef = React.useRef(showCategorization);
-	// const setShowCategorization = (data: boolean) => {
-	// 	showCategorizationRef.current = data;
-	// 	_setShowCategorization(data);
-	// };
+	const [minWidgetPosX, setMinWidgetPosX] = useSessionStorage('minWidgetPosX', 0) as [
+		number,
+		React.Dispatch<React.SetStateAction<number>>
+	];
+	const [minWidgetPosY, setMinWidgetPosY] = useSessionStorage('minWidgetPosY', 0) as [
+		number,
+		React.Dispatch<React.SetStateAction<number>>
+	];
 
-	const [minWidgetPosX, setMinWidgetPosX] = useState<number>(0);
-	const [minWidgetPosY, setMinWidgetPosY] = useState<number>(0);
+	const [matrixWidgetSelection, setMatrixWidgetSelection] = useSessionStorage('matrixWidgetSelection', []) as [
+		Array<StickyNote | Frame | Card>,
+		React.Dispatch<React.SetStateAction<Array<StickyNote | Frame | Card>>>
+	];
 
-	const [matrixWidgetSelection, setMatrixWidgetSelection] = useState<Array<StickyNote | Frame | Card>>([]);
-	const [coorOriginX, setCoorOriginX] = useState<number | undefined>(undefined);
-	const [coorOriginY, setCoorOriginY] = useState<number | undefined>(undefined);
-	const [coordXAxisWidgets, setCoorXAxisWidgets] = useState<Item[] | undefined>(undefined);
-	const [coorYAxisWidgets, setCoorYAxisWidgets] = useState<Item[] | undefined>(undefined);
+	const [coorOriginX, setCoorOriginX] = useSessionStorage('coorOriginX', undefined) as [
+		number | undefined,
+		React.Dispatch<React.SetStateAction<number | undefined>>
+	];
 
-	const [totalWidgetWidth, setTotalWidgetWidth] = useState(0);
-	const [, setTotalWidgetHeight] = useState(0);
+	const [coorOriginY, setCoorOriginY] = useSessionStorage('coorOriginY', undefined) as [
+		number | undefined,
+		React.Dispatch<React.SetStateAction<number | undefined>>
+	];
+
+	const [coordXAxisWidgets, setCoorXAxisWidgets] = useSessionStorage('coordXAxisWidgets', undefined) as [
+		Item[] | undefined,
+		React.Dispatch<React.SetStateAction<Item[] | undefined>>
+	];
+
+	const [coorYAxisWidgets, setCoorYAxisWidgets] = useSessionStorage('coorYAxisWidgets', undefined) as [
+		Item[] | undefined,
+		React.Dispatch<React.SetStateAction<Item[] | undefined>>
+	];
+
+	const [totalWidgetWidth, setTotalWidgetWidth] = useSessionStorage('totalWidgetWidth', 0) as [
+		number,
+		React.Dispatch<React.SetStateAction<number>>
+	];
+
+	const [, setTotalWidgetHeight] = useSessionStorage('totalWidgetHeight', 0) as [
+		number,
+		React.Dispatch<React.SetStateAction<number>>
+	];
+
 	const [
 		totalWidgetHeightAfterVerticalAlignmentWithNumericTag,
 		setTotalWidgetHeightAfterVerticalAlignmentWithNumericTag,
-	] = useState(0);
-
-	useEffect(() => {
-		console.log(matrixWidgetSelection);
-	}, [matrixWidgetSelection]);
+	] = useSessionStorage('totalWidgetHeightAfterVerticalAlignmentWithNumericTag', 0) as [
+		number,
+		React.Dispatch<React.SetStateAction<number>>
+	];
 
 	const axisArrowWidth = 40;
 	const axisArrowHeight = 40;
@@ -189,39 +220,32 @@ export const MatrixWizard = () => {
 	// the result is, that the axis line is longer then the matrix itself, which in this case is called "overlapping"
 	const additionalAxisMatrixOverlapping = 50;
 
-	const [bottomLeftQuarter, setBottomLeftQuarter] = useState<Shape | undefined>(undefined);
-	const [bottomRightQuarter, setBottomRightQuarter] = useState<Shape | undefined>(undefined);
-	const [topLeftQuarter, setTopLeftQuarter] = useState<Shape | undefined>(undefined);
-	const [topRightQuarter, setTopRightQuarter] = useState<Shape | undefined>(undefined);
+	const [bottomLeftQuarter, setBottomLeftQuarter] = useSessionStorage('bottomLeftQuarter', undefined) as [
+		Shape | undefined,
+		React.Dispatch<React.SetStateAction<Shape | undefined>>
+	];
+	const [bottomRightQuarter, setBottomRightQuarter] = useSessionStorage('bottomRightQuarter', undefined) as [
+		Shape | undefined,
+		React.Dispatch<React.SetStateAction<Shape | undefined>>
+	];
+	const [topLeftQuarter, setTopLeftQuarter] = useSessionStorage('topLeftQuarter', undefined) as [
+		Shape | undefined,
+		React.Dispatch<React.SetStateAction<Shape | undefined>>
+	];
+	const [topRightQuarter, setTopRightQuarter] = useSessionStorage('topRightQuarter', undefined) as [
+		Shape | undefined,
+		React.Dispatch<React.SetStateAction<Shape | undefined>>
+	];
 
-	const [quarterDataList, setQuarterDataList] = useState<MatrixQuarterDataList | undefined>(undefined);
+	const [quarterDataList, setQuarterDataList] = useSessionStorage('quarterDataList', undefined) as [
+		MatrixQuarterDataList | undefined,
+		React.Dispatch<React.SetStateAction<MatrixQuarterDataList | undefined>>
+	];
 
-	const [matrixCategoryListWidgets, setMatrixCategoryListWidgets] = useState<Array<Text | Shape> | undefined>(
+	const [matrixCategoryListWidgets, setMatrixCategoryListWidgets] = useSessionStorage(
+		'matrixCategoryListWidgets',
 		undefined
-	);
-
-	const [heighestStep, setHeighestStep] = useState(0);
-	const [runStepMethod, setRunStepMethod] = useState(false);
-
-	useEffect(() => {
-		console.log(step);
-		console.log(heighestStep);
-		console.log(runStepMethod);
-		if (heighestStep <= step) {
-			setHeighestStep(step);
-			setRunStepMethod(false);
-		} else {
-			setRunStepMethod(true);
-		}
-		console.log(step);
-		console.log(heighestStep);
-		console.log(runStepMethod);
-	}, [step]);
-
-	// useEffect(() => {
-	// 	showCategorizationOfMatrix(showCategorization);
-	// 	console.log('showCategorization: ', showCategorization);
-	// }, [showCategorization]);
+	) as [Array<Text | Shape> | undefined, React.Dispatch<React.SetStateAction<Array<Text | Shape> | undefined>>];
 
 	const isNumeric = (str: string) => {
 		return !isNaN(parseFloat(str)); // ...and ensure strings of whitespace fail
@@ -303,6 +327,7 @@ export const MatrixWizard = () => {
 				const frameWidgetWithTag = frameChildren.find(
 					(frameChild: Item) => frameChild.type === 'sticky_note' && frameChild.tagIds.length === 1
 				) as StickyNote | undefined;
+				// TODO: Replace with filter to search even in stickies with multiple tags
 				widgetsTag = allTags.find((tag) => tag.id === frameWidgetWithTag?.tagIds[0]);
 			}
 
@@ -327,13 +352,13 @@ export const MatrixWizard = () => {
 						numericTag: parseInt(widgetsTagEstimationNumber),
 					});
 				} else {
-					sendNotification(CustomErrorMessages.WrongTag);
+					sendNotification(CustomErrorMessages.WrongOrNoTag);
 					return undefined;
 					// tagError = true;
 					// break;
 				}
 			} else {
-				sendNotification(CustomErrorMessages.NoTag);
+				sendNotification(CustomErrorMessages.WrongOrNoTag);
 				return undefined;
 				// tagError = true;
 				// break;
@@ -576,15 +601,17 @@ export const MatrixWizard = () => {
 	// The first time, it will take the selected widgets and sort them by the x-axis
 	// Additionally, it will create the x-axis of the matrix, set the viewport to its position and save the widgets inside a state
 	// The second time, the method is called by the function sortByXAxis, which should typically by called afterwards
-	const sortByXAxis = async (setViewport = true, groupWidgetsAbove = false) => {
+	const sortByXAxis = async (
+		setViewport = true,
+		groupWidgetsAbove = false
+	): Promise<boolean | [number, number, (StickyNote | Card | Frame)[], boolean]> => {
 		let filteredSelectedWidgets = undefined;
 		if (matrixWidgetSelection.length === 0) {
 			const selectedWidgets = await miro.board.getSelection();
 
 			if (selectedWidgets.length === 0) {
 				await sendNotification(CustomErrorMessages.NoSelection);
-				setRunStepMethod(false);
-				return;
+				return false;
 			}
 
 			filteredSelectedWidgets = selectedWidgets.filter(
@@ -596,8 +623,7 @@ export const MatrixWizard = () => {
 
 			if (filteredSelectedWidgets.length === 0) {
 				await sendNotification(CustomErrorMessages.WrongSelection);
-				setRunStepMethod(false);
-				return;
+				return false;
 			}
 		}
 		// if selection already exists (sortByXAxis method was already called and is called again)
@@ -615,8 +641,7 @@ export const MatrixWizard = () => {
 
 			if (filteredSelectedWidgets.length === 0) {
 				await sendNotification(CustomErrorMessages.NoSelection);
-				setRunStepMethod(false);
-				return;
+				return false;
 			}
 		}
 
@@ -669,8 +694,6 @@ export const MatrixWizard = () => {
 
 		setMatrixWidgetSelection(filteredSelectedWidgets);
 
-		setRunStepMethod(true);
-
 		if (setViewport) {
 			miro.board.viewport.set({
 				viewport: {
@@ -684,7 +707,7 @@ export const MatrixWizard = () => {
 			});
 		}
 
-		return [xAxisCoorOriginX, xAxisCoorOriginY, filteredSelectedWidgets];
+		return [xAxisCoorOriginX, xAxisCoorOriginY, filteredSelectedWidgets, true];
 	};
 
 	const sortByYAxis = async () => {
@@ -720,10 +743,11 @@ export const MatrixWizard = () => {
 		// }
 
 		if (selectedWidgetsWithNumericTag) {
-			const [coorOriginX, coorOriginY, _] = (await sortByXAxis(false, true)) as [
+			const [coorOriginX, coorOriginY] = (await sortByXAxis(false, true)) as [
 				number,
 				number,
-				Array<StickyNote | Card | Frame>
+				Array<StickyNote | Card | Frame>,
+				boolean
 			];
 
 			const selectedWidgetsSortedByNumericTag: NumericTaggedWidget[] = sortWidgetsOnYAxisByNumericTag(
@@ -761,10 +785,9 @@ export const MatrixWizard = () => {
 				totalWidgetHeightAfterVerticalAlignmentWithNumericTag + additionalPaddingBetweenXAxisAndBottomMostWidget
 			);
 
-			setRunStepMethod(true);
+			return true;
 		} else {
-			setRunStepMethod(false);
-			return;
+			return false;
 		}
 	};
 
@@ -879,8 +902,9 @@ export const MatrixWizard = () => {
 				drawDebugDot(topRightQuarterData.centerPoint.x, topRightQuarterData.centerPoint.y);
 				drawDebugDot(bottomRightQuarterData.centerPoint.x, bottomRightQuarterData.centerPoint.y);
 			}
-
-			setRunStepMethod(true);
+			return true;
+		} else {
+			return false;
 		}
 	};
 
@@ -1013,7 +1037,6 @@ export const MatrixWizard = () => {
 
 			// sort according to x position (importance)
 			categoryList.sort((a, b) => {
-				console.log('TEST');
 				console.log(a);
 				console.log(b);
 				console.log(a.widgetPosX);
@@ -1144,6 +1167,9 @@ export const MatrixWizard = () => {
 			});
 
 			setMatrixCategoryListWidgets(categoryListWidgets);
+			return true;
+		} else {
+			return false;
 		}
 	};
 
@@ -1154,28 +1180,66 @@ export const MatrixWizard = () => {
 
 	const [resortByXAxisInSecondStep, setResortByXAxisInSecondStep] = useState(false);
 
-	const returnWizardStepMethod = () => {
+	const moveStepBack = () => {
+		setStep(step - 1);
+	};
+
+	const moveStepForward = () => {
+		if (step < steps.length) {
+			setStep(step + 1);
+		}
+	};
+
+	const onWizardStepButtonClicked = async () => {
 		switch (step) {
 			// "Group Selection" Step
 			// always set the viewport
 			// always don't group the widgets above (group them below)
 			// always renew the selection
 			case 0:
-				setMatrixWidgetSelection([]);
-				return sortByXAxis(true, false);
-			// "Sort by Importance" Step
+				// Clean the sessionStorage which is used,
+				// because the miro estimation tool closes and reopens the app
+				// which leads to a data lost without the usage of sessionStorage
+				sessionStorage.clear();
 
+				setMatrixWidgetSelection([]);
+
+				const [, , , methodSucceedStepZero] = (await sortByXAxis(true, false)) as [
+					number,
+					number,
+					Array<StickyNote | Card | Frame>,
+					boolean
+				];
+				steps[step].methodSucceed = methodSucceedStepZero;
+				break;
 			case 1:
 				if (resortByXAxisInSecondStep === false) setResortByXAxisInSecondStep(true);
-				return sortByXAxis(true, true, false);
+				const [, , , methodSucceedStepOne] = (await sortByXAxis(true, true)) as [
+					number,
+					number,
+					Array<StickyNote | Card | Frame>,
+					boolean
+				];
+				steps[step].methodSucceed = methodSucceedStepOne;
+				break;
 			case 2:
-				return sortByYAxis();
+				const methodSucceedStepTwo = await sortByYAxis();
+				steps[step].methodSucceed = methodSucceedStepTwo;
+				break;
 			case 3:
-				return showCategorizationOfMatrix();
+				const methodSucceedThree = await showCategorizationOfMatrix();
+				steps[step].methodSucceed = methodSucceedThree;
+				break;
 			case 4:
-				return createCategorizedList();
+				const methodSucceedFour = await createCategorizedList();
+				steps[step].methodSucceed = methodSucceedFour;
+				break;
 			default:
-				return null;
+				break;
+		}
+
+		if (steps[step].methodSucceed) {
+			moveStepForward();
 		}
 	};
 
@@ -1186,7 +1250,11 @@ export const MatrixWizard = () => {
 					{steps.map((_stepItem, index) => {
 						return (
 							<Step key={index}>
-								<StepButton onClick={() => setStep(index)}>
+								<StepButton
+									onClick={() => {
+										setStep(index);
+									}}
+								>
 									<StepLabel key={index} icon={index + 1} />
 								</StepButton>
 							</Step>
@@ -1207,21 +1275,23 @@ export const MatrixWizard = () => {
 				<div className={styles.wizard__img}>{steps[step].img}</div>
 			</div>
 			<div className={styles.wizard__buttonAndHintWrapper}>
-				<button className={styles.wizard__button__dark} onClick={() => returnWizardStepMethod()}>
+				<button className={styles.wizard__button__dark} onClick={() => onWizardStepButtonClicked()}>
 					{steps[step].buttonIcon}
 					<span>{steps[step].buttonText}</span>
 				</button>
 				<div className={styles.wizard__stepper__button__container}>
 					{step > 0 && (
-						<button className={styles.wizard__button__light} onClick={() => setStep(step - 1)}>
+						<button className={styles.wizard__button__light} onClick={() => moveStepBack()}>
 							<ArrowLeft />
 							<span>Back</span>
 						</button>
 					)}
 					{step !== steps.length - 1 && (
 						<button
-							className={runStepMethod ? styles.wizard__button__light : styles.wizard__button__light__disabled}
-							onClick={() => setStep(step + 1)}
+							className={
+								steps[step].methodSucceed ? styles.wizard__button__light : styles.wizard__button__light__disabled
+							}
+							onClick={() => moveStepForward()}
 						>
 							<ArrowRight />
 							<span>Next Step</span>
@@ -1234,7 +1304,7 @@ export const MatrixWizard = () => {
 						<a
 							className={styles.wizard__hintButton}
 							onClick={() => {
-								setHeighestStep(0);
+								// setHeighestStep(0);
 								setStep(0);
 							}}
 						>
