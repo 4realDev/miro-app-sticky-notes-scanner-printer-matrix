@@ -1,0 +1,68 @@
+.button {
+    box-sizing: border-box;
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 14px;
+    box-shadow: none;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 8px 12px;
+    transition: all 0.25s ease;
+    
+
+    border: 1px solid #000000;
+    border-radius: 6px;
+
+    svg {
+        height: 20px;
+        width: 20px;
+    }
+
+    span {
+        padding-left: 8px;
+        font-size: 14px;
+        line-height: 20px;
+        display:flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        transform: translateY(-1.5px);
+    }
+
+    &__light {
+        @extend .button;
+        background-color: #FFFFFF;
+        color: #000000;
+
+        // &__disabled {
+        //     @extend .wizard__button__light;
+        //     opacity: 0.25;
+        //     pointer-events: none
+        // }
+        &__disabled {
+            // @extend .wizard__button__dark;
+            opacity: 0.25;
+            pointer-events: none;
+            transition: all 0.25s ease;
+        }
+    }
+
+    &__dark {
+        @extend .button;
+        background-color: #000000;
+        color: #FFFFFF;
+        &__disabled {
+            // @extend .wizard__button__dark;
+            opacity: 0.5;
+            pointer-events: none;
+            transition: all 0.25s ease;
+        }
+    }
+
+}
