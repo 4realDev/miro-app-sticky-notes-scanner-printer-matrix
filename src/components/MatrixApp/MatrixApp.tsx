@@ -775,7 +775,7 @@ const MatrixApp = () => {
 	};
 
 	return (
-		<div className={styles.appContainer}>
+		<div className={styles.container}>
 			<h3 className={styles.h3Style}>CREATE MATRIX</h3>
 			<div className={styles.inputContainer}>
 				<label className={styles.labelStyle}>x-Axis: </label>
