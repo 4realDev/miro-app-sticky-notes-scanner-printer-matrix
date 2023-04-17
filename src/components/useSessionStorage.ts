@@ -3,8 +3,6 @@ import { useState, useEffect } from 'react';
 const getStorageValue = (key: string, defaultValue: any) => {
 	// getting stored value
 	const saved = sessionStorage.getItem(key);
-	console.log(saved);
-	console.log(typeof saved);
 	return saved && saved !== 'undefined' ? JSON.parse(saved) : defaultValue;
 };
 
