@@ -18,31 +18,7 @@
 	width: 100%;
 }
 
-.inputStyle {
-	font-size: 0.875rem;
-	line-height: 1.125rem;
-	border-radius: 3px;
-	border: 1px solid transparent;
-	outline: 2px solid #459fd8;
-	font-weight: 500;
-	padding: 8px 16px;
-	text-align: left;
-	background-color: #fff;
-	color: #000;
-	font-family: sans-serif;
-	font-stretch: normal;
-	font-style: normal;
-	letter-spacing: normal;
-	width: 100%;
-};
 
-.inputContainer {
-	display: flex;
-	justify-content: center;
-	flex-direction: column;
-	margin-bottom: 8px;
-	height: auto;
-};
 
 .h1Style {
 	font-size: 1.8rem;
@@ -73,6 +49,16 @@
 	font-weight: 600;
 };
 
-.appContainer {
-	margin-bottom: 42px;
-};
+@font-face {
+	font-family: "Heebo-Regular";
+	src: local("Heebo-Regular"),
+	 url("./fonts/Heebo/Heebo-Regular.ttf") format("truetype");
+	font-weight: medium;
+}
+
+@font-face {
+	font-family: "Heebo-Bold";
+	src: local("Heebo-Bold"),
+	 url("./fonts/Heebo/Heebo-Bold.ttf") format("truetype");
+	font-weight: bold;
+}

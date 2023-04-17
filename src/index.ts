@@ -1,5 +1,7 @@
 import customicon from './assets/customicon.svg?raw';
 import libraryIcon from './assets/libraryicon.svg?raw';
+import './fonts/Heebo/Heebo-Regular.ttf';
+import './fonts/Heebo/Heebo-Bold.ttf';
 
 async function init() {
 	// Clean the sessionStorage which is used,
