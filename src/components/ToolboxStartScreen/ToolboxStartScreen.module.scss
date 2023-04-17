@@ -1,0 +1,133 @@
+.header {
+    width: 100%;
+    height: 30px;
+    z-index: 999;
+    background: #EEEEEE;
+    padding: 0 24px 0 24px;
+    margin-bottom: 16px;
+
+    &_button {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 30px;
+        outline: none;
+        border: none;
+        border-radius: none;
+        background: transparent;
+        cursor: pointer;
+
+        &_icon {
+            height: 30px;
+            padding-right: 4px;
+
+            & > svg {
+                height: 100%;
+            }
+        }
+
+        &_text {
+            font-style: normal;
+            font-weight: 500;
+            font-size: 14px;
+            line-height: 20px;
+            color: rgba(0, 0, 0, 0.7);
+
+        }
+    }
+}
+
+.toolbox_button_container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    padding: 0 24px 0 24px;
+}
+
+.toolbox_button {
+    cursor: pointer;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    height: 72px;
+    padding: 0px;
+    margin: 0px;
+    border: 1px solid #000000;
+    outline: none;
+
+    filter: drop-shadow(3px 3px 0px #000000);
+    border-radius: 12px;
+
+    &_disabled {
+        opacity: 0.5;
+        // pointer-events: none;
+    }
+}
+
+.toolbox_button_text {
+    height: 100%;
+    background-color: white;
+    // font-family: 'Heebo-Bold';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 20px;
+    color: #000000;
+    margin:auto;
+    text-align: left;
+    width: 100%;
+    padding: 16px;
+    margin: 0px;
+    // border-radius: 12px;
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
+}
+
+.toolbox_button_icon {
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    padding: 16px;
+    width: 64px;
+    border-radius: 12px 0px 0px 12px;
+}
+
+.sidePanel__open  {
+    height: 100%;
+    width: 100%;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    overflow-x: hidden;
+    transition: 0.45s;
+    background: white;
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+.sidePanel__closed  {
+    position: fixed;
+    z-index: 1;
+    height: 100%;
+    top: 0;
+    overflow-x: hidden;
+    transition: 0.3s;
+    width: calc(100%);
+    background: white;
+    transform: translateX(100%);
+    opacity: 0.5;
+  }
+
+  .back_button {
+    position: absolute;
+    width: 26px;
+    height: 26px;
+    z-index: 99 !important;
+    right: 49px;
+    top: 6px;
+    border: none;
+    outline: none;
+    background: none;
+  }
