@@ -18,7 +18,10 @@ import GroupSelectionImg from '../../Icons/GroupSelectionImg';
 import ArrowRight from '../../Icons/ArrowRight';
 import ArrowLeft from '../../Icons/ArrowLeft';
 import { StickyNote, Frame, FontFamily, Item, Shape, Tag, Card, Text } from '@mirohq/websdk-types';
+import { StickyNote, Frame, FontFamily, Item, Shape, Tag, Card, Text, NotificationType } from '@mirohq/websdk-types';
 import { useSessionStorage } from '../../useSessionStorage';
+import Button from '../../ui/Button/Button';
+import SortByDifficultyImg from '../../Icons/SortByDifficultyImg';
 
 const miro = window.miro;
 
@@ -112,6 +115,8 @@ const steps: StepData[] = [
 		buttonText: 'Sort by Difficulty',
 		img: <ShowCategoriesImg />,
 		buttonIcon: <ShowCategoriesButtonIcon />,
+		img: <SortByDifficultyImg />,
+		buttonIcon: <SortByImportanceButtonIcon />,
 		methodSucceed: false,
 	},
 	{
@@ -128,6 +133,9 @@ const steps: StepData[] = [
 			'Press button "Create Priorites List" to get a proposal',
 			'rearrange list manually according to discussions',
 			'finished!',
+			'Press button "Create Priorities List" to get a proposal',
+			'Rearrange list manually according to discussions',
+			'Finished!',
 		],
 		buttonText: 'Create Priorities List',
 		img: <CreatePrioritiesListImg />,
@@ -137,6 +145,7 @@ const steps: StepData[] = [
 ];
 
 const addNewTopicButtonText = 'Added a new Topic? Go back to step 1 to set the new selection.';
+const addNewTopicButtonText = 'Removed or added a new Topic? Go back to step 1 to set the new selection.';
 
 // 	NoTag:
 // 		'One or more selected items are missing a tag.\nEnter a number tag (e.g "4")\n\
@@ -148,6 +157,8 @@ const CustomErrorMessages = {
 	NoSelection: 'Please select all topics you want to prioritize.',
 	WrongSelection: "You have selected an object that can't be used. Please reselect.",
 	WrongOrNoTag: 'One or more topics have no estimation, please add one to proceed',
+	WrongSelection: 'Object selection invalid. Use objects allowing estimates or Cando special cards.',
+	WrongOrNoTag: 'One or more topics have no estimation, please add one to proceed.',
 };
 
 export const MatrixWizard = () => {
