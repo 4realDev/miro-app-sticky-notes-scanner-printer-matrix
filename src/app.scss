@@ -7,6 +7,10 @@
 	/* ensures that browser isn’t adding any default padding */
 	margin: 0;
 	padding: 0;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans,
+    sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol,
+    Noto Color Emoji;
 }
 
 html {
@@ -15,14 +19,11 @@ html {
     font-size: 14px;
     line-height: 20px;
     font-weight: 500;
-    font-family: Inter, ui-sans-serif, system-ui, -apple-system,
-      BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans,
-      sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol,
-      Noto Color Emoji;
 }
 
 body {
-    padding: 24px 24px 26px 24px;
+    // padding: 24px 24px 26px 24px; -> MIRO DEFAULT
+    // padding: 0px 24px 26px 24px;
 }
 
 #root {
@@ -54,6 +55,18 @@ body {
 }
 
 .MuiTabs-indicator {
-    background-color: #459fd8 !important;
+    background-color: black !important;
     height: 2px !important;
+}
+
+.swiper-button-prev {
+    // offset(0);
+    left: 0px !important;
+    transform: scale(0.75);
+}
+
+.swiper-button-next {
+    // offset(0);
+    right: 0px !important;
+    transform: scale(0.75);
 }
