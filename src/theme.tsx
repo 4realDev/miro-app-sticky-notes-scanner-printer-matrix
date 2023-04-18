@@ -82,6 +82,14 @@ export const theme = createTheme({
 			},
 		},
 
+		MuiOutlinedInput: {
+			styleOverrides: {
+				notchedOutline: {
+					borderColor: '#000000',
+				},
+			},
+		},
+
 		MuiStepIcon: {
 			styleOverrides: {
 				text: {
@@ -92,5 +100,17 @@ export const theme = createTheme({
 			},
 		},
 		// *** MUI STEPPER ADJUSTMENTS ***
+
+		// *** MUI INPUT FIELD MUI MENU LIST ADJUSTMENTS ***
+		// used in Presentation Mode
+		MuiPaper: {
+			styleOverrides: {
+				root: {
+					top: '17%',
+					height: '72%',
+				},
+			},
+		},
+		// *** MUI INPUT FIELD MUI MENU LIST ADJUSTMENTS ***
 	},
 });
