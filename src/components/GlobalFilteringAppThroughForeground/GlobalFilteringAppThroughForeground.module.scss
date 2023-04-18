@@ -1,0 +1,63 @@
+.container {
+    padding: 0 24px 0 24px;
+
+	.title {
+		font-style: normal;
+		font-weight: 700;
+		font-size: 16px;
+		line-height: 20px;
+		color: #000000;
+		margin-bottom: 16px;
+	}
+	
+	
+	.descriptionText {
+		// font-family: 'Heebo-Regular';
+		font-style: normal;
+		font-weight: 500;
+		font-size: 14px;
+		line-height: 20px;
+		color: rgba(0, 0, 0, 0.7);
+		margin-bottom: 8px;
+	}
+	
+
+	.inputField {
+		font-size: 0.875rem;
+		line-height: 1.125rem;
+		border-radius: 3px;
+		border: 1px solid transparent;
+		outline: 2px solid #000000;
+		font-weight: 500;
+		padding: 8px 16px;
+		text-align: left;
+		background-color: #fff;
+		color: #000;
+		font-family: sans-serif;
+		font-stretch: normal;
+		font-style: normal;
+		letter-spacing: normal;
+		width: 100%;
+		flex: 5;
+		margin-right: 8px;
+	};
+	
+	.inputContainer {
+		display: flex;
+		justify-content: center;
+		flex-direction: column;
+		margin-bottom: 8px;
+		margin-top: 14px;
+		height: auto;
+	};
+	
+	.descriptionText {
+		font-style: normal;
+		font-weight: 500;
+		font-size: 14px;
+		line-height: 20px;
+		color: rgba(0, 0, 0, 0.7);
+		margin-bottom: 8px;
+	}
+}
+
