@@ -8,6 +8,8 @@
 // 3. PC mit Drucker reagiert auf POST requests von Server, indem dieser alle SVG Dateien die gesendet werden,
 // mit Hilfe des über USB angeschlossenen Druckers ausdruckt
 
+import { drawRect, detectObjects } from './utilities';
+import * as tf from '@tensorflow/tfjs';
 import React, { useEffect, useState } from 'react';
 import { NotificationType, SelectionUpdateEvent, StickyNote, StickyNoteColor } from '@mirohq/websdk-types';
 import styles from './PostItPrinterApp.module.scss';
@@ -315,9 +317,202 @@ const PostItPrinterApp = () => {
 		setStickyNoteSliderImages(stateArrayCopy);
 	};
 
+	// !!! STICKY NOTE SCANNING INSIDE MIRO TEST !!!
+	// RUN: npm i @tensorflow/tfjs -> https://www.npmjs.com/package/@tensorflow/tfjs
+
+	const downloadStickyNotePNG = (base64Url: string, fileName: string) => {
+		var downloadLink = document.createElement('a');
+		downloadLink.href = base64Url;
+		downloadLink.download = fileName;
+		document.body.appendChild(downloadLink);
+		downloadLink.click();
+		document.body.removeChild(downloadLink);
+	};
+
+	const [myNet, setMyNet] = useState<undefined | any>(undefined);
+	const [startCapture, setStartCapture] = useState(false);
+	const [myCanvas, setCanvas] = useState<undefined | HTMLCanvasElement>(undefined);
+	const [myVideo, setVideo] = useState<undefined | HTMLVideoElement>(undefined);
+
+	useEffect(() => {
+		const test = async () => {
+			const net = await tf.loadGraphModel(
+				// 'https://raw.githubusercontent.com/hugozanini/TFJS-object-detection/master/models/kangaroo-detector/model.json'
+				'https://brazhnik.de/miro-app-poc-testing/tfod-model/model.json'
+			);
+			setMyNet(net);
+		};
+		test();
+	}, []);
+
+	const cropImage = async (base64Url: string, newX: number, newY: number, newWidth: number, newHeight: number) => {
+		const img = new Image();
+		img.setAttribute('src', base64Url);
+
+		var canvas = document.createElement('canvas');
+		canvas.width = newWidth;
+		canvas.height = newHeight;
+		var ctx = canvas.getContext('2d');
+
+		// when the image is loaded we can get it as base64 url
+		const imgPromise = new Promise<string>((resolve, reject) => {
+			img.onload = () => {
+				// draw it to the canvas
+				ctx && ctx.drawImage(img, newX, newY, newWidth, newHeight, 0, 0, newWidth, newHeight);
+
+				// we don't need the original any more
+				// domUrl.revokeObjectURL(svgUrl);
+
+				// now we can resolve the promise, passing the base64 url
+				// resolve(canvas.toDataURL('image/png'));
+				resolve(canvas.toDataURL());
+			};
+			img.onerror = reject;
+		});
+
+		const imgUrl = await imgPromise;
+		console.log('imgUrl', imgUrl);
+
+		return imgUrl;
+	};
+
+	const capture = async () => {
+		try {
+			if (startCapture === false) {
+				const canvas = document.createElement('canvas');
+				const ctx = canvas.getContext('2d');
+				setStartCapture(true);
+				// asking permission to use a media input to record current tab
+				const stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
+				const video = document.createElement('video');
+				video.addEventListener('loadedmetadata', () => {
+					// passing video width & height as canvas width & height
+					canvas.width = video.videoWidth;
+					canvas.height = video.videoHeight;
+
+					// playing the video so the drawn image won't be black or blank
+					video.play();
+					ctx?.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+					// terminating first video track of the stream
+					// stream.getVideoTracks()[0].stop();
+					document.body.appendChild(canvas);
+					setCanvas(canvas);
+					setVideo(video);
+					// downloadStickyNotePNG(canvas!!.toDataURL(), 'YEAH');
+				});
+				// passing capture stream data as video source object
+				video.srcObject = stream;
+			} else {
+				// additional check to deal with error occuring while changing camera facingMode
+				// reason: Tensorflow.js tries to transform video into tensor via tf.browser.fromPixels and reads width and height from video DOM element
+				// since width and height are 0 at the moment of changing facingMode, an error is received -> "Error: Requested texture size [0x0] is invalid."
+				if (myVideo === undefined || myCanvas === undefined) return;
+				const myCanvasContext = myCanvas.getContext('2d');
+				if (myCanvasContext === null) return;
+
+				// MAKE DETECTIONS
+				// convert webcam feed to a number of pixels
+				const img = tf.browser.fromPixels(myVideo);
+				// resize img to fixed size of the webcam feed
+				// const resized = tf.image.resizeBilinear(img, [640, 480]);
+				const resized = tf.image.resizeBilinear(img, [myVideo.videoWidth, myVideo.videoHeight]);
+				// cast resized img into int32 to make model perform little bit better
+				const casted = resized.cast('int32');
+				// put resized,casted img into another set of arrays -> how tensorflow model expects the feed
+				const expanded = casted.expandDims(0);
+
+				// using the network which is loaded server
+				// we use the executeAsync method and pass the pre-processed image to get as the result some detection inside the obj variable
+				// detection results of the pre-processed img (expand) from the model
+				const obj = await myNet.executeAsync(expanded);
+
+				// ADJUST obj[x] AFTER EVERY NEW MODEL UPLOAD!
+				// post-processed boxes, classes, indexes, non-post-processed boxes, confidence scores, counter of detected objects
+
+				// obj[1] represents different bounding boxes [y, x, width, height]
+				const boxes = await obj[4].array();
+				// // obj[4] represents classes ["ThumbsUp", ThumbsDown", "ThankYou", "LiveLong"]
+				const classes = await obj[2].array();
+				// // obj[2] represents scores - how confident net is, that what's been detected is accurate
+				const scores = await obj[6].array();
+
+				// console.log('obj[0]', obj[0].array());
+				// console.log('obj[1]', obj[1].array());
+				// console.log('obj[2]', obj[2].array());
+				// console.log('obj[3]', obj[3].array());
+				// console.log('obj[4]', obj[4].array());
+				// console.log('obj[5]', obj[5].array());
+				// console.log('obj[6]', obj[6].array());
+				// console.log('obj[7]', obj[7].array());
+
+				const boundingBoxLineWidth = 4;
+				const recognitionThreshold = 0.9;
+
+				// draw the image first, so the rect can be drawn over it
+				myCanvasContext.drawImage(myVideo, 0, 0, myCanvas.width, myCanvas.height);
+
+				drawRect(
+					boxes[0],
+					classes[0],
+					scores[0],
+					recognitionThreshold,
+					boundingBoxLineWidth,
+					myVideo.videoWidth,
+					myVideo.videoHeight,
+					myCanvasContext
+				);
+
+				const detectedSelectedStickyNotes = detectObjects(
+					boxes[0],
+					scores[0],
+					recognitionThreshold,
+					myVideo.videoWidth,
+					myVideo.videoHeight
+				);
+
+				let stickyNoteDataList: StickyNoteDataObj[] = [];
+				const miroBoardInfo = await miro.board.getInfo();
+				const miroBoardId = miroBoardInfo.id;
+
+				for await (const detectedSelectedStickyNote of detectedSelectedStickyNotes) {
+					const detectedSelectedStickyNoteBase64URL = await cropImage(
+						myCanvas.toDataURL(),
+						detectedSelectedStickyNote.x,
+						detectedSelectedStickyNote.y,
+						detectedSelectedStickyNote.width,
+						detectedSelectedStickyNote.height
+					);
+					const newSlide = { img: detectedSelectedStickyNoteBase64URL, id: '1' };
+					setStickyNoteSliderImages((prevState) => [...prevState, newSlide]);
+					console.log(detectedSelectedStickyNoteBase64URL);
+
+					const fileName = Date.now().toString();
+
+					stickyNoteDataList.push({
+						id: fileName,
+						base64Url: detectedSelectedStickyNoteBase64URL,
+						color: 'blue',
+						xpos: Math.round(detectedSelectedStickyNote.x),
+						ypos: Math.round(detectedSelectedStickyNote.y),
+					});
+				}
+
+				connectToWebSocketAndSendPrintingData({ stickyNoteDataList: stickyNoteDataList, miroBoardId: miroBoardId });
+				document.body.appendChild(myCanvas);
+				downloadStickyNotePNG(myCanvas.toDataURL(), 'MiroStickyNoteDetection');
+			}
+		} catch (error) {
+			console.log(error);
+		}
+	};
+	// !!! STICKY NOTE SCANNING INSIDE MIRO TEST !!!
+
 	return (
 		<div className={styles.container}>
 			<h1 className={styles.title}>Sticky Note Printer</h1>
+
+			<button onClick={() => capture()}>CAPTURE</button>
 
 			<p className={styles.descriptionText}>Select one or more sticky notes and press “Print”.</p>
 
