@@ -11,14 +11,17 @@
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
     "@mui/material": "^5.11.5",
+    "classnames": "^2.3.2",
+    "dom-to-svg": "^0.12.2",
     "mirotone": "2.0.8",
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "react-swipeable-views": "^0.14.0",
-    "sass": "^1.54.5"
+    "sass": "^1.54.5",
+    "swiper": "^9.0.5"
   },
   "devDependencies": {
-    "@mirohq/websdk-types": "latest",
+    "@mirohq/websdk-types": "^2.7.0",
     "@types/node": "^18.11.18",
     "@types/react": "17.0.38",
     "@types/react-dom": "17.0.11",
