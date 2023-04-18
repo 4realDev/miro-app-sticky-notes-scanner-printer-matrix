@@ -4,6 +4,7 @@
 *:before,
 *:after {
   box-sizing: border-box;
+  font-family: 'Heebo-Regular';
 }
 
 html {
@@ -15,12 +16,12 @@ html {
     Noto Color Emoji;
 }
 
-/* body {
-  height: 100%;
+/* body { */
+  /* height: 100%;
   line-height: 1.5;
   margin: 0;
-  padding: 2rem;
-} */
+  padding: 2rem; */
+/* } */
 
 .container {
   max-width: 580px;
