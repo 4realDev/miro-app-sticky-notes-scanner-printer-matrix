@@ -12,6 +12,7 @@ import MiroTemplateApp from './components/MiroTemplateApp/MiroTemplateApp';
 import { MatrixWizard } from './components/MatrixWizard/MatrixWizard/MatrixWizard';
 import { ThemeProvider } from '@mui/material/styles';
 import { theme } from './theme';
+import ToolboxStartScreen from './components/ToolboxStartScreen/ToolboxStartScreen';
 // interface ITag {
 // 	id: string;
 // 	title: string;
@@ -85,7 +86,7 @@ const App = () => {
 
 	return (
 		<ThemeProvider theme={theme}>
-			<MatrixWizard />
+			<ToolboxStartScreen />
 		</ThemeProvider>
 	);
 
