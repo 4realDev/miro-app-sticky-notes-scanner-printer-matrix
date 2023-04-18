@@ -1,8 +1,3 @@
-// TODO: STICKY NOTE PRINTER
-// C:\_WORK\GitHub\_data-science\TensorFlow\addons\infraView\i_view64.exe C:\color[dark_green]_xpos[-4542]_ypos[4085](8).png /resize=(205,205) /aspectratio /resample /print="nemonic MIP-001"
-// TODO: INSTALLATION VON INFRAVIEW DOKUMENTIEREN
-// Server (Strato) z.B. brazhnik.de/sticky-printer
-// Script auf Server
 // 1. VON BELIEBIGEM PC AUS (ORTSUNGEBUNDEN):
 // Über POST request Möglichkeit, eine SVG Datei (von jedem PC oder Handy) an den Server zu senden
 // (soll in einer Miro App realisiert werden -> JS)
@@ -13,10 +8,13 @@
 // 3. PC mit Drucker reagiert auf POST requests von Server, indem dieser alle SVG Dateien die gesendet werden,
 // mit Hilfe des über USB angeschlossenen Druckers ausdruckt
 
-import { StickyNote, StickyNoteColor } from '@mirohq/websdk-types';
-import React from 'react';
-import { text } from 'stream/consumers';
-import styles from '../../index.module.scss';
+import React, { useEffect, useState } from 'react';
+import { NotificationType, SelectionUpdateEvent, StickyNote, StickyNoteColor } from '@mirohq/websdk-types';
+import styles from './PostItPrinterApp.module.scss';
+import Button from '../ui/Button/Button';
+import Printer from '../Icons/Printer';
+import StickyNotePreviewSlider from './StickyNotePreviewSlider/StickyNotePreviewSlider';
+import { elementToSVG } from 'dom-to-svg';
 
 type StickyNoteDataObj = {
 	id: string;
@@ -32,31 +30,22 @@ type StickyNoteTransferedDataObj = {
 };
 
 const PostItPrinterApp = () => {
-	const convertStickyNoteSVGToStickyNotePNG = async (
-		iconSvg: SVGSVGElement,
+	const [stickyNoteSliderImages, setStickyNoteSliderImages] = useState<Array<{ img: string; id: string }>>([]);
+	const stickyNotePostItWidth = 305;
+
+	// TODO: Extract in unility class
+	const sendNotification = async (notification: string) => {
+		// Display the notification on the board UI.
+		await miro.board.notifications.show({ message: notification, type: NotificationType.Error });
+	};
+
+	const convertStickyNoteSVGStringToStickyNotePNGBase64URL = async (
+		svgString: string,
 		imgWidth: number,
 		imgHeight: number
 	): Promise<string> => {
-		// solution without third party libry
-		// canvg - doesn't support all of SVG capabilities
-		// D3 or other libraries - often something other doesn't work (e.g. textPath)
-
-		// 1. Get the DOM URL for the specific browser
-		// Dom has API method to create an object - createObjectURL(svgtext)
-		// API differs from browser to browser, but here's how to find it
-		const domUrl = window.URL || window.webkitURL || window;
-		if (!domUrl) {
-			throw new Error('(browser doesnt support this)');
-		}
-
-		// 2. Create Blob object from svg outHTML data
-		let svgText = iconSvg.outerHTML;
-		const svg = new Blob([svgText], {
-			type: 'image/svg+xml;charset=utf-8',
-		});
-
-		// 3. Use the Blob object to create an objectURL inside the dom URL
-		const svgUrl = domUrl.createObjectURL(svg);
+		const img = new Image();
+		img.setAttribute('src', 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(svgString))));
 
 		// 4. Create Canvas with the height and width from the svg for temporarily use
 		var canvas = document.createElement('canvas');
@@ -71,7 +60,7 @@ const PostItPrinterApp = () => {
 		// to get the url of the base64 representation from the drawn svg image
 		// Wrap everything in a promise, so it can be resolved
 		// with the dataUrl of the final representation of the canvas with the svg as image inside
-		const img = new Image();
+		// const img = new Image();
 
 		// when the image is loaded we can get it as base64 url
 		const imgPromise = new Promise<string>((resolve, reject) => {
@@ -79,161 +68,129 @@ const PostItPrinterApp = () => {
 				// draw it to the canvas
 				ctx && ctx.drawImage(img, 0, 0);
 
-				// we don't need the original any more
-				domUrl.revokeObjectURL(svgUrl);
-
 				// now we can resolve the promise, passing the base64 url
 				resolve(canvas.toDataURL('image/png'));
 			};
 			img.onerror = reject;
 		});
 
-		// load the image -> calls the onload() method
-		img.src = svgUrl;
-
 		const imgUrl = await imgPromise;
 
 		return imgUrl;
 	};
 
-	const splitTextInMultipleRows = (textContentRows: string[]) => {
-		// // TODO: CODE FALLBACK FOR WHEN NO BREAKS ARE USED -> row = 1
+	const calculateFontSize = (
+		font_size: number,
+		innerBox: HTMLElement,
+		iconSvgSize: number
+	): (() => number) | number => {
+		innerBox.style.fontSize = `${font_size}px`;
+		const block_inner_width = innerBox.clientWidth;
+		const block_inner_height = innerBox.clientHeight;
 
-		const words = textContentRows[0].split(' ');
-		let rowSentence: string = '';
-		const newTextContentRows: Array<string> = [];
-		words.forEach((word, index) => {
-			console.log(rowSentence);
-			console.log(word);
-			if (rowSentence.length + 1 + word.length < 20) {
-				if (index === 0) rowSentence = word;
-				else rowSentence = `${rowSentence} ${word}`;
-			} else {
-				newTextContentRows.push(rowSentence);
-				rowSentence = word;
-			}
-		});
-		console.log(newTextContentRows);
-		return newTextContentRows;
-	};
-
-	const calculateStickyNoteFontSize = (maxCharacterCount: number, textContentRows: string[]) => {
-		let charNumDependentFontSize = 0;
-
-		// prettier-ignore
-		if(maxCharacterCount <= 3) charNumDependentFontSize = 64
-        else if(maxCharacterCount > 3 && maxCharacterCount <= 4) charNumDependentFontSize = 48
-        else if(maxCharacterCount > 4 && maxCharacterCount <= 6) charNumDependentFontSize = 32
-        else if(maxCharacterCount > 6 && maxCharacterCount <= 8) charNumDependentFontSize = 24
-        else if(maxCharacterCount > 8 && maxCharacterCount <= 11) charNumDependentFontSize = 18
-        else if(maxCharacterCount > 11 && maxCharacterCount <= 14) charNumDependentFontSize = 14
-        else if(maxCharacterCount > 14 && maxCharacterCount <= 16) charNumDependentFontSize = 12
-        else if(maxCharacterCount > 16) charNumDependentFontSize = 10
-
-		// prettier-ignore
-		if(textContentRows.length === 2) charNumDependentFontSize = 48
-		else if (textContentRows.length === 3) charNumDependentFontSize = 32;
-		else if (textContentRows.length === 4) charNumDependentFontSize = 24;
-		else if (textContentRows.length === 5 || textContentRows.length === 6) charNumDependentFontSize = 18;
-		else if (textContentRows.length === 7) charNumDependentFontSize = 14;
-		else if (textContentRows.length === 8) charNumDependentFontSize = 12;
-		else if (textContentRows.length === 8 || textContentRows.length === 9) charNumDependentFontSize = 12;
-		else if (textContentRows.length > 9) charNumDependentFontSize = 10;
-
-		console.log('max character', maxCharacterCount);
-		console.log('row count', textContentRows.length);
-		console.log('final font size', charNumDependentFontSize);
-
-		return charNumDependentFontSize;
-	};
-
-	const convertStickyNoteDataToStickyNoteSVG = (stickyNote: StickyNote) => {
-		const iconSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-
-		// CREATE SVG
-		const iconSvgSize = stickyNote.width;
-		iconSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-		iconSvg.setAttribute('height', iconSvgSize.toString());
-		iconSvg.setAttribute('width', iconSvgSize.toString());
-		iconSvg.setAttribute('transform', 'rotate(90 0 0)');
-
-		// CREATE SVG RECT
-		const iconRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-		iconRect.setAttribute('fill', 'white');
-		iconRect.setAttribute('height', iconSvgSize.toString());
-		iconRect.setAttribute('width', iconSvgSize.toString());
-		iconRect.setAttribute('x', '0');
-		iconRect.setAttribute('y', '0');
-
-		// CREATE SVG TEXT
-		const iconText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-		iconText.setAttribute('fill', 'black');
-		iconText.setAttribute('text-anchor', 'middle');
-		iconText.setAttribute('dominant-baseline', 'middle');
-		iconText.setAttribute('x', '50%');
-		iconText.setAttribute('y', '50%');
-		iconText.setAttribute('height', iconSvgSize.toString());
-		iconText.setAttribute('width', iconSvgSize.toString());
-		iconText.setAttribute('font-family', 'Arial, Helvetica, sans-serif');
-		iconText.setAttribute('font-weight', 'bold');
-
-		// GET ALL ROWS IN ARRAY
-		const regexp = new RegExp('(?<=<s*p[^>]*>)(.*?)(?=<s*/s*p>)', 'g');
-		let textContentRows = [...stickyNote.content.matchAll(regexp)].map(
-			(textContentRow) => textContentRow[1]
-		) as unknown as Array<string>;
-
-		// GET LONGEST ROW
-		const longestRow = textContentRows.reduce((prev, cur) => {
-			return cur.length > prev.length ? cur : prev;
-		});
-		console.log('longest row', longestRow);
-
-		// GET NUM OF CHARACTER IN LONGEST ROW
-		const maxCharacterCount = longestRow.length;
-
-		// ADJUST FONT SIZE OF TEXT ACCORDING TO NUMBER OF ROWS AND TO LONGEST ROW
-		let charNumDependentFontSize = 0;
-
-		if (textContentRows.length === 1 && maxCharacterCount > 16) {
-			textContentRows = splitTextInMultipleRows(textContentRows);
-			charNumDependentFontSize = 10;
+		if (block_inner_height > iconSvgSize || iconSvgSize < block_inner_width) {
+			font_size = font_size * 0.9;
+			return calculateFontSize(font_size, innerBox, iconSvgSize);
 		} else {
-			charNumDependentFontSize = calculateStickyNoteFontSize(maxCharacterCount, textContentRows);
+			return font_size;
 		}
-
-		// CREATE SVG TEXT SPAN FOR EACH ROW
-		textContentRows.forEach((textContentRow, index) => {
-			const iconTextSpan = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
-			if (index !== 0) iconTextSpan.setAttribute('dy', '1.2em');
-			iconTextSpan.setAttribute('x', '50%');
-			iconTextSpan.textContent = textContentRow;
-			iconText.appendChild(iconTextSpan);
-		});
-
-		// ADJUST Y POSITION OF TEXT ACCORDING TO NUMBER OF ROWS
-		iconText.setAttribute('dy', `${(-1.2 * (textContentRows.length - 1)) / 2}em`);
-		iconText.setAttribute('font-size', `${charNumDependentFontSize}`);
-
-		iconSvg.appendChild(iconRect);
-		iconSvg.appendChild(iconText);
-
-		return iconSvg;
 	};
 
-	const downloadStickyNotePNG = (base64Url: string, fileName: string) => {
-		var downloadLink = document.createElement('a');
-		downloadLink.href = base64Url;
-		downloadLink.download = fileName;
-		document.body.appendChild(downloadLink);
-		downloadLink.click();
-		document.body.removeChild(downloadLink);
+	const convertStickyNoteDataToStickyNoteSVGString = (stickyNote: StickyNote, forDrawingOnScreen = false) => {
+		const outerBoxBackground =
+			forDrawingOnScreen === false ? 'white' : mapStickyNoteColorToPrintColor(stickyNote.style.fillColor, true);
+		const outerBoxTransform = forDrawingOnScreen === false ? 'rotate(90 0 0)' : 'none';
+		const outerBox = document.createElement('div');
+		outerBox.setAttribute(
+			'style',
+			`
+			height: ${stickyNotePostItWidth}px;
+			width: ${stickyNotePostItWidth}px;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			background: ${outerBoxBackground};
+			transform: ${outerBoxTransform};
+			`
+		);
+
+		const innerBox = document.createElement('div');
+		innerBox.setAttribute(
+			'style',
+			`
+			font-size: ${stickyNotePostItWidth};
+			font-family: sans-serif;
+			font-weight: bold;
+			text-align: center;
+			line-height: 1.5;
+			margin-bottom: 10px; /* quickfix to vertical align the text because of default offset */
+			padding: 32px;
+		
+			word-wrap: break-word;      /* IE 5.5-7 */
+			white-space: -moz-pre-wrap; /* Firefox 1.0-2.0 */
+			white-space: pre-wrap;      /* current browsers */
+			`
+		);
+
+		innerBox.textContent = stickyNote.content.replaceAll('<p>', '').replaceAll('</p>', '').replaceAll('<br>', '\n');
+
+		outerBox.appendChild(innerBox);
+
+		// Add the html to the body to make it visible
+		document.body.appendChild(outerBox);
+
+		const startFont = stickyNotePostItWidth;
+		calculateFontSize(startFont, innerBox, stickyNotePostItWidth);
+
+		const svgDocument = elementToSVG(outerBox);
+		const svgString = new XMLSerializer().serializeToString(svgDocument);
+
+		// TODO: FIND OUT WHY ERROR
+		// -> Uncaught (in promise) DOMException: Node.removeChild: The node to be removed is not a child of this node occures
+		// Remove the html from the body to keep the dom tree clean
+		document.body.removeChild(outerBox);
+
+		return svgString;
+	};
+
+	const mapStickyNoteColorToPrintColor = (
+		stickyNoteColor: StickyNoteColor | `${StickyNoteColor}`,
+		forDrawingOnScreen = false
+	) => {
+		if (
+			stickyNoteColor === StickyNoteColor.LightYellow ||
+			stickyNoteColor === StickyNoteColor.Yellow ||
+			stickyNoteColor === StickyNoteColor.LightGreen ||
+			stickyNoteColor === StickyNoteColor.Green ||
+			stickyNoteColor === StickyNoteColor.DarkGreen
+		) {
+			return forDrawingOnScreen === false ? 'yellow' : '#F8F1B9';
+		} else if (
+			stickyNoteColor === StickyNoteColor.LightBlue ||
+			stickyNoteColor === StickyNoteColor.Blue ||
+			stickyNoteColor === StickyNoteColor.DarkBlue ||
+			stickyNoteColor === StickyNoteColor.Cyan
+		) {
+			return forDrawingOnScreen === false ? 'blue' : '#CDE4F1';
+		} else if (
+			stickyNoteColor === StickyNoteColor.LightPink ||
+			stickyNoteColor === StickyNoteColor.Pink ||
+			stickyNoteColor === StickyNoteColor.Violet ||
+			stickyNoteColor === StickyNoteColor.Red ||
+			stickyNoteColor === StickyNoteColor.Orange ||
+			stickyNoteColor === StickyNoteColor.Gray ||
+			stickyNoteColor === StickyNoteColor.Black
+		) {
+			return forDrawingOnScreen === false ? 'pink' : '#F5D7D7';
+		} else {
+			return forDrawingOnScreen === false ? 'yellow' : '#F8F1B9';
+		}
 	};
 
 	const connectToWebSocketAndSendPrintingData = (data: StickyNoteTransferedDataObj) => {
 		console.log('Client starts connection to websocket server! (Consumer)');
 		// https://developer.mozilla.org/en-US/docs/Web/API/WebSocket
-		const websocket = new WebSocket('ws://localhost:8080');
+		const websocket = new WebSocket('wss://toolbox-toolbox-printing-server.gke.cando-image.com');
 
 		// Connection opened
 		websocket.addEventListener('open', () => {
@@ -246,49 +203,40 @@ const PostItPrinterApp = () => {
 		websocket.addEventListener('message', (event) => {
 			console.log(`Server has send data to the Client: ${event.data}.`);
 			// Data is printing feedback forwarded from Provider - Show feedback to user
-			alert(event.data);
 			// disconnect client, when feedback has been received
 			websocket.close();
 		});
 	};
 
-	const createStickyNoteSvgForPrinting = async () => {
+	const startPrintJob = async () => {
 		const selectedWidgets = await miro.board.getSelection();
 		const selectedStickyNotes = selectedWidgets.filter(
 			(selectedWidget) => selectedWidget.type === 'sticky_note'
 		) as Array<StickyNote>;
 
 		if (selectedStickyNotes.length === 0) {
-			alert('You have not selected a sticky note yet. Please select one or more sticky notes for printing.');
+			sendNotification('Please select all sticky notes you want to print.');
 			return;
 		}
-
-		// if (selected_sticky_notes.length > 1) {
-		// 	alert(
-		// 		`You selected ${selected_sticky_notes.length} widgets. Please only select one sticky note widget for printing.`
-		// 	);
-		// 	return;
-		// }
 
 		let stickyNoteDataList: StickyNoteDataObj[] = [];
 		const miroBoardInfo = await miro.board.getInfo();
 		const miroBoardId = miroBoardInfo.id;
 
 		for await (const selectedStickyNote of selectedStickyNotes) {
-			const iconSvg = convertStickyNoteDataToStickyNoteSVG(selectedStickyNote);
-			const imgBase64Url: string = await convertStickyNoteSVGToStickyNotePNG(
-				iconSvg,
-				selectedStickyNote.width,
-				selectedStickyNote.width
+			const iconSvgString = convertStickyNoteDataToStickyNoteSVGString(selectedStickyNote);
+			const imgBase64Url = await convertStickyNoteSVGStringToStickyNotePNGBase64URL(
+				iconSvgString,
+				stickyNotePostItWidth,
+				stickyNotePostItWidth
 			);
-
+			const imgStickyNotePrintColor = mapStickyNoteColorToPrintColor(selectedStickyNote.style.fillColor);
 			const fileName = Date.now().toString();
-			downloadStickyNotePNG(imgBase64Url, fileName); // TODO: CAN BE REMOVED AFTERWARDS (DOWNLOAD IS NOT NECESSARY)
 
 			stickyNoteDataList.push({
 				id: fileName,
 				base64Url: imgBase64Url,
-				color: selectedStickyNote.style.fillColor,
+				color: imgStickyNotePrintColor,
 				xpos: Math.round(selectedStickyNote.x),
 				ypos: Math.round(selectedStickyNote.y),
 			});
@@ -297,38 +245,91 @@ const PostItPrinterApp = () => {
 		connectToWebSocketAndSendPrintingData({ stickyNoteDataList: stickyNoteDataList, miroBoardId: miroBoardId });
 	};
 
-	// useEffect(() => {
-	// 	const interval = setInterval(async () => {
-	// 		const allStickies = await miro.board.get({ type: ['sticky_note'] });
+	// TODO: ADD TO CHEAT SHEET
+	// HOW TO EVENTLISTENER WITH USEEFFECT
+	// COMPONENT IS CALLED MULTIPLE TIMES
+	// MAKE SURE TO REGISTER EVENTS ONCE IN USEEFFECT (onMount) or in USEMEMO (variable change)
+	// mount
 
-	// 		setAllStickyNotes((previousState: BoardNode[]) => {
-	// 			const newStickyNotes: StickyNote[] = allStickies.filter(
-	// 				(stickyNoteFromUpdatedList) => !previousState.some((element) => element.id === stickyNoteFromUpdatedList.id)
-	// 			) as StickyNote[];
+	useEffect(() => {
+		const setInitialSelection = async () => {
+			const initialSelection = await miro.board.getSelection();
+			const filteredInitialSelection = initialSelection.filter(
+				(item) => item.type === 'sticky_note'
+			) as Array<StickyNote>;
+			updateStickyNoteImageSliderChildren(filteredInitialSelection);
+		};
 
-	// 			newStickyNotes.forEach((newStickyNote) => {
-	// 				const stickyNoteSvgImage = createStickyNoteSvgForPrinting(newStickyNote);
-	// 				// TODO: Start print job with svg image path
-	// 				// needs maybe a server (node.js -> runs on pc on server - not in client)
-	// 			});
+		setInitialSelection();
 
-	// 			return allStickies;
-	// 		});
-	// 	}, 5000);
+		const onSelectionUpdate = (event: SelectionUpdateEvent) => {
+			// TODO: Maybe make selectedItems to a global state
+			// Filter sticky notes from the selected items
+			const selectedItems = event.items;
+			const stickyNotes = selectedItems.filter((item) => item.type === 'sticky_note') as Array<StickyNote>;
+			updateStickyNoteImageSliderChildren(stickyNotes);
+		};
 
-	// 	// return function is called once when component is unmounting
-	// 	// important for services and events, as well as for custom eventListeners and services for which you subscribe
-	// 	return () => {
-	// 		clearInterval(interval);
-	// 	};
-	// }, []);
+		// register the miro 'selection:update' event to store the current user selection inside the selectedStickyNotes state
+		miro.board.ui.on('selection:update', onSelectionUpdate);
+
+		// like unmount
+		return () => {
+			miro.board.ui.off('selection:update', onSelectionUpdate);
+		};
+	}, []);
+
+	const updateStickyNoteImageSliderChildren = async (selectedStickyNotes: Array<StickyNote>) => {
+		// if some selected sticky note (yet) does not exist in the image slider children
+		// draw it inside the image slider DOM
+
+		const stateArrayCopy = [...stickyNoteSliderImages]; // make a separate copy of the array
+
+		for (const sticky of selectedStickyNotes) {
+			const selectedSliderChild = stickyNoteSliderImages.find((child) => child.id === sticky.id);
+			if (!selectedSliderChild) {
+				const iconSvgString = convertStickyNoteDataToStickyNoteSVGString(sticky, true);
+				const imgBase64Url = await convertStickyNoteSVGStringToStickyNotePNGBase64URL(
+					iconSvgString,
+					stickyNotePostItWidth,
+					stickyNotePostItWidth
+				);
+
+				stateArrayCopy.push({ img: imgBase64Url, id: sticky.id });
+			}
+		}
+
+		// some child inside the image slider does not exist (anymore) in the newest selection
+		// remove the child from the image slider
+		stickyNoteSliderImages.forEach((img) => {
+			if (selectedStickyNotes.some((selectedStickyNote) => selectedStickyNote.id === img.id) === false) {
+				var index = stateArrayCopy.indexOf(img);
+				if (index !== -1) {
+					stateArrayCopy.splice(index, 1);
+				}
+				// stickyNoteSliderImages.reduce(child, 0)
+				// child.remove();
+			}
+		});
+
+		setStickyNoteSliderImages(stateArrayCopy);
+	};
 
 	return (
-		<div className={styles.appContainer}>
-			<h3 className={styles.h3Style}>POST IT PRINTER APP</h3>
-			<button className={styles.buttonStyle} onClick={() => createStickyNoteSvgForPrinting()}>
-				Print Sticky Note
-			</button>
+		<div className={styles.container}>
+			<h1 className={styles.title}>Sticky Note Printer</h1>
+
+			<p className={styles.descriptionText}>Select one or more sticky notes and press “Print”.</p>
+
+			<h1 className={styles.previewTitle}>Preview:</h1>
+
+			<StickyNotePreviewSlider stickyNoteSliderImages={stickyNoteSliderImages} />
+			<Button
+				onClickFunction={startPrintJob}
+				buttonIcon={<Printer />}
+				buttonText={'Print'}
+				isDisabled={stickyNoteSliderImages.length === 0}
+			/>
 		</div>
 	);
 };
