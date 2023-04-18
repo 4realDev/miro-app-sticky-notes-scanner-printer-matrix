@@ -17,7 +17,6 @@ import GroupSelectionButtonIcon from '../../Icons/GroupSelectionButtonIcon';
 import GroupSelectionImg from '../../Icons/GroupSelectionImg';
 import ArrowRight from '../../Icons/ArrowRight';
 import ArrowLeft from '../../Icons/ArrowLeft';
-import { StickyNote, Frame, FontFamily, Item, Shape, Tag, Card, Text } from '@mirohq/websdk-types';
 import { StickyNote, Frame, FontFamily, Item, Shape, Tag, Card, Text, NotificationType } from '@mirohq/websdk-types';
 import { useSessionStorage } from '../../useSessionStorage';
 import Button from '../../ui/Button/Button';
@@ -113,8 +112,6 @@ const steps: StepData[] = [
 			'If you re-estimate story points, update by pressing the button again',
 		],
 		buttonText: 'Sort by Difficulty',
-		img: <ShowCategoriesImg />,
-		buttonIcon: <ShowCategoriesButtonIcon />,
 		img: <SortByDifficultyImg />,
 		buttonIcon: <SortByImportanceButtonIcon />,
 		methodSucceed: false,
@@ -130,9 +127,6 @@ const steps: StepData[] = [
 	{
 		title: 'Create Priorities List',
 		steps: [
-			'Press button "Create Priorites List" to get a proposal',
-			'rearrange list manually according to discussions',
-			'finished!',
 			'Press button "Create Priorities List" to get a proposal',
 			'Rearrange list manually according to discussions',
 			'Finished!',
@@ -144,7 +138,6 @@ const steps: StepData[] = [
 	},
 ];
 
-const addNewTopicButtonText = 'Added a new Topic? Go back to step 1 to set the new selection.';
 const addNewTopicButtonText = 'Removed or added a new Topic? Go back to step 1 to set the new selection.';
 
 // 	NoTag:
@@ -155,8 +148,6 @@ const addNewTopicButtonText = 'Removed or added a new Topic? Go back to step 1 t
 // 		or use the Miro Estimation Tool to add a correct number tag (e.g "Estimate: 4").',
 const CustomErrorMessages = {
 	NoSelection: 'Please select all topics you want to prioritize.',
-	WrongSelection: "You have selected an object that can't be used. Please reselect.",
-	WrongOrNoTag: 'One or more topics have no estimation, please add one to proceed',
 	WrongSelection: 'Object selection invalid. Use objects allowing estimates or Cando special cards.',
 	WrongOrNoTag: 'One or more topics have no estimation, please add one to proceed.',
 };
@@ -317,7 +308,7 @@ export const MatrixWizard = () => {
 		for (const widget of selectedWidgets) {
 			let widgetsTag: Tag | undefined = undefined;
 
-			// SCENARIO 1: SORTING STICKY NOTES OR CARD
+			// SCENARIO 1: SORTING STICKY NOTE OR CARD
 			// widget is a sticky note or a card without a parent (not inside a frame)
 			// find its widgetsTag -> it should correspond to the estimation tag
 			if ((widget.type === 'sticky_note' || widget.type === 'card') && widget.parentId === null) {
@@ -447,6 +438,11 @@ export const MatrixWizard = () => {
 		// Delete already existing matrixCoordinateSystem before new coordinateSystem is created
 		if (coordXAxisWidgets && coordXAxisWidgets.length !== 0) {
 			Promise.all(coordXAxisWidgets.map(async (widget) => widget && (await miro.board.remove(widget))));
+		}
+
+		// Delete already existing matrixCoordinateSystem before new coordinateSystem is created
+		if (coorYAxisWidgets && coorYAxisWidgets.length !== 0) {
+			Promise.all(coorYAxisWidgets.map(async (widget) => widget && (await miro.board.remove(widget))));
 		}
 
 		// create X-Axis
@@ -603,9 +599,10 @@ export const MatrixWizard = () => {
 		return [yAxisCoorOriginX, yAxisCoorOriginY];
 	};
 
+	// TODO: Extract in utility class
 	const sendNotification = async (notification: string) => {
 		// Display the notification on the board UI.
-		await miro.board.notifications.show({ message: notification, type: 'error' });
+		await miro.board.notifications.show({ message: notification, type: NotificationType.Error });
 	};
 
 	// This method is called twice
@@ -614,10 +611,11 @@ export const MatrixWizard = () => {
 	// The second time, the method is called by the function sortByXAxis, which should typically by called afterwards
 	const sortByXAxis = async (
 		setViewport = true,
-		groupWidgetsAbove = false
+		groupWidgetsAbove = false,
+		reselectWidgets = true
 	): Promise<boolean | [number, number, (StickyNote | Card | Frame)[], boolean]> => {
 		let filteredSelectedWidgets = undefined;
-		if (matrixWidgetSelection.length === 0) {
+		if (reselectWidgets) {
 			const selectedWidgets = await miro.board.getSelection();
 
 			if (selectedWidgets.length === 0) {
@@ -670,8 +668,8 @@ export const MatrixWizard = () => {
 		const widgetMaxHeight = Math.max(...filteredSelectedWidgets.map((selectedWidget) => selectedWidget.height)); // prettier-ignore
 
 		// if "matrixWidgetSelection.length === 0" get widgetWithMinPosX and Y, else use the already saved "minWidgetPos"
-		const minPosX = matrixWidgetSelection.length === 0 ? widgetWithMinPosX.x : minWidgetPosX;
-		const minPosY = matrixWidgetSelection.length === 0 ? widgetWithMinPosY.y : minWidgetPosY;
+		const minPosX = reselectWidgets ? widgetWithMinPosX.x : minWidgetPosX;
+		const minPosY = reselectWidgets ? widgetWithMinPosY.y : minWidgetPosY;
 
 		let xAxisCoorOriginX = 0;
 		let xAxisCoorOriginY = 0;
@@ -754,7 +752,7 @@ export const MatrixWizard = () => {
 		// }
 
 		if (selectedWidgetsWithNumericTag) {
-			const [coorOriginX, coorOriginY] = (await sortByXAxis(false, true)) as [
+			const [coorOriginX, coorOriginY] = (await sortByXAxis(false, true, false)) as [
 				number,
 				number,
 				Array<StickyNote | Card | Frame>,
@@ -837,15 +835,20 @@ export const MatrixWizard = () => {
 		});
 
 		// move QuarterWidgets in the back, so they don't overflow MatrixWidgets
-		await miro.board.sendToBack(quarterWidget);
+		// await miro.board.sendToBack(quarterWidget);
+
 		return quarterWidget;
 	};
 
 	const showCategorizationOfMatrix = async () => {
-		topLeftQuarter && (await miro.board.remove(topLeftQuarter));
-		topRightQuarter && (await miro.board.remove(topRightQuarter));
-		bottomLeftQuarter && (await miro.board.remove(bottomLeftQuarter));
-		bottomRightQuarter && (await miro.board.remove(bottomRightQuarter));
+		topLeftQuarter && (await miro.board.getById(topLeftQuarter.id)) && (await miro.board.remove(topLeftQuarter));
+		topRightQuarter && (await miro.board.getById(topRightQuarter.id)) && (await miro.board.remove(topRightQuarter));
+		bottomLeftQuarter &&
+			(await miro.board.getById(bottomLeftQuarter.id)) &&
+			(await miro.board.remove(bottomLeftQuarter));
+		bottomRightQuarter &&
+			(await miro.board.getById(bottomRightQuarter.id)) &&
+			(await miro.board.remove(bottomRightQuarter));
 
 		if (coorOriginX && coorOriginY) {
 			// * 0.75 = take 3/4 or the totalWidgetWidth
@@ -913,6 +916,32 @@ export const MatrixWizard = () => {
 				drawDebugDot(topRightQuarterData.centerPoint.x, topRightQuarterData.centerPoint.y);
 				drawDebugDot(bottomRightQuarterData.centerPoint.x, bottomRightQuarterData.centerPoint.y);
 			}
+
+			Promise.all(
+				matrixWidgetSelection.map(async (widget) => {
+					if (widget.type === 'frame') {
+						const children = await widget.getChildren();
+						const childrenWithZIndex = [];
+
+						for (const child of children) {
+							if (child.type === 'shape') {
+								childrenWithZIndex.push({ zIndex: 0, widget: child });
+							} else {
+								childrenWithZIndex.push({ zIndex: 1, widget: child });
+							}
+						}
+
+						childrenWithZIndex.sort((a, b) => a.zIndex - b.zIndex);
+
+						for (const childWithIndex of childrenWithZIndex) {
+							await miro.board.bringToFront(childWithIndex.widget);
+						}
+					} else {
+						await miro.board.bringToFront(widget);
+					}
+				})
+			);
+
 			return true;
 		} else {
 			return false;
@@ -1192,13 +1221,11 @@ export const MatrixWizard = () => {
 	const [resortByXAxisInSecondStep, setResortByXAxisInSecondStep] = useState(false);
 
 	const moveStepBack = () => {
-		setStep(step - 1);
+		if (step >= 0) setStep(step - 1);
 	};
 
 	const moveStepForward = () => {
-		if (step < steps.length) {
-			setStep(step + 1);
-		}
+		if (step < steps.length - 1) setStep(step + 1);
 	};
 
 	const onWizardStepButtonClicked = async () => {
@@ -1211,11 +1238,9 @@ export const MatrixWizard = () => {
 				// Clean the sessionStorage which is used,
 				// because the miro estimation tool closes and reopens the app
 				// which leads to a data lost without the usage of sessionStorage
-				sessionStorage.clear();
-
 				setMatrixWidgetSelection([]);
-
-				const [, , , methodSucceedStepZero] = (await sortByXAxis(true, false)) as [
+				sessionStorage.clear();
+				const [, , , methodSucceedStepZero] = (await sortByXAxis(true, false, true)) as [
 					number,
 					number,
 					Array<StickyNote | Card | Frame>,
@@ -1225,7 +1250,7 @@ export const MatrixWizard = () => {
 				break;
 			case 1:
 				if (resortByXAxisInSecondStep === false) setResortByXAxisInSecondStep(true);
-				const [, , , methodSucceedStepOne] = (await sortByXAxis(true, true)) as [
+				const [, , , methodSucceedStepOne] = (await sortByXAxis(true, true, false)) as [
 					number,
 					number,
 					Array<StickyNote | Card | Frame>,
@@ -1257,6 +1282,7 @@ export const MatrixWizard = () => {
 	return (
 		<div className={styles.wizard__container}>
 			<div>
+				<h1 className={styles.title}>Importance / Difficulty Matrix</h1>
 				<Stepper activeStep={step} variant='outlined'>
 					{steps.map((_stepItem, index) => {
 						return (
@@ -1286,27 +1312,23 @@ export const MatrixWizard = () => {
 				<div className={styles.wizard__img}>{steps[step].img}</div>
 			</div>
 			<div className={styles.wizard__buttonAndHintWrapper}>
-				<button className={styles.wizard__button__dark} onClick={() => onWizardStepButtonClicked()}>
-					{steps[step].buttonIcon}
-					<span>{steps[step].buttonText}</span>
-				</button>
+				<Button
+					onClickFunction={onWizardStepButtonClicked}
+					buttonText={steps[step].buttonText}
+					buttonIcon={steps[step].buttonIcon}
+				/>
 				<div className={styles.wizard__stepper__button__container}>
 					{step > 0 && (
-						<button className={styles.wizard__button__light} onClick={() => moveStepBack()}>
-							<ArrowLeft />
-							<span>Back</span>
-						</button>
+						<Button onClickFunction={moveStepBack} buttonText={'Back'} buttonIcon={<ArrowLeft />} isLight={true} />
 					)}
 					{step !== steps.length - 1 && (
-						<button
-							className={
-								steps[step].methodSucceed ? styles.wizard__button__light : styles.wizard__button__light__disabled
-							}
-							onClick={() => moveStepForward()}
-						>
-							<ArrowRight />
-							<span>Next Step</span>
-						</button>
+						<Button
+							onClickFunction={moveStepForward}
+							buttonText={'Next Step'}
+							buttonIcon={<ArrowRight />}
+							isLight={true}
+							isDisabled={steps[step].methodSucceed === false}
+						/>
 					)}
 				</div>
 
