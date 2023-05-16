@@ -99,7 +99,7 @@ const PostItPrinterApp = () => {
 	const convertStickyNoteDataToStickyNoteSVGString = (stickyNote: StickyNote, forDrawingOnScreen = false) => {
 		const outerBoxBackground =
 			forDrawingOnScreen === false ? 'white' : mapStickyNoteColorToPrintColor(stickyNote.style.fillColor, true);
-		const outerBoxTransform = forDrawingOnScreen === false ? 'rotate(90 0 0)' : 'none';
+
 		const outerBox = document.createElement('div');
 		outerBox.setAttribute(
 			'style',
@@ -110,7 +110,6 @@ const PostItPrinterApp = () => {
 			justify-content: center;
 			align-items: center;
 			background: ${outerBoxBackground};
-			transform: ${outerBoxTransform};
 			`
 		);
 
@@ -142,6 +141,7 @@ const PostItPrinterApp = () => {
 		const startFont = stickyNotePostItWidth;
 		calculateFontSize(startFont, innerBox, stickyNotePostItWidth);
 
+		// uses following library https://www.npmjs.com/package/dom-to-svg?activeTab=readme
 		const svgDocument = elementToSVG(outerBox);
 		const svgString = new XMLSerializer().serializeToString(svgDocument);
 
@@ -324,7 +324,6 @@ const PostItPrinterApp = () => {
 
 			<h1 className={styles.previewTitle}>Preview:</h1>
 
-			<StickyNotePreviewSlider stickyNoteSliderImages={stickyNoteSliderImages} />
 			<StickyNotePreviewSlider
 				stickyNoteSliderImages={stickyNoteSliderImages}
 				setStickyNotesSliderImages={setStickyNoteSliderImages}
