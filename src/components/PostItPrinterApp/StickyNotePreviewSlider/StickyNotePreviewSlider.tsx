@@ -14,11 +14,23 @@ import 'swiper/css/thumbs';
 
 // import required modules
 import { FreeMode, Navigation, Thumbs } from 'swiper';
+import Delete from '../../Icons/Delete';
 
 type StickyNotePreviewSliderType = {
 	stickyNoteSliderImages: Array<{ img: string; id: string }>;
+	setStickyNotesSliderImages: React.Dispatch<
+		React.SetStateAction<
+			{
+				img: string;
+				id: string;
+			}[]
+		>
+	>;
 };
-const StickyNotePreviewSlider = ({ stickyNoteSliderImages }: StickyNotePreviewSliderType) => {
+const StickyNotePreviewSlider = ({
+	stickyNoteSliderImages,
+	setStickyNotesSliderImages,
+}: StickyNotePreviewSliderType) => {
 	const [thumbsSwiper, setThumbsSwiper] = useState(null);
 
 	return (
@@ -100,6 +112,19 @@ const StickyNotePreviewSlider = ({ stickyNoteSliderImages }: StickyNotePreviewSl
 						{stickyNoteSliderImages.map((img, index) => {
 							return (
 								<SwiperSlide style={{ marginLeft: index === 0 ? '8px' : '0px' }}>
+									<button
+										className={styles.deleteButton}
+										onClick={() => {
+											let arrayCopy = [...stickyNoteSliderImages];
+											const indexOfElementToRemove = stickyNoteSliderImages.indexOf(img);
+											if (indexOfElementToRemove !== -1) {
+												arrayCopy.splice(indexOfElementToRemove, 1);
+												setStickyNotesSliderImages(arrayCopy);
+											}
+										}}
+									>
+										<Delete />
+									</button>
 									<img key={img.id} src={img.img} className={styles.sliderImageThumbnail} />
 								</SwiperSlide>
 							);

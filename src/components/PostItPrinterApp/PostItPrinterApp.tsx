@@ -230,6 +230,7 @@ const PostItPrinterApp = () => {
 				stickyNotePostItWidth,
 				stickyNotePostItWidth
 			);
+
 			const imgStickyNotePrintColor = mapStickyNoteColorToPrintColor(selectedStickyNote.style.fillColor);
 			const fileName = Date.now().toString();
 
@@ -324,6 +325,10 @@ const PostItPrinterApp = () => {
 			<h1 className={styles.previewTitle}>Preview:</h1>
 
 			<StickyNotePreviewSlider stickyNoteSliderImages={stickyNoteSliderImages} />
+			<StickyNotePreviewSlider
+				stickyNoteSliderImages={stickyNoteSliderImages}
+				setStickyNotesSliderImages={setStickyNoteSliderImages}
+			/>
 			<Button
 				onClickFunction={startPrintJob}
 				buttonIcon={<Printer />}
