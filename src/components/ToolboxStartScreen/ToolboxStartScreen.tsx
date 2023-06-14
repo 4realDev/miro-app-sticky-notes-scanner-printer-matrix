@@ -58,7 +58,7 @@ const ToolboxStartScreen = () => {
 				setRenderScreen('presentation');
 			},
 			type: '2',
-			isDisabled: false,
+			isDisabled: true,
 		},
 		{
 			buttonText: "What's on your Radar",
@@ -112,7 +112,6 @@ const ToolboxStartScreen = () => {
 
 	return (
 		<div>
-			TEST!!! NEW NEW 11:52
 			<div className={styles.toolbox_button_container}>
 				{/* {renderScreen !== '' && (
 
