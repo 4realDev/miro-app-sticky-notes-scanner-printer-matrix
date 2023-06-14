@@ -11,7 +11,6 @@ import WhatsOnYourRadar from '../Icons/WhatsOnYourRadar';
 import ArrowLeft from '../Icons/ArrowLeft';
 import StickyNoteScanner from '../Icons/StickyNoteScanner';
 import Matrix from '../Icons/Matrix';
-import CreateRecipeWithTemplates from '../CreateRecipeWithTemplates/CreateRecipeWithTemplates';
 
 export type toolboxMethodsData = {
 	buttonText: string;
@@ -84,7 +83,7 @@ const ToolboxStartScreen = () => {
 			case 'printer':
 				return <PostItPrinterApp />;
 			case 'presentation':
-				return <CreateRecipeWithTemplates />;
+				return <GlobalFilteringAppThroughForeground />;
 			// case 'scanner':
 			// 	return (
 			// 		<div>
@@ -113,6 +112,7 @@ const ToolboxStartScreen = () => {
 
 	return (
 		<div>
+			TEST!!! NEW NEW 11:52
 			<div className={styles.toolbox_button_container}>
 				{/* {renderScreen !== '' && (
 
