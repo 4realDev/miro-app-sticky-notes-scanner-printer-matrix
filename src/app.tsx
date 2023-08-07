@@ -6,7 +6,6 @@ import SwipeableViews from 'react-swipeable-views';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import './app.scss';
-import MatrixAppGroup from './components/MatrixAppGroups/MatrixAppGroups';
 import PostItPrinterApp from './components/PostItPrinterApp/PostItPrinterApp';
 import MiroTemplateApp from './components/MiroTemplateApp/MiroTemplateApp';
 import { MatrixWizard } from './components/MatrixWizard/MatrixWizard/MatrixWizard';

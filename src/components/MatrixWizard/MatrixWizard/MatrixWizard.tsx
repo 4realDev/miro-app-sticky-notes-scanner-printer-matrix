@@ -21,6 +21,7 @@ import { StickyNote, Frame, FontFamily, Item, Shape, Tag, Card, Text, Notificati
 import { useSessionStorage } from '../../useSessionStorage';
 import Button from '../../ui/Button/Button';
 import SortByDifficultyImg from '../../Icons/SortByDifficultyImg';
+import CreateMatrixCard from './CreateMatrixCard';
 
 const miro = window.miro;
 
@@ -1332,6 +1333,7 @@ export const MatrixWizard = () => {
 					)}
 				</div>
 
+				<CreateMatrixCard />
 				<div className={styles.wizard__hint}>
 					{step > 0 && (
 						<a

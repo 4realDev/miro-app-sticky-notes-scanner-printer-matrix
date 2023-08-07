@@ -5,7 +5,7 @@ import cn from 'classnames';
 export type ButtonProps = {
 	onClickFunction: any;
 	buttonText?: string | undefined;
-	buttonIcon: React.ReactNode;
+	buttonIcon?: React.ReactNode;
 	isLight?: boolean;
 	isDisabled?: boolean;
 };
