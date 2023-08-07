@@ -197,6 +197,7 @@ const PostItPrinterApp = () => {
 			console.log('Client has connected to websocket server! (Consumer)');
 			// as soon as connection is opened, send the printing data obj
 			websocket.send(JSON.stringify(data));
+			alert('We have sent your printing job.');
 		});
 
 		// Listen for messages
