@@ -1037,6 +1037,15 @@ export const MatrixWizard = () => {
 		return undefined;
 	};
 
+	// ORDER:
+	// 1. Fokus + 				high importance
+	// 2. Fokus + 				low importance
+	// 3. Strategic + 			high importance
+	// 4. Strategic + 			low importance
+	// 5. Low Hanging Fruits + 	high importance
+	// 6. Low Hanging Fruits + 	low importance
+	// 7. Luxury + 				high importance
+	// 8. Luxury + 				low importance
 	const createCategorizedList = async () => {
 		if (coorOriginX && coorOriginY) {
 			const allCardStickyNoteFrameWidgets = (await miro.board.get({ type: ['card', 'sticky_note', 'frame'] })) as Array<
@@ -1076,12 +1085,9 @@ export const MatrixWizard = () => {
 			}
 			// );
 
-			console.log(categoryList);
-
-			// sort according to x position (importance)
+			// sort desc according to x position (importance)
 			categoryList.sort((a, b) => {
-				console.log(a);
-				console.log(b);
+				return Math.abs(b.widgetPosX) - Math.abs(a.widgetPosX);
 			});
 
 			// sort according to prio (focus -> strategic - low hanging fruits - luxury)
