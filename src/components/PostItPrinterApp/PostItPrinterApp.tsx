@@ -247,12 +247,9 @@ const PostItPrinterApp = () => {
 		connectToWebSocketAndSendPrintingData({ stickyNoteDataList: stickyNoteDataList, miroBoardId: miroBoardId });
 	};
 
-	// TODO: ADD TO CHEAT SHEET
-	// HOW TO EVENTLISTENER WITH USEEFFECT
-	// COMPONENT IS CALLED MULTIPLE TIMES
-	// MAKE SURE TO REGISTER EVENTS ONCE IN USEEFFECT (onMount) or in USEMEMO (variable change)
-	// mount
-
+	// component is called multiple times
+	// to unsure only one creation of the event, register event in useEffect
+	// and unregister event, when component unmounts
 	useEffect(() => {
 		const setInitialSelection = async () => {
 			const initialSelection = await miro.board.getSelection();
@@ -275,7 +272,7 @@ const PostItPrinterApp = () => {
 		// register the miro 'selection:update' event to store the current user selection inside the selectedStickyNotes state
 		miro.board.ui.on('selection:update', onSelectionUpdate);
 
-		// like unmount
+		// unregister the miro 'selection:update' event when the component unmounts
 		return () => {
 			miro.board.ui.off('selection:update', onSelectionUpdate);
 		};
