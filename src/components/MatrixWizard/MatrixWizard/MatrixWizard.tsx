@@ -626,7 +626,9 @@ export const MatrixWizard = () => {
 
 			filteredSelectedWidgets = selectedWidgets.filter(
 				(selectedWidget) =>
-					(selectedWidget.type === 'sticky_note' && selectedWidget.parentId === null) ||
+					(selectedWidget.type === 'sticky_note' &&
+						selectedWidget.content !== '<p>Difficulty</p>' &&
+						selectedWidget.content !== '<p>Aufwand</p>') ||
 					(selectedWidget.type === 'card' && selectedWidget.parentId === null) ||
 					selectedWidget.type === 'frame'
 			) as Array<StickyNote | Frame | Card>;
@@ -1080,17 +1082,10 @@ export const MatrixWizard = () => {
 			categoryList.sort((a, b) => {
 				console.log(a);
 				console.log(b);
-				console.log(a.widgetPosX);
-				console.log(b.widgetPosY);
-				return Math.abs(a.widgetPosX) - Math.abs(b.widgetPosX);
 			});
-
-			console.log(categoryList.sort((a, b) => Math.abs(a.widgetPosX) - Math.abs(b.widgetPosX)));
 
 			// sort according to prio (focus -> strategic - low hanging fruits - luxury)
 			categoryList.sort((a, b) => b.category.prio - a.category.prio);
-
-			console.log(categoryList.sort((a, b) => b.category.prio - a.category.prio));
 
 			// save widgets in array to set them as state to be able to delete them later on, when new list is created
 			let categoryListWidgets: Array<Text | Shape> = [];
