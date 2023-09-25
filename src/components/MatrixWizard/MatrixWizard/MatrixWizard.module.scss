@@ -12,7 +12,7 @@
 	flex-direction: column;
 	width: 100%;
 	height: calc(100% - 46px);
-	justify-content: space-between;
+	// justify-content: space-between;
 	padding: 0px 24px 0px 24px;
 
 	.wizard__title {
@@ -51,6 +51,8 @@
 		flex-direction: column;
 		align-items: center;
 		gap: 8px;
+		padding-bottom: 16px;
+		margin-top: 32px;
 
 		.wizard__stepper__button__container {
 			width: 100%;
@@ -61,13 +63,17 @@
 		}
 
 		.wizard__hint {
-			height: 40px;
+			gap: 8px;
+			display: flex;
+			flex-direction: column;
+			// height: 40px;
 			font-size: 14px;
 			line-height: 20px;
 			text-decoration-line: underline;
 			color: rgba(169, 169, 169, 0.7);
 			margin-top: 12px;
 			margin-bottom:24px;
+
 
 			.wizard__hintButton{
 				cursor: pointer;

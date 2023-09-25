@@ -18,7 +18,7 @@ import GroupSelectionImg from '../../Icons/GroupSelectionImg';
 import ArrowRight from '../../Icons/ArrowRight';
 import ArrowLeft from '../../Icons/ArrowLeft';
 import { StickyNote, Frame, FontFamily, Item, Shape, Tag, Card, Text, NotificationType } from '@mirohq/websdk-types';
-import { useSessionStorage } from '../../useSessionStorage';
+import { clearSessionStorageAndStates, useSessionStorage } from '../../useSessionStorage';
 import Button from '../../ui/Button/Button';
 import SortByDifficultyImg from '../../Icons/SortByDifficultyImg';
 import CreateMatrixCard from './CreateMatrixCard';
@@ -59,13 +59,11 @@ const MATRIX_QUARTER_CATEGORIES = {
 	BOTTOM_LEFT: { color: '#CCF8C7', colorText: '#0C7A00', prio: 2 }, // low hanging fruits
 	BOTTOM_RIGHT: { color: '#F8D1D0', colorText: '#7A0200', prio: 4 }, // focus (most important)
 } as const;
-const MATRIX_QUARTER_CATEGORIES_BORDER_OPACITY = 0.2;
 
 const MATRIX_LABELS_FONT_FAMILY: FontFamily = 'plex_sans';
 const MATRIX_AXIS_COLOR = '#000000';
 const MATRIX_AXIS_LINE_WIDTH = 8;
 const MATRIX_AXIS_LABEL_COLOR = '#000000';
-const MATRIX_CATEGORY_QUARTER_CONTENT_COLOR = '#000000';
 const MATRIX_PRIORITY_LIST_TITLE_COLOR = '#000000';
 const MATRIX_PRIORITY_LIST_ITEMS_COLOR = '#000000';
 
@@ -139,14 +137,9 @@ const steps: StepData[] = [
 	},
 ];
 
-const addNewTopicButtonText = 'Removed or added a new Topic? Go back to step 1 to set the new selection.';
+const addNewTopicButtonText = 'Update existing matrix (added or removed topics)';
+const drawNewMatrixButtonText = 'Create new matrix';
 
-// 	NoTag:
-// 		'One or more selected items are missing a tag.\nEnter a number tag (e.g "4")\n\
-// or use the Miro Estimation Tool to add a number tag to the widgets \n(e.g "Estimate: 4").',
-// 	WrongTag:
-// 		'It seems like one or more selected items have a wrong tag. Please make sure that your tag is a number tag (e.g "4") \n\
-// 		or use the Miro Estimation Tool to add a correct number tag (e.g "Estimate: 4").',
 const CustomErrorMessages = {
 	NoSelection: 'Please select all topics you want to prioritize.',
 	WrongSelection: 'Object selection invalid. Use objects allowing estimates or Cando special cards.',
@@ -438,12 +431,24 @@ export const MatrixWizard = () => {
 
 		// Delete already existing matrixCoordinateSystem before new coordinateSystem is created
 		if (coordXAxisWidgets && coordXAxisWidgets.length !== 0) {
-			Promise.all(coordXAxisWidgets.map(async (widget) => widget && (await miro.board.remove(widget))));
+			Promise.all(
+				coordXAxisWidgets.map(async (widget) => {
+					try {
+						widget && (await miro.board.remove(widget));
+					} catch {}
+				})
+			);
 		}
 
 		// Delete already existing matrixCoordinateSystem before new coordinateSystem is created
 		if (coorYAxisWidgets && coorYAxisWidgets.length !== 0) {
-			Promise.all(coorYAxisWidgets.map(async (widget) => widget && (await miro.board.remove(widget))));
+			Promise.all(
+				coorYAxisWidgets.map(async (widget) => {
+					try {
+						widget && (await miro.board.remove(widget));
+					} catch {}
+				})
+			);
 		}
 
 		// create X-Axis
@@ -536,7 +541,13 @@ export const MatrixWizard = () => {
 
 		// Delete already existing matrixCoordinateSystem before new coordinateSystem is created
 		if (coorYAxisWidgets && coorYAxisWidgets.length !== 0) {
-			Promise.all(coorYAxisWidgets.map(async (widget) => widget && (await miro.board.remove(widget))));
+			Promise.all(
+				coorYAxisWidgets.map(async (widget) => {
+					try {
+						widget && (await miro.board.remove(widget));
+					} catch {}
+				})
+			);
 		}
 
 		/*** CREATE AXIS ***/
@@ -844,14 +855,21 @@ export const MatrixWizard = () => {
 	};
 
 	const showCategorizationOfMatrix = async () => {
-		topLeftQuarter && (await miro.board.getById(topLeftQuarter.id)) && (await miro.board.remove(topLeftQuarter));
-		topRightQuarter && (await miro.board.getById(topRightQuarter.id)) && (await miro.board.remove(topRightQuarter));
-		bottomLeftQuarter &&
-			(await miro.board.getById(bottomLeftQuarter.id)) &&
-			(await miro.board.remove(bottomLeftQuarter));
-		bottomRightQuarter &&
-			(await miro.board.getById(bottomRightQuarter.id)) &&
-			(await miro.board.remove(bottomRightQuarter));
+		console.log('object', topLeftQuarter);
+		console.log('id', topLeftQuarter && topLeftQuarter.id);
+
+		// for removing widgets, in case the widget does not exist anymore, use try and catch, to prevent crashing
+		try {
+			topLeftQuarter && console.log('miro object', await miro.board.getById(topLeftQuarter.id));
+			topLeftQuarter && (await miro.board.getById(topLeftQuarter.id)) && (await miro.board.remove(topLeftQuarter));
+			topRightQuarter && (await miro.board.getById(topRightQuarter.id)) && (await miro.board.remove(topRightQuarter));
+			bottomLeftQuarter &&
+				(await miro.board.getById(bottomLeftQuarter.id)) &&
+				(await miro.board.remove(bottomLeftQuarter));
+			bottomRightQuarter &&
+				(await miro.board.getById(bottomRightQuarter.id)) &&
+				(await miro.board.remove(bottomRightQuarter));
+		} catch {}
 
 		if (coorOriginX && coorOriginY) {
 			// * 0.75 = take 3/4 or the totalWidgetWidth
@@ -1061,9 +1079,11 @@ export const MatrixWizard = () => {
 			// Delete already existing categoryList and categoryListTitle before new list and title is created
 			if (matrixCategoryListWidgets && matrixCategoryListWidgets.length !== 0) {
 				Promise.all(
-					matrixCategoryListWidgets.map(
-						async (categoryListWidget) => categoryListWidget && (await miro.board.remove(categoryListWidget))
-					)
+					matrixCategoryListWidgets.map(async (categoryListWidget) => {
+						try {
+							categoryListWidget && (await miro.board.remove(categoryListWidget));
+						} catch {}
+					})
 				);
 			}
 
@@ -1231,6 +1251,8 @@ export const MatrixWizard = () => {
 	};
 
 	const onWizardStepButtonClicked = async () => {
+		console.log(steps);
+		console.log(step);
 		switch (step) {
 			// "Group Selection" Step
 			// always set the viewport
@@ -1241,7 +1263,6 @@ export const MatrixWizard = () => {
 				// because the miro estimation tool closes and reopens the app
 				// which leads to a data lost without the usage of sessionStorage
 				setMatrixWidgetSelection([]);
-				sessionStorage.clear();
 				const [, , , methodSucceedStepZero] = (await sortByXAxis(true, false, true)) as [
 					number,
 					number,
@@ -1337,15 +1358,26 @@ export const MatrixWizard = () => {
 				<CreateMatrixCard />
 				<div className={styles.wizard__hint}>
 					{step > 0 && (
-						<a
-							className={styles.wizard__hintButton}
-							onClick={() => {
-								// setHeighestStep(0);
-								setStep(0);
-							}}
-						>
-							{addNewTopicButtonText}
-						</a>
+						<>
+							<a
+								className={styles.wizard__hintButton}
+								onClick={() => {
+									sessionStorage.clear();
+									setStep(0);
+								}}
+							>
+								{addNewTopicButtonText}
+							</a>
+							<a
+								className={styles.wizard__hintButton}
+								onClick={() => {
+									clearSessionStorageAndStates();
+									setStep(0);
+								}}
+							>
+								{drawNewMatrixButtonText}
+							</a>
+						</>
 					)}
 				</div>
 			</div>
