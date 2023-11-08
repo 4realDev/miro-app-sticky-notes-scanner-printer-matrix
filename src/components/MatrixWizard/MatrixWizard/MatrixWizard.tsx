@@ -855,12 +855,8 @@ export const MatrixWizard = () => {
 	};
 
 	const showCategorizationOfMatrix = async () => {
-		console.log('object', topLeftQuarter);
-		console.log('id', topLeftQuarter && topLeftQuarter.id);
-
 		// for removing widgets, in case the widget does not exist anymore, use try and catch, to prevent crashing
 		try {
-			topLeftQuarter && console.log('miro object', await miro.board.getById(topLeftQuarter.id));
 			topLeftQuarter && (await miro.board.getById(topLeftQuarter.id)) && (await miro.board.remove(topLeftQuarter));
 			topRightQuarter && (await miro.board.getById(topRightQuarter.id)) && (await miro.board.remove(topRightQuarter));
 			bottomLeftQuarter &&
@@ -1235,11 +1231,6 @@ export const MatrixWizard = () => {
 		}
 	};
 
-	const consoleLogSelection = async () => {
-		const selection = await miro.board.getSelection();
-		console.log(selection);
-	};
-
 	const [resortByXAxisInSecondStep, setResortByXAxisInSecondStep] = useState(false);
 
 	const moveStepBack = () => {
@@ -1251,8 +1242,6 @@ export const MatrixWizard = () => {
 	};
 
 	const onWizardStepButtonClicked = async () => {
-		console.log(steps);
-		console.log(step);
 		switch (step) {
 			// "Group Selection" Step
 			// always set the viewport
