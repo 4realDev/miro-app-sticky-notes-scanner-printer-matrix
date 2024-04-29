@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import GlobalFilteringAppThroughForeground from '../GlobalFilteringAppThroughForeground/GlobalFilteringAppThroughForeground';
-import Facilitaror from '../Icons/Facilitaror';
 import StickyNotePrinter from '../Icons/StickyNotePrinter';
 import { MatrixWizard } from '../MatrixWizard/MatrixWizard/MatrixWizard';
 import PostItPrinterApp from '../PostItPrinterApp/PostItPrinterApp';
@@ -52,15 +50,6 @@ const ToolboxStartScreen = () => {
 			isDisabled: true,
 		},
 		{
-			buttonText: 'Presentation Mode',
-			buttonIcon: <Facilitaror />,
-			buttonEvent: () => {
-				setRenderScreen('presentation');
-			},
-			type: '2',
-			isDisabled: true,
-		},
-		{
 			buttonText: "What's on your Radar",
 			buttonIcon: <WhatsOnYourRadar />,
 			buttonEvent: () => {
@@ -72,7 +61,6 @@ const ToolboxStartScreen = () => {
 	];
 
 	const sendNotification = async (notification: string) => {
-		// Display the notification on the board UI.
 		await miro.board.notifications.show({ message: notification, type: NotificationType.Error });
 	};
 
@@ -82,16 +70,6 @@ const ToolboxStartScreen = () => {
 				return <MatrixWizard />;
 			case 'printer':
 				return <PostItPrinterApp />;
-			case 'presentation':
-				return <GlobalFilteringAppThroughForeground />;
-			// case 'scanner':
-			// 	return (
-			// 		<div>
-			// 			<button className={styles.back_button} onClick={() => setRenderScreen('')}>
-			// 				<ArrowLeft />
-			// 			</button>
-			// 		</div>
-			// 	);
 			default:
 				return;
 		}
@@ -120,20 +98,17 @@ const ToolboxStartScreen = () => {
 					return (
 						<button
 							key={index}
-							className={cn(styles.toolbox_button, { [styles.toolbox_button_disabled]: toolboxMethod.isDisabled })}
+							className={cn(styles.toolbox_button, {
+								[styles.toolbox_button_disabled]: toolboxMethod.isDisabled,
+							})}
 							onClick={() => {
 								toolboxMethod.isDisabled
 									? sendNotification('This function is currently not implemented or not available.')
 									: toolboxMethod.buttonEvent();
-							}}
-						>
+							}}>
 							<span
-								// className={
-								// 	toolboxMethod.isMethod ? styles['toolbox_button_icon--method'] : styles['toolbox_button_icon--tool']
-								// }
 								className={styles['toolbox_button_icon']}
-								style={{ background: getToolboxButtonColor(toolboxMethod.type) }}
-							>
+								style={{ background: getToolboxButtonColor(toolboxMethod.type) }}>
 								{toolboxMethod.buttonIcon}
 							</span>
 							<span className={styles.toolbox_button_text}>{toolboxMethod.buttonText}</span>
@@ -143,7 +118,9 @@ const ToolboxStartScreen = () => {
 			</div>
 			<div className={renderScreen === '' ? styles.sidePanel__closed : styles.sidePanel__open}>
 				<div className={styles.header}>
-					<button className={styles.header_button} onClick={() => setRenderScreen('')}>
+					<button
+						className={styles.header_button}
+						onClick={() => setRenderScreen('')}>
 						<span className={styles.header_button_icon}>
 							<ArrowLeft />
 						</span>
