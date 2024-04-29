@@ -43,7 +43,10 @@ const PostItPrinterApp = () => {
 	// TODO: Extract in utility class
 	const sendNotification = async (notification: string) => {
 		// Display the notification on the board UI.
-		await miro.board.notifications.show({ message: notification, type: NotificationType.Error });
+		await miro.board.notifications.show({
+			message: notification,
+			type: 'error' as NotificationType,
+		});
 	};
 
 	const convertStickyNoteSVGStringToStickyNotePNGBase64URL = async (

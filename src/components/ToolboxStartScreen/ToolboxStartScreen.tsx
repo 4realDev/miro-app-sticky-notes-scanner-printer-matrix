@@ -4,11 +4,11 @@ import { MatrixWizard } from '../MatrixWizard/MatrixWizard/MatrixWizard';
 import PostItPrinterApp from '../PostItPrinterApp/PostItPrinterApp';
 import styles from './ToolboxStartScreen.module.scss';
 import cn from 'classnames';
-import { NotificationType } from '@mirohq/websdk-types';
 import WhatsOnYourRadar from '../Icons/WhatsOnYourRadar';
 import ArrowLeft from '../Icons/ArrowLeft';
 import StickyNoteScanner from '../Icons/StickyNoteScanner';
 import Matrix from '../Icons/Matrix';
+import { NotificationType } from '@mirohq/websdk-types';
 
 export type toolboxMethodsData = {
 	buttonText: string;
@@ -61,7 +61,10 @@ const ToolboxStartScreen = () => {
 	];
 
 	const sendNotification = async (notification: string) => {
-		await miro.board.notifications.show({ message: notification, type: NotificationType.Error });
+		await miro.board.notifications.show({
+			message: notification,
+			type: 'error' as NotificationType,
+		});
 	};
 
 	const startRenderingScreen = () => {
