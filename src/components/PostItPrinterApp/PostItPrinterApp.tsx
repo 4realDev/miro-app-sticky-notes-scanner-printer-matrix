@@ -9,7 +9,12 @@
 // mit Hilfe des über USB angeschlossenen Druckers ausdruckt
 
 import React, { useEffect, useState } from 'react';
-import { NotificationType, SelectionUpdateEvent, StickyNote, StickyNoteColor } from '@mirohq/websdk-types';
+import {
+	NotificationType,
+	SelectionUpdateEvent,
+	StickyNote,
+	StickyNoteColor,
+} from '@mirohq/websdk-types';
 import styles from './PostItPrinterApp.module.scss';
 import Button from '../ui/Button/Button';
 import Printer from '../Icons/Printer';
@@ -30,10 +35,12 @@ type StickyNoteTransferedDataObj = {
 };
 
 const PostItPrinterApp = () => {
-	const [stickyNoteSliderImages, setStickyNoteSliderImages] = useState<Array<{ img: string; id: string }>>([]);
+	const [stickyNoteSliderImages, setStickyNoteSliderImages] = useState<
+		Array<{ img: string; id: string }>
+	>([]);
 	const stickyNotePostItWidth = 305;
 
-	// TODO: Extract in unility class
+	// TODO: Extract in utility class
 	const sendNotification = async (notification: string) => {
 		// Display the notification on the board UI.
 		await miro.board.notifications.show({ message: notification, type: NotificationType.Error });
@@ -45,7 +52,10 @@ const PostItPrinterApp = () => {
 		imgHeight: number
 	): Promise<string> => {
 		const img = new Image();
-		img.setAttribute('src', 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(svgString))));
+		img.setAttribute(
+			'src',
+			'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(svgString)))
+		);
 
 		// 4. Create Canvas with the height and width from the svg for temporarily use
 		var canvas = document.createElement('canvas');
@@ -96,10 +106,15 @@ const PostItPrinterApp = () => {
 		}
 	};
 
-	const convertStickyNoteDataToStickyNoteSVGString = (stickyNote: StickyNote, forDrawingOnScreen = false) => {
+	const convertStickyNoteDataToStickyNoteSVGString = (
+		stickyNote: StickyNote,
+		forDrawingOnScreen = false
+	) => {
 		const outerBoxBackground =
-			forDrawingOnScreen === false ? 'white' : mapStickyNoteColorToPrintColor(stickyNote.style.fillColor, true);
-
+			forDrawingOnScreen === false
+				? 'white'
+				: mapStickyNoteColorToPrintColor(stickyNote.style.fillColor, true);
+		const outerBoxTransform = forDrawingOnScreen === false ? 'rotate(90 0 0)' : 'none';
 		const outerBox = document.createElement('div');
 		outerBox.setAttribute(
 			'style',
@@ -131,7 +146,10 @@ const PostItPrinterApp = () => {
 			`
 		);
 
-		innerBox.textContent = stickyNote.content.replaceAll('<p>', '').replaceAll('</p>', '').replaceAll('<br>', '\n');
+		innerBox.textContent = stickyNote.content
+			.replaceAll('<p>', '')
+			.replaceAll('</p>', '')
+			.replaceAll('<br>', '\n');
 
 		outerBox.appendChild(innerBox);
 
@@ -231,20 +249,24 @@ const PostItPrinterApp = () => {
 				stickyNotePostItWidth,
 				stickyNotePostItWidth
 			);
-
-			const imgStickyNotePrintColor = mapStickyNoteColorToPrintColor(selectedStickyNote.style.fillColor);
+			const imgStickyNotePrintColor = mapStickyNoteColorToPrintColor(
+				selectedStickyNote.style.fillColor
+			);
 			const fileName = Date.now().toString();
 
 			stickyNoteDataList.push({
 				id: fileName,
 				base64Url: imgBase64Url,
-				color: imgStickyNotePrintColor,
+				color: imgStickyNotePrintColor as StickyNoteColor,
 				xpos: Math.round(selectedStickyNote.x),
 				ypos: Math.round(selectedStickyNote.y),
 			});
 		}
 
-		connectToWebSocketAndSendPrintingData({ stickyNoteDataList: stickyNoteDataList, miroBoardId: miroBoardId });
+		connectToWebSocketAndSendPrintingData({
+			stickyNoteDataList: stickyNoteDataList,
+			miroBoardId: miroBoardId,
+		});
 	};
 
 	// component is called multiple times
@@ -265,7 +287,9 @@ const PostItPrinterApp = () => {
 			// TODO: Maybe make selectedItems to a global state
 			// Filter sticky notes from the selected items
 			const selectedItems = event.items;
-			const stickyNotes = selectedItems.filter((item) => item.type === 'sticky_note') as Array<StickyNote>;
+			const stickyNotes = selectedItems.filter(
+				(item) => item.type === 'sticky_note'
+			) as Array<StickyNote>;
 			updateStickyNoteImageSliderChildren(stickyNotes);
 		};
 
@@ -301,7 +325,9 @@ const PostItPrinterApp = () => {
 		// some child inside the image slider does not exist (anymore) in the newest selection
 		// remove the child from the image slider
 		stickyNoteSliderImages.forEach((img) => {
-			if (selectedStickyNotes.some((selectedStickyNote) => selectedStickyNote.id === img.id) === false) {
+			if (
+				selectedStickyNotes.some((selectedStickyNote) => selectedStickyNote.id === img.id) === false
+			) {
 				var index = stateArrayCopy.indexOf(img);
 				if (index !== -1) {
 					stateArrayCopy.splice(index, 1);
@@ -317,9 +343,7 @@ const PostItPrinterApp = () => {
 	return (
 		<div className={styles.container}>
 			<h1 className={styles.title}>Sticky Note Printer</h1>
-
 			<p className={styles.descriptionText}>Select one or more sticky notes and press “Print”.</p>
-
 			<h1 className={styles.previewTitle}>Preview:</h1>
 
 			<StickyNotePreviewSlider
