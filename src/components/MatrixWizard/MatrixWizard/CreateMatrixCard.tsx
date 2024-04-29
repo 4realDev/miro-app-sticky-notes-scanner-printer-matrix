@@ -121,6 +121,7 @@ const CreateMatrixCard = () => {
 				frameDifficultyStickyNote.id,
 				frameTitleImage.id,
 			];
+
 			await frame.sync();
 		};
 

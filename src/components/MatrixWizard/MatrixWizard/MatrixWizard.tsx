@@ -1,5 +1,5 @@
-// TODO: Ensure that if function is called on same WizardView Twice or Multiple Times, the function won't take the highest position, but instead the lowest
-// TODO: Ensure that selection storage of widgets on first call of sortByXAxis is correct (bug from sonjas test)
+// IMPORTANT: AFTER EACH DEPLOY TO FILEZILLA - APP MUST BE REINSTALLED VIA LINK!
+// IMPORTANT: WHEN UPLOADING NEW APP VERSION - REMEMBER TO CLEAR THE CACHE
 
 import React, { useState } from 'react';
 import styles from './MatrixWizard.module.scss';
@@ -17,7 +17,17 @@ import GroupSelectionButtonIcon from '../../Icons/GroupSelectionButtonIcon';
 import GroupSelectionImg from '../../Icons/GroupSelectionImg';
 import ArrowRight from '../../Icons/ArrowRight';
 import ArrowLeft from '../../Icons/ArrowLeft';
-import { StickyNote, Frame, FontFamily, Item, Shape, Tag, Card, Text, NotificationType } from '@mirohq/websdk-types';
+import {
+	StickyNote,
+	Frame,
+	FontFamily,
+	Item,
+	Shape,
+	Tag,
+	Card,
+	Text,
+	NotificationType,
+} from '@mirohq/websdk-types';
 import { clearSessionStorageAndStates, useSessionStorage } from '../../useSessionStorage';
 import Button from '../../ui/Button/Button';
 import SortByDifficultyImg from '../../Icons/SortByDifficultyImg';
@@ -142,12 +152,16 @@ const drawNewMatrixButtonText = 'Create new matrix';
 
 const CustomErrorMessages = {
 	NoSelection: 'Please select all topics you want to prioritize.',
-	WrongSelection: 'Object selection invalid. Use objects allowing estimates or Cando special cards.',
+	WrongSelection:
+		'Object selection invalid. Use objects allowing estimates or Cando special cards.',
 	WrongOrNoTag: 'One or more topics have no estimation, please add one to proceed.',
 };
 
 export const MatrixWizard = () => {
-	const [step, setStep] = useSessionStorage('step', 0) as [number, React.Dispatch<React.SetStateAction<number>>];
+	const [step, setStep] = useSessionStorage('step', 0) as [
+		number,
+		React.Dispatch<React.SetStateAction<number>>
+	];
 
 	const [minWidgetPosX, setMinWidgetPosX] = useSessionStorage('minWidgetPosX', 0) as [
 		number,
@@ -158,7 +172,10 @@ export const MatrixWizard = () => {
 		React.Dispatch<React.SetStateAction<number>>
 	];
 
-	const [matrixWidgetSelection, setMatrixWidgetSelection] = useSessionStorage('matrixWidgetSelection', []) as [
+	const [matrixWidgetSelection, setMatrixWidgetSelection] = useSessionStorage(
+		'matrixWidgetSelection',
+		[]
+	) as [
 		Array<StickyNote | Frame | Card>,
 		React.Dispatch<React.SetStateAction<Array<StickyNote | Frame | Card>>>
 	];
@@ -173,15 +190,15 @@ export const MatrixWizard = () => {
 		React.Dispatch<React.SetStateAction<number | undefined>>
 	];
 
-	const [coordXAxisWidgets, setCoorXAxisWidgets] = useSessionStorage('coordXAxisWidgets', undefined) as [
-		Item[] | undefined,
-		React.Dispatch<React.SetStateAction<Item[] | undefined>>
-	];
+	const [coordXAxisWidgets, setCoorXAxisWidgets] = useSessionStorage(
+		'coordXAxisWidgets',
+		undefined
+	) as [Item[] | undefined, React.Dispatch<React.SetStateAction<Item[] | undefined>>];
 
-	const [coorYAxisWidgets, setCoorYAxisWidgets] = useSessionStorage('coorYAxisWidgets', undefined) as [
-		Item[] | undefined,
-		React.Dispatch<React.SetStateAction<Item[] | undefined>>
-	];
+	const [coorYAxisWidgets, setCoorYAxisWidgets] = useSessionStorage(
+		'coorYAxisWidgets',
+		undefined
+	) as [Item[] | undefined, React.Dispatch<React.SetStateAction<Item[] | undefined>>];
 
 	const [totalWidgetWidth, setTotalWidgetWidth] = useSessionStorage('totalWidgetWidth', 0) as [
 		number,
@@ -216,14 +233,14 @@ export const MatrixWizard = () => {
 	// the result is, that the axis line is longer then the matrix itself, which in this case is called "overlapping"
 	const additionalAxisMatrixOverlapping = 50;
 
-	const [bottomLeftQuarter, setBottomLeftQuarter] = useSessionStorage('bottomLeftQuarter', undefined) as [
-		Shape | undefined,
-		React.Dispatch<React.SetStateAction<Shape | undefined>>
-	];
-	const [bottomRightQuarter, setBottomRightQuarter] = useSessionStorage('bottomRightQuarter', undefined) as [
-		Shape | undefined,
-		React.Dispatch<React.SetStateAction<Shape | undefined>>
-	];
+	const [bottomLeftQuarter, setBottomLeftQuarter] = useSessionStorage(
+		'bottomLeftQuarter',
+		undefined
+	) as [Shape | undefined, React.Dispatch<React.SetStateAction<Shape | undefined>>];
+	const [bottomRightQuarter, setBottomRightQuarter] = useSessionStorage(
+		'bottomRightQuarter',
+		undefined
+	) as [Shape | undefined, React.Dispatch<React.SetStateAction<Shape | undefined>>];
 	const [topLeftQuarter, setTopLeftQuarter] = useSessionStorage('topLeftQuarter', undefined) as [
 		Shape | undefined,
 		React.Dispatch<React.SetStateAction<Shape | undefined>>
@@ -241,7 +258,10 @@ export const MatrixWizard = () => {
 	const [matrixCategoryListWidgets, setMatrixCategoryListWidgets] = useSessionStorage(
 		'matrixCategoryListWidgets',
 		undefined
-	) as [Array<Text | Shape> | undefined, React.Dispatch<React.SetStateAction<Array<Text | Shape> | undefined>>];
+	) as [
+		Array<Text | Shape> | undefined,
+		React.Dispatch<React.SetStateAction<Array<Text | Shape> | undefined>>
+	];
 
 	const isNumeric = (str: string) => {
 		return !isNaN(parseFloat(str)); // ...and ensure strings of whitespace fail
@@ -291,12 +311,17 @@ export const MatrixWizard = () => {
 		}
 	};
 
-	const addNumericTags = async (allTags: Tag[], allSelectedWidgets: Array<StickyNote | Card | Frame>) => {
+	const addNumericTags = async (
+		allTags: Tag[],
+		allSelectedWidgets: Array<StickyNote | Card | Frame>
+	) => {
 		let numericTaggedWidgets: NumericTaggedWidget[] = [];
 		// let tagError = false;
 		const selectedWidgets = allSelectedWidgets.filter(
 			(selectedWidget) =>
-				selectedWidget.type === 'frame' || selectedWidget.type === 'sticky_note' || selectedWidget.type === 'card'
+				selectedWidget.type === 'frame' ||
+				selectedWidget.type === 'sticky_note' ||
+				selectedWidget.type === 'card'
 		);
 
 		for (const widget of selectedWidgets) {
@@ -366,7 +391,9 @@ export const MatrixWizard = () => {
 
 	// sort widgets according to their numeric tag (lowest to highest)
 	// remove their numeric tag after sorting to get array with only the sorted widgets in the correct order
-	const sortWidgetsOnYAxisByNumericTag = (sortedSelectedWidgetsAfterYValueWithNumericTag: NumericTaggedWidget[]) => {
+	const sortWidgetsOnYAxisByNumericTag = (
+		sortedSelectedWidgetsAfterYValueWithNumericTag: NumericTaggedWidget[]
+	) => {
 		return sortedSelectedWidgetsAfterYValueWithNumericTag.sort((a, b) => {
 			return b.numericTag - a.numericTag;
 		});
@@ -380,7 +407,10 @@ export const MatrixWizard = () => {
 	) => {
 		let updatedWidgetDistanceY = 0;
 		let totalWidgetHeightAfterVerticalAlignmentWithNumericTag = 0;
-		for (const [index, widgetWithNumericTag] of sortedSelectedWidgetsAfterXAndYValueWithNumericTag.entries()) {
+		for (const [
+			index,
+			widgetWithNumericTag,
+		] of sortedSelectedWidgetsAfterXAndYValueWithNumericTag.entries()) {
 			if (
 				sortedSelectedWidgetsAfterXAndYValueWithNumericTag[index - 1] &&
 				sortedSelectedWidgetsAfterXAndYValueWithNumericTag[index].numericTag !==
@@ -402,7 +432,8 @@ export const MatrixWizard = () => {
 			}
 
 			// Add additional
-			widgetWithNumericTag.widget.x = widgetWithNumericTag.widget.x + additionalPaddingBetweenYAxisAndLeftMostWidget;
+			widgetWithNumericTag.widget.x =
+				widgetWithNumericTag.widget.x + additionalPaddingBetweenYAxisAndLeftMostWidget;
 			widgetWithNumericTag.widget.y =
 				coorOriginY!! +
 				updatedWidgetDistanceY +
@@ -483,7 +514,10 @@ export const MatrixWizard = () => {
 		// -20px is because of the positioning of the label underneith the x-axis
 		const xAxisLabel = await miro.board.createText({
 			x: xAxisCoorOriginX + totalWidgetWidth / 2,
-			y: xAxisCoorOriginY + (minWidgetPosY - widgetMaxHeight - xAxisCoorOriginY) + distanceAxisLabelTextToAxis,
+			y:
+				xAxisCoorOriginY +
+				(minWidgetPosY - widgetMaxHeight - xAxisCoorOriginY) +
+				distanceAxisLabelTextToAxis,
 			width: 360,
 			content: `<p style="color: ${MATRIX_AXIS_LABEL_COLOR};"><strong>Importance</strong></p>`,
 			style: {
@@ -495,7 +529,11 @@ export const MatrixWizard = () => {
 
 		// Create X-Axis High
 		const xAxisHighText = await miro.board.createText({
-			x: xAxisCoorOriginX + totalWidgetWidth + distanceAxisLabelTextToAxis + additionalAxisMatrixOverlapping,
+			x:
+				xAxisCoorOriginX +
+				totalWidgetWidth +
+				distanceAxisLabelTextToAxis +
+				additionalAxisMatrixOverlapping,
 			y: xAxisCoorOriginY,
 			width: 360,
 			content: `<p style="color: ${MATRIX_AXIS_LABEL_COLOR};"><strong>High</strong></p>`,
@@ -559,7 +597,8 @@ export const MatrixWizard = () => {
 				yAxisCoorOriginY +
 				totalWidgetHeightAfterVerticalAlignmentWithNumericTag / 2 -
 				additionalAxisMatrixOverlapping / 2,
-			height: totalWidgetHeightAfterVerticalAlignmentWithNumericTag + additionalAxisMatrixOverlapping,
+			height:
+				totalWidgetHeightAfterVerticalAlignmentWithNumericTag + additionalAxisMatrixOverlapping,
 			width: MATRIX_AXIS_LINE_WIDTH,
 			style: {
 				fillColor: MATRIX_AXIS_COLOR,
@@ -653,10 +692,9 @@ export const MatrixWizard = () => {
 		else {
 			const updatedMatrixWidgetSelection = await Promise.all(
 				matrixWidgetSelection.map(async (alreadySelectedWidget) => {
-					const alreadySelectedWidgetWithNewPosition = (await miro.board.getById(alreadySelectedWidget.id)) as
-						| StickyNote
-						| Frame
-						| Card;
+					const alreadySelectedWidgetWithNewPosition = (await miro.board.getById(
+						alreadySelectedWidget.id
+					)) as StickyNote | Frame | Card;
 					return alreadySelectedWidgetWithNewPosition;
 				})
 			);
@@ -668,14 +706,15 @@ export const MatrixWizard = () => {
 			}
 		}
 
-		const [calcTotalWigdetWidth, calcTotalWigdetHeight] = calculateTotalWidgetWidthAndHeight(filteredSelectedWidgets);
+		const [calcTotalWigdetWidth, calcTotalWigdetHeight] =
+			calculateTotalWidgetWidthAndHeight(filteredSelectedWidgets);
 
-		const widgetWithMinPosX: StickyNote | Card | Frame = filteredSelectedWidgets.reduce((prev, cur) =>
-			cur.x < prev.x ? cur : prev
+		const widgetWithMinPosX: StickyNote | Card | Frame = filteredSelectedWidgets.reduce(
+			(prev, cur) => (cur.x < prev.x ? cur : prev)
 		);
 
-		const widgetWithMinPosY: StickyNote | Card | Frame = filteredSelectedWidgets.reduce((prev, cur) =>
-			cur.y < prev.y ? cur : prev
+		const widgetWithMinPosY: StickyNote | Card | Frame = filteredSelectedWidgets.reduce(
+			(prev, cur) => (cur.y < prev.y ? cur : prev)
 		);
 
 		// necessary to setup the padding for the widgets to the matrix in the first step and to set the miro-zoom-viewport correctly
@@ -737,10 +776,9 @@ export const MatrixWizard = () => {
 		// Update the matrix widget selection, if something inside the selected widgets is changed or adjusted (e.g. the tag)
 		const updatedMatrixWidgetSelection = await Promise.all(
 			matrixWidgetSelection.map(async (alreadySelectedWidget) => {
-				const alreadySelectedWidgetWithUpdatedData = (await miro.board.getById(alreadySelectedWidget.id)) as
-					| StickyNote
-					| Frame
-					| Card;
+				const alreadySelectedWidgetWithUpdatedData = (await miro.board.getById(
+					alreadySelectedWidget.id
+				)) as StickyNote | Frame | Card;
 				return alreadySelectedWidgetWithUpdatedData;
 			})
 		);
@@ -773,20 +811,18 @@ export const MatrixWizard = () => {
 				boolean
 			];
 
-			const selectedWidgetsSortedByNumericTag: NumericTaggedWidget[] = sortWidgetsOnYAxisByNumericTag(
-				selectedWidgetsWithNumericTag as Array<NumericTaggedWidget>
-			);
+			const selectedWidgetsSortedByNumericTag: NumericTaggedWidget[] =
+				sortWidgetsOnYAxisByNumericTag(selectedWidgetsWithNumericTag as Array<NumericTaggedWidget>);
 
 			// TODO: Search the moving on x-axis in alignWidgetsVerticallyByNumericTag
-			const totalWidgetHeightAfterVerticalAlignmentWithNumericTag = await alignWidgetsVerticallyByNumericTag(
-				selectedWidgetsSortedByNumericTag,
-				coorOriginY!!
-			);
+			const totalWidgetHeightAfterVerticalAlignmentWithNumericTag =
+				await alignWidgetsVerticallyByNumericTag(selectedWidgetsSortedByNumericTag, coorOriginY!!);
 
 			const [yAxisCoorOriginX, yAxisCoorOriginY] = await drawCoordinateSystemYAxis(
 				coorOriginX!!,
 				coorOriginY!!,
-				totalWidgetHeightAfterVerticalAlignmentWithNumericTag + additionalPaddingBetweenXAxisAndBottomMostWidget
+				totalWidgetHeightAfterVerticalAlignmentWithNumericTag +
+					additionalPaddingBetweenXAxisAndBottomMostWidget
 			);
 
 			miro.board.viewport.set({
@@ -805,7 +841,8 @@ export const MatrixWizard = () => {
 			setCoorOriginY(yAxisCoorOriginY);
 
 			setTotalWidgetHeightAfterVerticalAlignmentWithNumericTag(
-				totalWidgetHeightAfterVerticalAlignmentWithNumericTag + additionalPaddingBetweenXAxisAndBottomMostWidget
+				totalWidgetHeightAfterVerticalAlignmentWithNumericTag +
+					additionalPaddingBetweenXAxisAndBottomMostWidget
 			);
 
 			return true;
@@ -857,8 +894,12 @@ export const MatrixWizard = () => {
 	const showCategorizationOfMatrix = async () => {
 		// for removing widgets, in case the widget does not exist anymore, use try and catch, to prevent crashing
 		try {
-			topLeftQuarter && (await miro.board.getById(topLeftQuarter.id)) && (await miro.board.remove(topLeftQuarter));
-			topRightQuarter && (await miro.board.getById(topRightQuarter.id)) && (await miro.board.remove(topRightQuarter));
+			topLeftQuarter &&
+				(await miro.board.getById(topLeftQuarter.id)) &&
+				(await miro.board.remove(topLeftQuarter));
+			topRightQuarter &&
+				(await miro.board.getById(topRightQuarter.id)) &&
+				(await miro.board.remove(topRightQuarter));
 			bottomLeftQuarter &&
 				(await miro.board.getById(bottomLeftQuarter.id)) &&
 				(await miro.board.remove(bottomLeftQuarter));
@@ -975,11 +1016,15 @@ export const MatrixWizard = () => {
 			widgetTitle = widget.content.split('</p>')[0];
 		} else if (widget.type === 'frame') {
 			const frameChildren = await widget.getChildren();
-			const frameTextWidgets: Text[] = frameChildren.filter((textWidget) => textWidget.type === 'text') as Text[];
+			const frameTextWidgets: Text[] = frameChildren.filter(
+				(textWidget) => textWidget.type === 'text'
+			) as Text[];
 			// Text element with the smallest position y (highest text element) in frame,
 			// is meant to be the title of the frame and will be shown in category list
 			if (frameTextWidgets.length > 0) {
-				const frameTitle = frameTextWidgets.reduce((prev, cur) => (cur.y < prev.y ? cur : prev)).content;
+				const frameTitle = frameTextWidgets.reduce((prev, cur) =>
+					cur.y < prev.y ? cur : prev
+				).content;
 				widgetTitle = frameTitle;
 			}
 		}
@@ -1015,7 +1060,8 @@ export const MatrixWizard = () => {
 			  |___|___|
 			  |_x_|___|  */
 			else if (
-				widget.y >= quarterDataList?.bottomLeft.centerPoint.y - quarterDataList.bottomLeft.height / 2 &&
+				widget.y >=
+					quarterDataList?.bottomLeft.centerPoint.y - quarterDataList.bottomLeft.height / 2 &&
 				widget.y <= quarterDataList.bottomLeft.centerPoint.y + quarterDataList.bottomLeft.height / 2
 			) {
 				return MATRIX_QUARTER_CATEGORIES.BOTTOM_LEFT;
@@ -1042,8 +1088,10 @@ export const MatrixWizard = () => {
 				/* ___ ___
 				  |___|___|
 				  |___|_x_|  */
-				widget.y >= quarterDataList?.bottomRight.centerPoint.y - quarterDataList.bottomRight.height / 2 &&
-				widget.y <= quarterDataList.bottomRight.centerPoint.y + quarterDataList.bottomRight.height / 2
+				widget.y >=
+					quarterDataList?.bottomRight.centerPoint.y - quarterDataList.bottomRight.height / 2 &&
+				widget.y <=
+					quarterDataList.bottomRight.centerPoint.y + quarterDataList.bottomRight.height / 2
 			) {
 				return MATRIX_QUARTER_CATEGORIES.BOTTOM_RIGHT;
 			}
@@ -1062,14 +1110,17 @@ export const MatrixWizard = () => {
 	// 8. Luxury + 				low importance
 	const createCategorizedList = async () => {
 		if (coorOriginX && coorOriginY) {
-			const allCardStickyNoteFrameWidgets = (await miro.board.get({ type: ['card', 'sticky_note', 'frame'] })) as Array<
-				Card | StickyNote | Frame
-			>;
+			const allCardStickyNoteFrameWidgets = (await miro.board.get({
+				type: ['card', 'sticky_note', 'frame'],
+			})) as Array<Card | StickyNote | Frame>;
 			const categoryListElementWidth = 1500;
 			const paddingXBetweenMatrixAndCategoryList = 300;
 			const paddingYBetweenCategoryListTitleAndCategoryList = 75;
 			const categoryListPosX =
-				coorOriginX + totalWidgetWidth + additionalAxisMatrixOverlapping + paddingXBetweenMatrixAndCategoryList;
+				coorOriginX +
+				totalWidgetWidth +
+				additionalAxisMatrixOverlapping +
+				paddingXBetweenMatrixAndCategoryList;
 			let categoryList: MatrixCategoryListElement[] = [];
 
 			// Delete already existing categoryList and categoryListTitle before new list and title is created
@@ -1295,16 +1346,20 @@ export const MatrixWizard = () => {
 		<div className={styles.wizard__container}>
 			<div>
 				<h1 className={styles.title}>Importance / Difficulty Matrix</h1>
-				<Stepper activeStep={step} variant='outlined'>
+				<Stepper
+					activeStep={step}
+					variant='outlined'>
 					{steps.map((_stepItem, index) => {
 						return (
 							<Step key={index}>
 								<StepButton
 									onClick={() => {
 										setStep(index);
-									}}
-								>
-									<StepLabel key={index} icon={index + 1} />
+									}}>
+									<StepLabel
+										key={index}
+										icon={index + 1}
+									/>
 								</StepButton>
 							</Step>
 						);
@@ -1313,7 +1368,9 @@ export const MatrixWizard = () => {
 
 				<h1 className={styles.wizard__title}>{steps[step].title}</h1>
 
-				{steps[step].description && <p className={styles.wizard__description}>{steps[step].description}</p>}
+				{steps[step].description && (
+					<p className={styles.wizard__description}>{steps[step].description}</p>
+				)}
 
 				<ol className={styles.wizard__list}>
 					{steps[step].steps.map((step) => (
@@ -1331,7 +1388,12 @@ export const MatrixWizard = () => {
 				/>
 				<div className={styles.wizard__stepper__button__container}>
 					{step > 0 && (
-						<Button onClickFunction={moveStepBack} buttonText={'Back'} buttonIcon={<ArrowLeft />} isLight={true} />
+						<Button
+							onClickFunction={moveStepBack}
+							buttonText={'Back'}
+							buttonIcon={<ArrowLeft />}
+							isLight={true}
+						/>
 					)}
 					{step !== steps.length - 1 && (
 						<Button
@@ -1353,8 +1415,7 @@ export const MatrixWizard = () => {
 								onClick={() => {
 									sessionStorage.clear();
 									setStep(0);
-								}}
-							>
+								}}>
 								{addNewTopicButtonText}
 							</a>
 							<a
@@ -1362,8 +1423,7 @@ export const MatrixWizard = () => {
 								onClick={() => {
 									clearSessionStorageAndStates();
 									setStep(0);
-								}}
-							>
+								}}>
 								{drawNewMatrixButtonText}
 							</a>
 						</>
