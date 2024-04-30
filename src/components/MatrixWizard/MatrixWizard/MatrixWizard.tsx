@@ -1155,9 +1155,9 @@ export const MatrixWizard = () => {
 			}
 			// );
 
-			// sort desc according to x position (importance)
+			// sort asc according to x position (importance)
 			categoryList.sort((a, b) => {
-				return Math.abs(b.widgetPosX) - Math.abs(a.widgetPosX);
+				return Math.abs(a.widgetPosX) - Math.abs(b.widgetPosX);
 			});
 
 			// sort according to prio (focus -> strategic - low hanging fruits - luxury)
