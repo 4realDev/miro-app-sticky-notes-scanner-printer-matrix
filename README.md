@@ -1,5 +1,10 @@
 # Create Miro App
 
+## IMPORTANT
+
+Currently not working because of:
+NotAllowedError: Failed to execute 'getDisplayMedia' on 'MediaDevices': Access to the feature "display-capture" is disallowed by permissions policy.
+
 ## How to start:
 
 - Run `yarn` or `npm install` to install dependencies
