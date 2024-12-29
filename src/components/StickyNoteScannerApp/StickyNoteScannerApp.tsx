@@ -237,7 +237,7 @@ const StickyNoteScannerApp = () => {
 				debug
 			);
 
-			if (fetchScanningData === undefined) {
+			if (fetchedScanningData === undefined) {
 				console.log(
 					'\nERROR: Data could not be fetched. Check the API availability or your Network.\n'
 				);
@@ -424,8 +424,8 @@ const StickyNoteScannerApp = () => {
 				return res.data;
 			});
 		} catch (err: any) {
-			console.log(err.response?.data, err.response?.data?.context);
-			//   throw new HttpException('Error creating miro board', HttpStatus.INTERNAL_SERVER_ERROR);
+			console.log(err);
+			// console.log(err.response?.data, err.response?.data?.context);
 		}
 	};
 
