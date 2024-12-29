@@ -81,13 +81,6 @@ const StickyNoteScannerApp = () => {
 		showAvailableMiroBoardSelection();
 	}, []);
 
-	console.log(
-		checkBoxScanWhiteboardText,
-		checkBoxScanVotingDots,
-		checkBoxDebug,
-		checkBoxCreateCroppedStickyNoteImages
-	);
-
 	const handleChangeCheckBoxScanWhiteboardText = () => {
 		setCheckBoxScanWhiteboardText(!checkBoxScanWhiteboardText);
 	};
