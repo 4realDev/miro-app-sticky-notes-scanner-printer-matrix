@@ -1,19 +1,11 @@
 import React, { useState } from 'react';
 import styles from './StickyNotePreviewSlider.module.scss';
-
-// Import Swiper React components
 import { Swiper, SwiperSlide } from 'swiper/react';
-
-// Import Swiper styles
-// Import Swiper styles
 import 'swiper/css';
-// import 'swiper/css/lazy';
 import 'swiper/css/free-mode';
 import 'swiper/css/navigation';
 import 'swiper/css/thumbs';
-
-// import required modules
-import { FreeMode, Navigation, Thumbs } from 'swiper';
+import { FreeMode, Navigation, Thumbs } from 'swiper/modules';
 import Delete from '../../Icons/Delete';
 
 type StickyNotePreviewSliderType = {
@@ -42,21 +34,27 @@ const StickyNotePreviewSlider = ({
 						'--swiper-pagination-color': '#000000',
 					}}
 					// spaceBetween={1}
-					slidesPerView={1}
 					thumbs={{
 						swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null,
 					}}
+					slidesPerView={1}
 					navigation
 					modules={[FreeMode, Navigation, Thumbs]}
 					centeredSlides
 					slideToClickedSlide
 					roundLengths
-					className='imageSlider'
-				>
+					className='imageSlider'>
 					{stickyNoteSliderImages.map((img) => {
 						return (
-							<SwiperSlide key={img.id} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-								<img src={img.img} className={styles.sliderImage} />
+							<SwiperSlide
+								key={`${img.id}-${img.img}`}
+								style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+								<img
+									id={img.id}
+									src={img.img}
+									className={styles.sliderImage}
+									alt={img.id}
+								/>
 							</SwiperSlide>
 						);
 					})}
@@ -68,7 +66,8 @@ const StickyNotePreviewSlider = ({
 							width: '208px',
 							height: '208px',
 							background: '#D9D9D9',
-							boxShadow: 'rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px',
+							boxShadow:
+								'rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px',
 							marginBottom: '24px',
 						}}
 					/>
@@ -121,11 +120,14 @@ const StickyNotePreviewSlider = ({
 												arrayCopy.splice(indexOfElementToRemove, 1);
 												setStickyNotesSliderImages(arrayCopy);
 											}
-										}}
-									>
+										}}>
 										<Delete />
 									</button>
-									<img key={img.id} src={img.img} className={styles.sliderImageThumbnail} />
+									<img
+										key={img.id}
+										src={img.img}
+										className={styles.sliderImageThumbnail}
+									/>
 								</SwiperSlide>
 							);
 						})}

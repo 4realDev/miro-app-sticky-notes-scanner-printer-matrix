@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import StickyNotePrinter from '../Icons/StickyNotePrinter';
 import { MatrixWizard } from '../MatrixWizard/MatrixWizard/MatrixWizard';
-import PostItPrinterApp from '../PostItPrinterApp/PostItPrinterApp';
 import styles from './ToolboxStartScreen.module.scss';
 import cn from 'classnames';
-import WhatsOnYourRadar from '../Icons/WhatsOnYourRadar';
 import ArrowLeft from '../Icons/ArrowLeft';
 import StickyNoteScanner from '../Icons/StickyNoteScanner';
 import Matrix from '../Icons/Matrix';
 import { NotificationType } from '@mirohq/websdk-types';
+import StickyNotePrinterApp from '../PostItPrinterApp/StickyNotePrinterApp';
+import StickyNoteScannerApp from '../StickyNoteScannerApp/StickyNoteScannerApp';
 
 export type toolboxMethodsData = {
 	buttonText: string;
@@ -47,16 +47,7 @@ const ToolboxStartScreen = () => {
 				setRenderScreen('scanner');
 			},
 			type: '2',
-			isDisabled: true,
-		},
-		{
-			buttonText: "What's on your Radar",
-			buttonIcon: <WhatsOnYourRadar />,
-			buttonEvent: () => {
-				setRenderScreen('radar');
-			},
-			type: '3',
-			isDisabled: true,
+			isDisabled: false,
 		},
 	];
 
@@ -72,7 +63,9 @@ const ToolboxStartScreen = () => {
 			case 'matrix':
 				return <MatrixWizard />;
 			case 'printer':
-				return <PostItPrinterApp />;
+				return <StickyNotePrinterApp />;
+			case 'scanner':
+				return <StickyNoteScannerApp />;
 			default:
 				return;
 		}

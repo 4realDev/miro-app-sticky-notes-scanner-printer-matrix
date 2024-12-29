@@ -1,0 +1,65 @@
+.container {
+    padding: 0 24px 0 24px;
+}
+
+.title {
+	font-style: normal;
+	font-weight: 700;
+	font-size: 16px;
+	line-height: 20px;
+	color: #000000;
+	margin-bottom: 16px;
+}
+
+
+.descriptionText {
+    // font-family: 'Heebo-Regular';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 20px;
+    color: rgba(0, 0, 0, 0.7);
+    margin-bottom: 8px;
+}
+
+.previewTitle {
+    // font-family: 'Heebo-Regular';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 24px;    
+    color: #000000;
+    margin-bottom: 24px;
+}
+
+.formElementsContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.formElements {
+    width: 30vw;
+
+    @media only screen and (max-width: 600px) {
+        width: 80vw;
+    }
+}
+
+.formElementsText {
+    font-size: 14px;
+    line-height: 20px;
+    color: rgba(0, 0, 0, 0.7);
+    margin-top: 16px;
+}
+
+.formUploadImagesInputField {
+    @media only screen and (max-width: 600px) {
+        text-align: center;
+        width: 100%;
+    }
+}
+
+input[type="file"] {
+    display: none;
+}

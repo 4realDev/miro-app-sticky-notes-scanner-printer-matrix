@@ -15,7 +15,7 @@ import {
 	StickyNote,
 	StickyNoteColor,
 } from '@mirohq/websdk-types';
-import styles from './PostItPrinterApp.module.scss';
+import styles from './StickyNotePrinterApp.module.scss';
 import Button from '../ui/Button/Button';
 import Printer from '../Icons/Printer';
 import StickyNotePreviewSlider from './StickyNotePreviewSlider/StickyNotePreviewSlider';
@@ -34,11 +34,11 @@ type StickyNoteTransferedDataObj = {
 	miroBoardId: string;
 };
 
-const PostItPrinterApp = () => {
+const StickyNotePrinterApp = () => {
 	const [stickyNoteSliderImages, setStickyNoteSliderImages] = useState<
 		Array<{ img: string; id: string }>
 	>([]);
-	const stickyNotePostItWidth = 305;
+	const stickyNoteStickyNoteWidth = 305;
 
 	// TODO: Extract in utility class
 	const sendNotification = async (notification: string) => {
@@ -117,13 +117,13 @@ const PostItPrinterApp = () => {
 			forDrawingOnScreen === false
 				? 'white'
 				: mapStickyNoteColorToPrintColor(stickyNote.style.fillColor, true);
-		const outerBoxTransform = forDrawingOnScreen === false ? 'rotate(90 0 0)' : 'none';
+		// const outerBoxTransform = forDrawingOnScreen === false ? 'rotate(90 0 0)' : 'none';
 		const outerBox = document.createElement('div');
 		outerBox.setAttribute(
 			'style',
 			`
-			height: ${stickyNotePostItWidth}px;
-			width: ${stickyNotePostItWidth}px;
+			height: ${stickyNoteStickyNoteWidth}px;
+			width: ${stickyNoteStickyNoteWidth}px;
 			display: flex;
 			justify-content: center;
 			align-items: center;
@@ -135,7 +135,7 @@ const PostItPrinterApp = () => {
 		innerBox.setAttribute(
 			'style',
 			`
-			font-size: ${stickyNotePostItWidth};
+			font-size: ${stickyNoteStickyNoteWidth};
 			font-family: sans-serif;
 			font-weight: bold;
 			text-align: center;
@@ -159,8 +159,8 @@ const PostItPrinterApp = () => {
 		// Add the html to the body to make it visible
 		document.body.appendChild(outerBox);
 
-		const startFont = stickyNotePostItWidth;
-		calculateFontSize(startFont, innerBox, stickyNotePostItWidth);
+		const startFont = stickyNoteStickyNoteWidth;
+		calculateFontSize(startFont, innerBox, stickyNoteStickyNoteWidth);
 
 		// uses following library https://www.npmjs.com/package/dom-to-svg?activeTab=readme
 		const svgDocument = elementToSVG(outerBox);
@@ -249,8 +249,8 @@ const PostItPrinterApp = () => {
 			const iconSvgString = convertStickyNoteDataToStickyNoteSVGString(selectedStickyNote);
 			const imgBase64Url = await convertStickyNoteSVGStringToStickyNotePNGBase64URL(
 				iconSvgString,
-				stickyNotePostItWidth,
-				stickyNotePostItWidth
+				stickyNoteStickyNoteWidth,
+				stickyNoteStickyNoteWidth
 			);
 			const imgStickyNotePrintColor = mapStickyNoteColorToPrintColor(
 				selectedStickyNote.style.fillColor
@@ -317,8 +317,8 @@ const PostItPrinterApp = () => {
 				const iconSvgString = convertStickyNoteDataToStickyNoteSVGString(sticky, true);
 				const imgBase64Url = await convertStickyNoteSVGStringToStickyNotePNGBase64URL(
 					iconSvgString,
-					stickyNotePostItWidth,
-					stickyNotePostItWidth
+					stickyNoteStickyNoteWidth,
+					stickyNoteStickyNoteWidth
 				);
 
 				stateArrayCopy.push({ img: imgBase64Url, id: sticky.id });
@@ -363,4 +363,4 @@ const PostItPrinterApp = () => {
 	);
 };
 
-export default PostItPrinterApp;
+export default StickyNotePrinterApp;

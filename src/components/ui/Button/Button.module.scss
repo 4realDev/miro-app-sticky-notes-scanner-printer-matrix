@@ -10,9 +10,9 @@
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
-    align-items: center;
     padding: 8px 12px;
     transition: all 0.25s ease;
+    align-items: center;
     
 
     border: 1px solid #000000;
@@ -26,12 +26,11 @@
     span {
         padding-left: 8px;
         font-size: 14px;
-        line-height: 20px;
+        line-height: 10px;
         display:flex;
         align-items: center;
         justify-content: center;
         height: 100%;
-        transform: translateY(-1.5px);
     }
 
     &__light {
