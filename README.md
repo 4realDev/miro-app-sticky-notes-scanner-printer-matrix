@@ -9,6 +9,8 @@ The Matrix Miro App feature includes several steps such as:
 - creation of quadrants and and designations
 - priority list for roadmap
 
+![miro_matrix_flow](https://github.com/user-attachments/assets/1dc1bc5e-c1f2-4190-b504-8d5028d08b9d)
+
 ## Sticky Note Printer
 ### Preview Video
 https://vimeo.com/803506350?share=copy
@@ -22,6 +24,8 @@ This enables new possibilities for hybrid workshops.
 - Integrated Miro app with preview
 - Fast and virtually in "real time"
 
+![miro_printer_flow](https://github.com/user-attachments/assets/18c85a77-5fc3-401c-a3d4-9e0405907068)
+
 ## Preview Sticky Note Scanner Video
 ### Preview Video
 https://vimeo.com/803506423
@@ -32,6 +36,8 @@ In the process individual sticky notes are recognized using custom object detect
 These are then automatically uploaded to Miro and updated at definable intervals. 
 This TensorFlow cstom object detection model has already been trained with thousands of notes from real workshop results.
 The repository for the training of the custom object detection model is the following: https://github.com/4realDev/tensorflow-custom-object-detection-model-training
+
+![miro_scanner_flow](https://github.com/user-attachments/assets/12e98bcc-af05-44fc-92d1-e5668a2ae0e1)
 
 ## Foreword
 All three features are integrated in one Miro App and developed with the Miro Web SDK and Miro REST API.
