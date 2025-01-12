@@ -1,13 +1,37 @@
-## Preview Importance/Difficulty Matrix Video
+## Importance/Difficulty Matrix
+### Preview Video
 https://vimeo.com/803506266?share=copy
-This Miro App includes several steps such as:
+
+### Description
+The Matrix Miro App feature includes several steps such as:
 - relative prioritization and estimation of topics
 - automatic sorting in two axes
 - creation of quadrants and and designations
 - priority list for roadmap
 
-## Preview Sticky Note Printer Video
+## Sticky Note Printer
+### Preview Video
 https://vimeo.com/803506350?share=copy
+
+### Description
+The Sticky Note Printer App feature enables remote participants to print different colored sticky notes directly from Miro inside the physical workshop, so they can be used with the team on site.
+This enables new possibilities for hybrid workshops.
+- Print notepads remotely directly from Miro
+- Automatically detects the color of the sticky notes in Miro and selects the correct sticky note printer
+- Prints one or more sticky notes at once
+- Integrated Miro app with preview
+- Fast and virtually in "real time"
+
+## Preview Sticky Note Scanner Video
+### Preview Video
+https://vimeo.com/803506423
+
+### Description
+The Scanner Miro App feature is used to create regular snapshots of live video feeds of the physical workshop. 
+In the process individual sticky notes are recognized using custom object detection (Tensorflow) including their color, position and text. 
+These are then automatically uploaded to Miro and updated at definable intervals. 
+This TensorFlow cstom object detection model has already been trained with thousands of notes from real workshop results.
+The repository for the training of the custom object detection model is the following: https://github.com/4realDev/tensorflow-custom-object-detection-model-training
 
 ## Foreword
 Both Apps are integrated in Miro and developed with the Miro Web SDK and Miro REST API.
