@@ -34,7 +34,7 @@ This TensorFlow cstom object detection model has already been trained with thous
 The repository for the training of the custom object detection model is the following: https://github.com/4realDev/tensorflow-custom-object-detection-model-training
 
 ## Foreword
-Both Apps are integrated in Miro and developed with the Miro Web SDK and Miro REST API.
+All three features are integrated in one Miro App and developed with the Miro Web SDK and Miro REST API.
 
 # Create Miro App
 
