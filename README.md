@@ -1,10 +1,8 @@
 ### Importance/Difficulty Matrix Preview Video:
 https://vimeo.com/803506266?share=copy
-![scanner](https://github.com/user-attachments/assets/751ee8aa-7605-4f75-bae6-dea06d60e38f)
 
 ### Sticky Note Printer Preview Video:
 https://vimeo.com/803506350?share=copy
-![printer](https://github.com/user-attachments/assets/54cd19d7-af61-476f-9dd1-dbc07ec2a72c)
 
 ## Foreword
 Both Apps are integrated in Miro and developed with the Miro Web SDK and Miro REST API.
