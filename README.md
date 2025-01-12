@@ -1,5 +1,10 @@
 ## Preview Importance/Difficulty Matrix Video
 https://vimeo.com/803506266?share=copy
+This Miro App includes several steps such as:
+- relative prioritization and estimation of topics
+- automatic sorting in two axes
+- creation of quadrants and and designations
+- priority list for roadmap
 
 ## Preview Sticky Note Printer Video
 https://vimeo.com/803506350?share=copy
