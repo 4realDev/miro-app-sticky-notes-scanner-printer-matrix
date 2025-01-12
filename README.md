@@ -1,7 +1,7 @@
-### Importance/Difficulty Matrix Preview Video:
+### Preview Importance/Difficulty Matrix Video
 https://vimeo.com/803506266?share=copy
 
-### Sticky Note Printer Preview Video:
+### Preview Sticky Note Printer Video
 https://vimeo.com/803506350?share=copy
 
 ## Foreword
