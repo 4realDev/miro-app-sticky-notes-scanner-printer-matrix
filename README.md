@@ -26,7 +26,7 @@ This enables new possibilities for hybrid workshops.
 
 ![miro_printer_flow](https://github.com/user-attachments/assets/18c85a77-5fc3-401c-a3d4-9e0405907068)
 
-## Preview Sticky Note Scanner Video
+## Sticky Note Scanner
 ### Preview Video
 https://vimeo.com/803506423
 
