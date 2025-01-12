@@ -39,31 +39,13 @@ The repository for the training of the custom object detection model is the foll
 
 ![miro_scanner_flow](https://github.com/user-attachments/assets/12e98bcc-af05-44fc-92d1-e5668a2ae0e1)
 
-## Foreword
+## Note
 All three features are integrated in one Miro App and developed with the Miro Web SDK and Miro REST API.
 
-# Create Miro App
-
-## How to start:
-
-- Run `yarn` or `npm install` to install dependencies
-- Run `yarn start` or `npm start` to start developing, you should have a URL
-  that looks like this
-
-```
-http://localhost:3000
-```
-
-- Paste the URL in `App URL` in your app settings
-- open a board & you should see your app in the main toolbar when you click the
-  three dots.
-
-## How to build the app:
-
-Run `yarn run build` or `npm run build` and this will generate a static output
-inside `dist/` which you can host on static hosting service.
-
-### About the app
-
-This app is using [vite](https://vitejs.dev/) so you can check the documentation
-if you want to modify `vite.config.js` configuration if needed.
+ ## Technologies
+ - Miro SDK
+ - Miro REST API
+ - ReactJS
+ - TensorFlow Custom Object Detection
+ - Google Cloud Vision API
+ - Computer Vision
