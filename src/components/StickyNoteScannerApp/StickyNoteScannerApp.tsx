@@ -17,6 +17,7 @@ import Checkbox from '../ui/Checkbox/Checkbox';
 import Button from '../ui/Button/Button';
 import Printer from '../Icons/Printer';
 import CustomFileInput from '../ui/CustomFileInput/CustomFileInput';
+import Refresh from '../Icons/Refresh';
 
 type StickyNoteDataType = {
 	color: string;
@@ -30,7 +31,6 @@ type StickyNoteDataType = {
 		ymax: number;
 		xmax: number;
 	};
-	voting: number;
 	width: number;
 };
 
@@ -68,7 +68,6 @@ const StickyNoteScannerApp = () => {
 	const [selectedImages, setSelectedImages] = useState<FileList | null>(null);
 
 	const [checkBoxScanWhiteboardText, setCheckBoxScanWhiteboardText] = useState(false);
-	const [checkBoxScanVotingDots, setCheckBoxScanVotingDots] = useState(false);
 	const [checkBoxDebug, setCheckBoxDebug] = useState(false);
 	const [checkBoxCreateCroppedStickyNoteImages, setCheckBoxCreateCroppedStickyNoteImages] =
 		useState(false);
@@ -84,9 +83,7 @@ const StickyNoteScannerApp = () => {
 	const handleChangeCheckBoxScanWhiteboardText = () => {
 		setCheckBoxScanWhiteboardText(!checkBoxScanWhiteboardText);
 	};
-	const handleChangeCheckBoxScanVotingDots = () => {
-		setCheckBoxScanVotingDots(!checkBoxScanVotingDots);
-	};
+
 	const handleChangeCheckBoxDebug = () => {
 		setCheckBoxDebug(!checkBoxDebug);
 	};
@@ -117,14 +114,6 @@ const StickyNoteScannerApp = () => {
 
 		return strDate;
 	};
-
-	// const check_response = async (res: any) => {
-	// 	if (res.hasOwnProperty('message')) {
-	// 		console.log('ERROR: Something went wrong with the Miro REST API.');
-	// 		console.log(res.message);
-	// 		return '-1';
-	// 	}
-	// };
 
 	const adjustImage = async (
 		base64Url: string,
@@ -169,11 +158,15 @@ const StickyNoteScannerApp = () => {
 		return imgUrl;
 	};
 
+	const findScanningStartPoint = async (boardId: string) => {
+		const allTextItems: Array<any> = await getAllBoardItems(boardId, 50, 'shape');
+		return allTextItems.find((text: any) => text.data.content.includes('[scanning]'));
+	};
+
 	const startScanningProcess = async (
 		selectedImages: FileList,
-		scanWhiteBoard: boolean,
-		scanVotingDots: boolean,
-		debug: boolean
+		scanWhiteBoard: boolean = false,
+		debug: boolean = false
 	) => {
 		let boardId = '';
 		let boardName = '';
@@ -182,14 +175,11 @@ const StickyNoteScannerApp = () => {
 
 		if (selectedMiroBoard.boardName === '') {
 			// *** 1. CREATE NEW MIRO BOARD OR GET EXISTING ONE ***
-			// TODO: TEMPORARY -> REMOVE LATER
-			// TODO: adjust with Input Field where the name can be entered
 			boardName = inputBoardName !== '' ? inputBoardName : getTimestamp_YYYY_MM_DD_HH_MM_SS();
 			const boardDescription = `Scanning of ${Array.from(selectedImages).map(
 				(img) => img.name + ', '
 			)}`;
 
-			// TODO: For simplicity always create new Miro Board - adjust later
 			boardId = await createNewMiroBoard(boardName, boardDescription, bearer);
 
 			if (boardId === '-1') {
@@ -199,12 +189,7 @@ const StickyNoteScannerApp = () => {
 		} else {
 			boardId = selectedMiroBoard.boardId;
 			boardName = selectedMiroBoard.boardName;
-
-			// Function: findScanningStartPoint()
-			const allTextItems: Array<any> = await getAllBoardItems(boardId, 50, 'shape');
-			scanningStartPointTextWidget = allTextItems.find((text: any) =>
-				text.data.content.includes('[scanning]')
-			);
+			scanningStartPointTextWidget = await findScanningStartPoint(boardId);
 
 			if (scanningStartPointTextWidget === undefined) {
 				console.log(
@@ -233,7 +218,6 @@ const StickyNoteScannerApp = () => {
 			const fetchedScanningData: FetchedScannedDataType = await fetchScanningData(
 				selectedImage,
 				scanWhiteBoard,
-				scanVotingDots,
 				debug
 			);
 
@@ -393,17 +377,11 @@ const StickyNoteScannerApp = () => {
 		console.log('Finish Scanning!');
 	};
 
-	const fetchScanningData = async (
-		img: File,
-		scanWhiteBoard: boolean,
-		scanVotingDots: boolean,
-		debug: boolean
-	) => {
+	const fetchScanningData = async (img: File, scanWhiteBoard: boolean, debug: boolean) => {
 		const form = new FormData();
 		form.append('image', img);
 
 		const paramScanWhiteBoard = scanWhiteBoard ? 'True' : 'False';
-		const paramScanVotingDots = scanVotingDots ? 'True' : 'False';
 		const paramDebug = debug ? 'True' : 'False';
 
 		const options = {
@@ -411,7 +389,6 @@ const StickyNoteScannerApp = () => {
 			url: 'http://localhost:5000/scan-sticky-notes',
 			params: {
 				scan_whiteboard_text: paramScanWhiteBoard,
-				scan_voting_dots: paramScanVotingDots,
 				debug: paramDebug,
 			},
 			headers: { 'Content-Type': 'multipart/form-data;' },
@@ -425,7 +402,6 @@ const StickyNoteScannerApp = () => {
 			});
 		} catch (err: any) {
 			console.log(err);
-			// console.log(err.response?.data, err.response?.data?.context);
 		}
 	};
 
@@ -472,116 +448,90 @@ const StickyNoteScannerApp = () => {
 					Upload the images you want to Scan and select the Miro Board in which you want the Scans
 					to be stored. Then press "Scan" to start the Scanning Process.
 				</p>
-				<h1 className={styles.previewTitle}>Image Selection:</h1>
+				<div className={styles.imageSelectionContainer}>
+					<h1 className={styles.previewTitle}>Image Selection:</h1>
 
-				{selectedImages && (
-					<>
-						<StickyNotePreviewSlider
-							stickyNoteSliderImages={sliderImages}
-							setStickyNotesSliderImages={setSliderImages}
-						/>
-					</>
-				)}
-
-				<div className={styles.formElementsContainer}>
-					<div className={styles.formElements}>
-						<CustomFileInput
-							setSelectedImages={setSelectedImages}
-							setSliderImages={setSliderImages}
-						/>
-						{/* <label
-							htmlFor='myImage'
-							className='custom-file-upload'>
-							Test
-							<Button
-								isLight
-								buttonIcon={<Printer />}
-								buttonText={'Upload images'}
-								onClickFunction={undefined}
+					{selectedImages && (
+						<>
+							<StickyNotePreviewSlider
+								stickyNoteSliderImages={sliderImages}
+								setStickyNotesSliderImages={setSliderImages}
 							/>
-							<input
-								className={styles.formUploadImagesInputField}
-								type='file'
-								id='myImage'
-								name='myImage'
-								multiple
-								hidden
-								onChange={(event) => {
-									if (event.target.files) {
-										setSelectedImages(event.target.files);
-										const sliderImagesList = Array.from(event.target.files).map((file) => {
-											return { img: URL.createObjectURL(file), id: file.name };
-										});
-										setSliderImages(sliderImagesList);
-									}
-								}}
+						</>
+					)}
+
+					<div className={styles.formElementsContainer}>
+						<div className={styles.formElements}>
+							<CustomFileInput
+								setSelectedImages={setSelectedImages}
+								setSliderImages={setSliderImages}
 							/>
-						</label> */}
 
-						<br />
-						<br />
-
-						{checkBoxUseExistingBoardForScanning === false ? (
-							<>
-								<label className={styles.formElementsText}>Create Miro Board with the name: </label>
-								<br />
-								<input
-									type='text'
-									value={inputBoardName}
-									onChange={(e) => handleChangeInputBoardName(e)}
+							<div className={styles.formSection}>
+								{checkBoxUseExistingBoardForScanning === false ? (
+									<>
+										<label className={styles.formElementsText}>
+											Create Miro Board with the name:{' '}
+										</label>
+										<input
+											className={styles.selectField}
+											type='text'
+											value={inputBoardName}
+											onChange={(e) => handleChangeInputBoardName(e)}
+										/>
+									</>
+								) : (
+									<>
+										<label className={styles.formElementsText}>Choose a Miro Board:</label>
+										<div className={styles.selectFieldContainer}>
+											<select
+												className={styles.selectField}
+												defaultValue={selectedMiroBoard.boardName}
+												onChange={(e) => {
+													const selectedMiroBoardData: SimplifiedBoardObjectType = JSON.parse(
+														e.target.value
+													);
+													console.log(JSON.parse(e.target.value));
+													setSelectedMiroBoard(selectedMiroBoardData);
+												}}>
+												{miroBoardsSelectionOptions}
+											</select>
+											<button
+												className={styles.refreshButton}
+												onClick={() => showAvailableMiroBoardSelection()}>
+												<Refresh
+													height={18}
+													width={18}
+												/>
+											</button>
+										</div>
+									</>
+								)}
+								<Checkbox
+									label='Use existing Miro Board'
+									value={checkBoxUseExistingBoardForScanning}
+									onChange={handleChangeCheckBoxUseExistingBoardForScanning}
 								/>
-							</>
-						) : (
-							<>
-								<label>Choose a Miro Board:</label>
-								<br />
-								<select
-									defaultValue={selectedMiroBoard.boardName}
-									onChange={(e) => {
-										const selectedMiroBoardData: SimplifiedBoardObjectType = JSON.parse(
-											e.target.value
-										);
-										console.log(JSON.parse(e.target.value));
-										setSelectedMiroBoard(selectedMiroBoardData);
-									}}>
-									{miroBoardsSelectionOptions}
-								</select>
-								<button onClick={() => showAvailableMiroBoardSelection()}>refresh</button>
-							</>
-						)}
-
-						<br />
-						<br />
-
-						<Checkbox
-							label='Use existing Miro Board'
-							value={checkBoxUseExistingBoardForScanning}
-							onChange={handleChangeCheckBoxUseExistingBoardForScanning}
-						/>
-						<br />
-						<Checkbox
-							label='Detect Text (experimental)'
-							value={checkBoxScanWhiteboardText}
-							onChange={handleChangeCheckBoxScanWhiteboardText}
-						/>
-						<br />
-						<Checkbox
-							label='Detect Voting Dots (experimental)'
-							value={checkBoxScanVotingDots}
-							onChange={handleChangeCheckBoxScanVotingDots}
-						/>
-						<br />
-						<Checkbox
-							label='Create cropped sticky note images'
-							value={checkBoxCreateCroppedStickyNoteImages}
-							onChange={handleChangeCheckBoxCreateCroppedStickyNoteImages}
-						/>
-						<br />
-						<Checkbox
-							label='Debug'
-							value={checkBoxDebug}
-							onChange={handleChangeCheckBoxDebug}
-						/>
+							</div>
+							<div className={styles.formSection}>
+								<div className={styles.formElementsText}>Scan Settings:</div>
+								<Checkbox
+									label='Create cropped sticky note images'
+									value={checkBoxCreateCroppedStickyNoteImages}
+									onChange={handleChangeCheckBoxCreateCroppedStickyNoteImages}
+								/>
+								<Checkbox
+									label='Detect Text (experimental)'
+									value={checkBoxScanWhiteboardText}
+									onChange={handleChangeCheckBoxScanWhiteboardText}
+								/>
+								<Checkbox
+									label='Debug'
+									value={checkBoxDebug}
+									onChange={handleChangeCheckBoxDebug}
+								/>
+							</div>
+						</div>
 					</div>
 				</div>
 				<br />
@@ -593,14 +543,8 @@ const StickyNoteScannerApp = () => {
 							);
 							return;
 						}
-						console.log(checkBoxScanWhiteboardText, checkBoxScanVotingDots, checkBoxDebug);
 						selectedImages &&
-							startScanningProcess(
-								selectedImages,
-								checkBoxScanWhiteboardText,
-								checkBoxScanVotingDots,
-								checkBoxDebug
-							);
+							startScanningProcess(selectedImages, checkBoxScanWhiteboardText, checkBoxDebug);
 					}}
 					buttonIcon={<Printer />}
 					buttonText={'Scan'}

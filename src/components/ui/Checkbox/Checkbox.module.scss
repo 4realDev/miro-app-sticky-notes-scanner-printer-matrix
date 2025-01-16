@@ -1,0 +1,37 @@
+.checkboxContainer {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.checkbox {
+    box-sizing: border-box;
+    box-shadow: none;
+    border: none;
+    cursor: pointer;
+    min-width: 20px;
+    height: 20px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    transition: all 0.25s ease;
+    align-items: center;
+    
+    border: 1px solid #000000;
+    border-radius: 6px;
+    background-color: transparent;
+
+    margin-right: 8px;
+}
+
+input[type="checkbox"] {
+    accent-color: #000000;
+}
+
+.checkboxLabel {
+    font-style: normal;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 20px;
+    color: rgba(0, 0, 0, 0.7);
+}
