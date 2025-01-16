@@ -30,11 +30,14 @@ This enables new possibilities for hybrid workshops.
 ### Preview Video
 https://vimeo.com/803506423
 
+### Sticky Note Scanner API
+https://github.com/4realDev/sticky-notes-scanner-server-and-api
+
 ### Description
 The Scanner Miro App feature is used to create regular snapshots of live video feeds of the physical workshop. 
 In the process individual sticky notes are recognized using custom object detection (Tensorflow) including their color, position and text. 
 These are then automatically uploaded to Miro and updated at definable intervals. 
-This TensorFlow cstom object detection model has already been trained with thousands of notes from real workshop results.
+This TensorFlow custom object detection model has already been trained with thousands of notes from real workshop results.
 The repository for the training of the custom object detection model is the following: https://github.com/4realDev/tensorflow-custom-object-detection-model-training
 
 ![miro_scanner_flow](https://github.com/user-attachments/assets/12e98bcc-af05-44fc-92d1-e5668a2ae0e1)
