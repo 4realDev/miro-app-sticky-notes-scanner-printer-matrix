@@ -31,7 +31,9 @@ import {
 import { clearSessionStorageAndStates, useSessionStorage } from '../../useSessionStorage';
 import Button from '../../ui/Button/Button';
 import SortByDifficultyImg from '../../Icons/SortByDifficultyImg';
-import CreateMatrixCard from './CreateMatrixCard';
+import specialCardThumbnail from '../../../assets/special_card_thumbnail.png';
+import WidgetDraggableCard from '../../WidgetDraggableCard/WidgetDraggableCard';
+import { createMatrixCard } from './utils';
 
 const miro = window.miro;
 
@@ -1409,7 +1411,11 @@ export const MatrixWizard = () => {
 					)}
 				</div>
 
-				<CreateMatrixCard />
+				<WidgetDraggableCard
+					thumbnail={specialCardThumbnail}
+					title={'Draggable Special Card:'}
+					createWidgetMethod={createMatrixCard}
+				/>
 				<div className={styles.wizard__hint}>
 					{step > 0 && (
 						<>

@@ -18,6 +18,9 @@ import Button from '../ui/Button/Button';
 import Printer from '../Icons/Printer';
 import CustomFileInput from '../ui/CustomFileInput/CustomFileInput';
 import Refresh from '../Icons/Refresh';
+import scanningStartingPointThumbnail from '../../assets/scanning_starting_point.png';
+import WidgetDraggableCard from '../WidgetDraggableCard/WidgetDraggableCard';
+import { createScanningStartPoint } from './utils';
 
 type StickyNoteDataType = {
 	color: string;
@@ -34,55 +37,23 @@ type StickyNoteDataType = {
 	width: number;
 };
 
-type TextDataType = {
-	boxes: {
-		bottomLeft: {
-			x: number;
-			y: number;
-		};
-		bottomRight: {
-			x: number;
-			y: number;
-		};
-		topLeft: {
-			x: number;
-			y: number;
-		};
-		topRight: {
-			x: number;
-			y: number;
-		};
-	};
-	text: string;
-};
-
 type FetchedScannedDataType = {
 	img_data: { width: number; height: number };
 	sticky_note_data: Array<StickyNoteDataType>;
-	text_data: Array<TextDataType>;
 };
 
 const StickyNoteScannerApp = () => {
 	const [sliderImages, setSliderImages] = useState<Array<{ img: string; id: string }>>([]);
-
 	const [selectedImages, setSelectedImages] = useState<FileList | null>(null);
-
-	const [checkBoxScanWhiteboardText, setCheckBoxScanWhiteboardText] = useState(false);
 	const [checkBoxDebug, setCheckBoxDebug] = useState(false);
 	const [checkBoxCreateCroppedStickyNoteImages, setCheckBoxCreateCroppedStickyNoteImages] =
 		useState(false);
-
 	const [checkBoxUseExistingBoardForScanning, setCheckBoxCreateNewMiroBoard] = useState(false);
-
 	const [inputBoardName, setInputBoardName] = useState('');
 
 	useEffect(() => {
 		showAvailableMiroBoardSelection();
 	}, []);
-
-	const handleChangeCheckBoxScanWhiteboardText = () => {
-		setCheckBoxScanWhiteboardText(!checkBoxScanWhiteboardText);
-	};
 
 	const handleChangeCheckBoxDebug = () => {
 		setCheckBoxDebug(!checkBoxDebug);
@@ -165,7 +136,7 @@ const StickyNoteScannerApp = () => {
 
 	const startScanningProcess = async (
 		selectedImages: FileList,
-		scanWhiteBoard: boolean = false,
+		// scanWhiteBoard: boolean = false,
 		debug: boolean = false
 	) => {
 		let boardId = '';
@@ -217,7 +188,7 @@ const StickyNoteScannerApp = () => {
 			// these new resized image dimensions are return as well inside img_data
 			const fetchedScanningData: FetchedScannedDataType = await fetchScanningData(
 				selectedImage,
-				scanWhiteBoard,
+				// scanWhiteBoard,
 				debug
 			);
 
@@ -372,23 +343,22 @@ const StickyNoteScannerApp = () => {
 						});
 				}
 			}
+
 			prevFrameWidth = frameWidth;
 		}
 		console.log('Finish Scanning!');
 	};
 
-	const fetchScanningData = async (img: File, scanWhiteBoard: boolean, debug: boolean) => {
+	const fetchScanningData = async (img: File, debug: boolean) => {
 		const form = new FormData();
 		form.append('image', img);
 
-		const paramScanWhiteBoard = scanWhiteBoard ? 'True' : 'False';
 		const paramDebug = debug ? 'True' : 'False';
 
 		const options = {
 			method: 'POST',
 			url: 'http://localhost:5000/scan-sticky-notes',
 			params: {
-				scan_whiteboard_text: paramScanWhiteBoard,
 				debug: paramDebug,
 			},
 			headers: { 'Content-Type': 'multipart/form-data;' },
@@ -496,14 +466,6 @@ const StickyNoteScannerApp = () => {
 												}}>
 												{miroBoardsSelectionOptions}
 											</select>
-											<button
-												className={styles.refreshButton}
-												onClick={() => showAvailableMiroBoardSelection()}>
-												<Refresh
-													height={18}
-													width={18}
-												/>
-											</button>
 										</div>
 									</>
 								)}
@@ -521,11 +483,6 @@ const StickyNoteScannerApp = () => {
 									onChange={handleChangeCheckBoxCreateCroppedStickyNoteImages}
 								/>
 								<Checkbox
-									label='Detect Text (experimental)'
-									value={checkBoxScanWhiteboardText}
-									onChange={handleChangeCheckBoxScanWhiteboardText}
-								/>
-								<Checkbox
 									label='Debug'
 									value={checkBoxDebug}
 									onChange={handleChangeCheckBoxDebug}
@@ -534,6 +491,11 @@ const StickyNoteScannerApp = () => {
 						</div>
 					</div>
 				</div>
+				<WidgetDraggableCard
+					title={'Scanning Starting Point:'}
+					thumbnail={scanningStartingPointThumbnail}
+					createWidgetMethod={createScanningStartPoint}
+				/>
 				<br />
 				<Button
 					onClickFunction={() => {
@@ -543,8 +505,7 @@ const StickyNoteScannerApp = () => {
 							);
 							return;
 						}
-						selectedImages &&
-							startScanningProcess(selectedImages, checkBoxScanWhiteboardText, checkBoxDebug);
+						selectedImages && startScanningProcess(selectedImages, checkBoxDebug);
 					}}
 					buttonIcon={<Printer />}
 					buttonText={'Scan'}
