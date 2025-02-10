@@ -41,7 +41,8 @@ This TensorFlow custom object detection model has already been trained with thou
 The repository for the training of the custom object detection model is the following: https://github.com/4realDev/tensorflow-custom-object-detection-model-training
 
 ![miro_scanner_flow](https://github.com/user-attachments/assets/12e98bcc-af05-44fc-92d1-e5668a2ae0e1)
-![image](https://github.com/user-attachments/assets/485be874-e92a-4e53-a1eb-79b999728b1f)
+![image](https://github.com/user-attachments/assets/94702c2e-ceb2-4370-a0af-793ba313ec4a)
+
 
 
 ## Note
