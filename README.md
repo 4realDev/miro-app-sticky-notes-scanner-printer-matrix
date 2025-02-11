@@ -141,8 +141,14 @@ The Printing Agent uses a NodeJS Script, to simulate a WebSocket Server ([sticky
 ---
 
 ## Sticky Note Scanner
-### Preview Video
+### Preview
 https://vimeo.com/803506423
+
+![2_Eval_Homeoffice_Phase_4](https://github.com/user-attachments/assets/a6f2cbac-0a08-4ea7-8645-9c820c1db46d)
+
+![_debug_all_texts_scan](https://github.com/user-attachments/assets/40953c50-f045-4f95-83d5-b7a65ba10c8b)
+
+![_debug_sticky_notes_scan](https://github.com/user-attachments/assets/8d090d06-2c4a-4893-912b-ac25db1a37c2)
 
 ### Sticky Note Scanner API
 https://github.com/4realDev/sticky-notes-scanner-server-and-api
@@ -200,23 +206,18 @@ When enabled, the Sticky Note Scanner App will create a separate folder on the s
 
 **"Scanning Starting Point" Drag and Drop Button:**\
 Miro’s Drag and Drop component to drag and drop a Miro object onto the Miro Board, which can be used as a top-left starting point for the scan/digitalization of the sticky notes.\
-If the Scanning Starting Point is unused, the scan/digitalization will use the Miro Board Coordinates (x: 0, y: 0).\
+If the Scanning Starting Point is unused, the scan/digitalization will use the Miro Board Coordinates (x: 0, y: 0).
 
 ---
 
-**"Scan" Button:** Starts the scanning process.\
-
----
-
-<br/>
-<br/>
-<br/>
-<br/>
+**"Scan" Button:** Starts the scanning process.
 
 ---
 
 ## Note
-All three features are integrated in one Miro App and developed with the Miro Web SDK and Miro REST API.
+All three features\
+(`Importance/Difficulty Matrix`, `Sticky Note Printer`, `Sticky Note Scanner`)\
+are integrated in one Miro App and developed with the Miro Web SDK and Miro REST API.
 
  ## Technologies
  - Miro SDK
