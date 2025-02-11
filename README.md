@@ -60,22 +60,6 @@ This enables new possibilities for hybrid workshops.
 
 ---
 
-#### PRINTING PROVIDER
-The Workshop Facilitator, who runs the Workshop PC with the Smart Printers connected, is the Printing Provider, because he/she provides the printing service to the printing consumers.\
-The Printing Provider uses a Python Executable ([sticky-notes-printer-provider](https://github.com/4realDev/sticky-notes-printer-provider)) for registering and printing Sticky Notes.\
-
-<br/>
-
-![image](https://github.com/user-attachments/assets/9321334d-06a5-4c98-825b-c275b2f701fa)
-
-**In the Python Executable to Printing Provider must:**
--	register with the Miro-Board ID of the Miro-Board from which the remote participants send their printing jobs. 
--	If this Miro-Board ID is entered in the input field and the "Register your Printer" button is clicked, the system first checks whether all three Nemonic Label Printers are connected to the PC and active
--	If this is the case, a connection is established from the Printing Provider PC/ Workshop PC to the WebSocket server. 
--	Additionally, all individual events, such as the establishment of the connection and the sending of data, are logged in a debug console.
-
----
-
 #### PRINTING CONSUMER
 The Remote Participants, who use/consume the printing service to print their digital sticky notes, are the Printing Consumers.\
 The Printing Consumer uses the Miro App ([sticky-notes-miro-app-scanner-printer-matrix](https://github.com/4realDev/sticky-notes-miro-app-scanner-printer-matrix)) to send the print jobs to the WebSocket Server.\
@@ -109,27 +93,6 @@ The Printing Consumer uses the Miro App ([sticky-notes-miro-app-scanner-printer-
     miroBoardID: uXjVO7Ddvh0=/
 }
 ```
-
----
-
-#### PRINTING AGENT
-The WebSocket Server, which enables the communication between the Printing Provider and the Printing Consumers, is the Printing Agent.\
-The Printing Agent uses a NodeJS Script, to simulate a WebSocket Server ([sticky-notes-printer-server-and-websocket](https://github.com/4realDev/sticky-notes-printer-server-and-websocket)).\
-
-**In the Node script:**
--	a web socket is opened, which is accessible via a public domain that is known to all clients and does not change.
--	this continuously active web socket is exclusively responsible for forwarding the data and allows all clients to connect via its domain.
--	When a client connects to this domain and sends a message to the agent, the system checks whether this message is a valid JSON object
--	Depending on whether the JSON object contains both; a print job and a Miro Board ID or only a Miro Board ID, the agent can determine whether the connected client is a consumer or a provider.
-
-**If the JSON object only contains a Miro Board ID, the client is a provider.**
--	In response to a connection from a provider, the WebSocket saves the active WebSocket connection and the sent Miro Board ID inside a local provider list on the server. 
--	This local list contains the connected, active WebSocket connections of all registered providers and their responsible Miro Boards, identified by the saved Miro Board IDs.
-
-**If the JSON object contains a Miro Board ID and a printing job, the client is a consumer**
--	In response to a connection from a consumer, the WebSocket compares the Miro Board ID sent by the consumer with all the Miro Board IDs of the printing providers stored in the provider list.
--	If a match is found, the print job is forwarded to the corresponding provider.
-
 
 <br/>
 <br/>
