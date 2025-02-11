@@ -1,6 +1,6 @@
 # Sticky Notes Miro App - Scanner/Printer/Matrix
 
-## Note
+**Note:**
 >All three features\
 >(`Importance/Difficulty Matrix`, `Sticky Note Printer`, `Sticky Note Scanner`)\
 >are integrated in one Miro App and developed with the Miro Web SDK and Miro REST API.
