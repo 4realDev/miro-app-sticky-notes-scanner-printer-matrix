@@ -42,9 +42,9 @@ This enables new possibilities for hybrid workshops.
 
 ### How to works
 **To fully use the Sticky Note Printer there have to be three roles:**
--	Printing Provider (Workshop Facilitator) -> [https://github.com/4realDev/sticky-notes-printer-provider](https://github.com/4realDev/sticky-notes-printer-provider)
--	Printing Consumer (Remote Participants) -> [https://github.com/4realDev/sticky-notes-miro-app-scanner-printer-matrix](https://github.com/4realDev/sticky-notes-miro-app-scanner-printer-matrix)
--	Printing Agent (WebSocket Server) -> [https://github.com/4realDev/sticky-notes-printer-server-and-websocket](https://github.com/4realDev/sticky-notes-printer-server-and-websocket)
+-	Printing Provider/Python Executable (Workshop Facilitator) -> [https://github.com/4realDev/sticky-notes-printer-provider](https://github.com/4realDev/sticky-notes-printer-provider)
+-	Printing Consumer/ReactJS Miro App (Remote Participants) -> [https://github.com/4realDev/sticky-notes-miro-app-scanner-printer-matrix](https://github.com/4realDev/sticky-notes-miro-app-scanner-printer-matrix)
+-	Printing Agent/NodeJS Server (WebSocket Server) -> [https://github.com/4realDev/sticky-notes-printer-server-and-websocket](https://github.com/4realDev/sticky-notes-printer-server-and-websocket)
 
 <br/>
 
