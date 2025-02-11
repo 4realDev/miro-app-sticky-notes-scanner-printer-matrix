@@ -1,4 +1,11 @@
-## Importance/Difficulty Matrix
+# Sticky Notes Miro App - Scanner/Printer/Matrix
+
+## Note
+>All three features\
+>(`Importance/Difficulty Matrix`, `Sticky Note Printer`, `Sticky Note Scanner`)\
+>are integrated in one Miro App and developed with the Miro Web SDK and Miro REST API.
+
+## I. Importance/Difficulty Matrix
 ### Preview Video
 https://vimeo.com/803506266?share=copy
 
@@ -18,7 +25,7 @@ The Matrix Miro App feature includes several steps such as:
 
 ---
 
-## Sticky Note Printer
+## II. Sticky Note Printer
 ### Preview
 https://vimeo.com/803506350?share=copy
 
@@ -98,7 +105,7 @@ The Printing Consumer uses the Miro App ([sticky-notes-miro-app-scanner-printer-
 
 ---
 
-## Sticky Note Scanner
+## III. Sticky Note Scanner
 ### Preview
 https://vimeo.com/803506423
 
@@ -172,15 +179,9 @@ If the Scanning Starting Point is unused, the scan/digitalization will use the M
 
 ---
 
-## Note
-All three features\
-(`Importance/Difficulty Matrix`, `Sticky Note Printer`, `Sticky Note Scanner`)\
-are integrated in one Miro App and developed with the Miro Web SDK and Miro REST API.
-
  ## Technologies
  - Miro SDK
  - Miro REST API
  - ReactJS
  - TensorFlow Custom Object Detection
  - Google Cloud Vision API
- - Computer Vision
