@@ -33,14 +33,11 @@ This enables new possibilities for hybrid workshops.
 - Integrated Miro app with preview
 - Fast and virtually in "real time"
 
-<br/>
-
 ### How to works
 **To fully use the Sticky Note Printer there have to be three roles:**
 -	Printing Provider (Workshop Facilitator) -> [https://github.com/4realDev/sticky-notes-printer-provider](https://github.com/4realDev/sticky-notes-printer-provider)
 -	Printing Consumer (Remote Participants) -> [https://github.com/4realDev/sticky-notes-miro-app-scanner-printer-matrix](https://github.com/4realDev/sticky-notes-miro-app-scanner-printer-matrix)
 -	Printing Agent (WebSocket Server) -> [https://github.com/4realDev/sticky-notes-printer-server-and-websocket](https://github.com/4realDev/sticky-notes-printer-server-and-websocket)
-
 
 <br/>
 
