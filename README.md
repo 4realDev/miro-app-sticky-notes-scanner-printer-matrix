@@ -35,8 +35,6 @@ This enables new possibilities for hybrid workshops.
 
 <br/>
 
-![miro_printer_flow](https://github.com/user-attachments/assets/18c85a77-5fc3-401c-a3d4-9e0405907068)
-
 ### How to works
 **To fully use the Sticky Note Printer there have to be three roles:**
 -	Printing Provider (Workshop Facilitator) -> [https://github.com/4realDev/sticky-notes-printer-provider](https://github.com/4realDev/sticky-notes-printer-provider)
@@ -160,7 +158,7 @@ These are then automatically uploaded to Miro and updated at definable intervals
 This TensorFlow custom object detection model has already been trained with thousands of notes from real workshop results.
 The repository for the training of the custom object detection model is the following: https://github.com/4realDev/tensorflow-custom-object-detection-model-training
 
-![miro_scanner_flow](https://github.com/user-attachments/assets/12e98bcc-af05-44fc-92d1-e5668a2ae0e1)
+![image](https://github.com/user-attachments/assets/f449447b-4689-4751-9360-7dd15592d273)
 
 <br/>
 
