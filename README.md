@@ -112,20 +112,21 @@ The Printing Consumer uses the Miro App ([sticky-notes-miro-app-scanner-printer-
 <br/>
 
 ***Image of a Miro Whiteboard Scan/Digitalisation with:***
+![2_Eval_Homeoffice_Phase_4](https://github.com/user-attachments/assets/a6f2cbac-0a08-4ea7-8645-9c820c1db46d)
 - all digitalised sticky notes on the left (`text, color, position, size`),
 - the cropped out original sticky notes in the middle (`cropped-image, position, size`),
 - and the original scan on the right:
-![2_Eval_Homeoffice_Phase_4](https://github.com/user-attachments/assets/a6f2cbac-0a08-4ea7-8645-9c820c1db46d)
 
 <br/>
 
 ***Debug Image of the Optical Character Recognition with the Google Cloud Vision API and its OCR Functionality:***
-![_debug_all_texts_scan](https://github.com/user-attachments/assets/40953c50-f045-4f95-83d5-b7a65ba10c8b)
+![_debug_all_texts_scan](https://github.com/user-attachments/assets/637f01e6-1113-4540-b888-a30056a5b3e8)
 
 <br/>
 
 ***Debug Image of the Sticky Note Object Detection with the TensorFlow Custom Object Detection Model:***
-![_debug_sticky_notes_scan](https://github.com/user-attachments/assets/8d090d06-2c4a-4893-912b-ac25db1a37c2)
+![_debug_sticky_notes_scan](https://github.com/user-attachments/assets/3ba7977c-4dbc-43a7-8e5a-1551cdf8c200)
+
 <br/>
 
 ### Sticky Note Scanner API
@@ -150,35 +151,36 @@ The repository for the training of the custom object detection model is the foll
 
 **"Upload Images" Button:**\
 Upload and Remove Images and Preview them inside a Image-Slider (created with the library `"@types/react-swipeable-views": "^0.13.1"`)\
-Image Slider is the same one, which was used inside the Sticky Note Printer to preview the selected Sticky Notes\
+Image Slider is the same one, which was used inside the Sticky Note Printer to preview the selected Sticky Notes
 
 ---
 
 **"Create Miro Board with name"** Text Input Field:\
-Enter the name of the Miro Board, which will be created and in which the Scanning will be saved.\
+Enter the name of the Miro Board, which will be created and in which the Scanning will be saved.
 
 ---
 
 **"Use existing Miro Board" Checkbox:**\
 When enabled, it will replace the previous "Create Miro Board with name" Input Field with the "Choose a Miro Board" Selection Field.\
 In this Selection Field the user can select an already existing Miro Board on the log-in Miro-Account.\
-Sometimes the user cannot see all existing Miro Board, because Miro may take longer, to synchronize recently created Miro Board inside the database and the `miro.board.getAllBoards()` call won’t return the recently added, not in the Miro Database synchronized Miro Boards.\
+Sometimes the user cannot see all existing Miro Board, because Miro may take longer, to synchronize recently created Miro Board inside the database and the `miro.board.getAllBoards()` call won’t return the recently added, not in the Miro Database synchronized Miro Boards.
 
 ---
 
 **"Create cropped sticky note images" Checkbox:**\
 When enabled, the Sticky Note Scanner App will create cropped sticky note images next to the digitalization of the whiteboard.\
-This may help facilitators to compare the scanning results and for example the color anad text recognition with the original sticky notes.\
+This may help facilitators to compare the scanning results and for example the color anad text recognition with the original sticky notes.
 
 ---
 
-**"Debug" Checkbox:**\
-When enabled, the Sticky Note Scanner App will create a separate folder on the server named miro-timeframe-snapshots, which stores all debug data from every scanned image. The debug data includes:\
+**"Debug" Checkbox:**
+When enabled, the Sticky Note Scanner App will create a separate folder on the server named miro-timeframe-snapshots, which stores all debug data from every scanned image. The debug data includes:
 - the original image
 - the cropped sticky note png images named `cropped_image_x.png`
 - the google cloud vision api OCR text detection named `_debug_all_texts_scan.png`
 - the tensorflow custom sticky note detection named `_debug_sticky_notes_scan.png`
-![image](https://github.com/user-attachments/assets/175316ac-db01-452a-b947-6a65cf0725ba)/
+  
+![Screenshot 2025-02-17 144708](https://github.com/user-attachments/assets/cf1a94b2-d1ce-4f82-b585-698213c5d3bb)
 
 ---
 
