@@ -174,7 +174,7 @@ This may help facilitators to compare the scanning results and for example the c
 ---
 
 **"Debug" Checkbox:**
-When enabled, the Sticky Note Scanner App will create a separate folder on the server named miro-timeframe-snapshots, which stores all debug data from every scanned image. The debug data includes:
+When enabled, the Sticky Note Scanner App will create a separate folder on the server named `miro-timeframe-snapshots`, which stores all debug data from every scanned image. The debug data includes:
 - the original image
 - the cropped sticky note png images named `cropped_image_x.png`
 - the google cloud vision api OCR text detection named `_debug_all_texts_scan.png`
