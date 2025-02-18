@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from 'axios';
+import axios, { AxiosError } from 'axios';
 
 export type SimplifiedBoardObjectType = {
 	boardName: string;
@@ -19,7 +19,6 @@ export const getAllMiroBoardNamesAndIds = async (bearer: string) => {
 				authorization: `Bearer ${bearer}`,
 			},
 		}).then((res) => {
-			// await check_response(res);
 			const boardNameAndIdArray: Array<SimplifiedBoardObjectType> = res.data.data.map(
 				(board: any) => {
 					return { boardName: board.name, boardId: board.id };
@@ -29,7 +28,7 @@ export const getAllMiroBoardNamesAndIds = async (bearer: string) => {
 		});
 	} catch (err: any) {
 		console.log(err.response?.data, err.response?.data?.context);
-		//   throw new HttpException('Error creating miro board', HttpStatus.INTERNAL_SERVER_ERROR);
+		throw new AxiosError('Error creating miro board', AxiosError.ERR_NETWORK);
 	}
 };
 
@@ -59,7 +58,6 @@ export const createNewMiroBoard = async (name: string, description: string, bear
 	} catch (err: any) {
 		console.log(err.response?.data, err.response?.data?.context);
 		return '-1';
-		//   throw new HttpException('Error creating miro board', HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 };
 
@@ -107,7 +105,6 @@ export const createNewMiroBoardOrGetExisting = async (
 
 	// 2. save_in_existing_miro_board flag is "False" -> create a new miro board with the given name
 	// (no matter if the board with this name already exist)
-
 	// remove "Policy" and "SharingPolicy" to use the default settings which are defined in miro admin "Permission" tab
 	try {
 		return await axios({
@@ -133,7 +130,6 @@ export const createNewMiroBoardOrGetExisting = async (
 	} catch (err: any) {
 		console.log(err.response?.data, err.response?.data?.context);
 		return '-1';
-		//   throw new HttpException('Error creating miro board', HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 };
 
@@ -157,12 +153,11 @@ export const getAllBoardItems = async (board_id: string, max_num_of_items = 50, 
 				authorization: `Bearer ${bearer}`,
 			},
 		}).then((res) => {
-			// await check_response(res);
 			return res.data.data;
 		});
 	} catch (err: any) {
 		console.log(err.response?.data, err.response?.data?.context);
-		//   throw new HttpException('Error creating miro board', HttpStatus.INTERNAL_SERVER_ERROR);
+		throw new AxiosError('Error creating miro board', AxiosError.ERR_NETWORK);
 	}
 };
 
@@ -209,7 +204,6 @@ export const create_frame = async (
 			headers: headers,
 			data: payload,
 		}).then((res) => {
-			// await check_response(resp)
 			if (res.status === 201) {
 				console.log(`\nSuccessfully created frame named ${title}.\n`);
 			}
@@ -218,7 +212,6 @@ export const create_frame = async (
 	} catch (err: any) {
 		console.log(err.response?.data, err.response?.data?.context);
 		return '-1';
-		//   throw new HttpException('Error creating miro board', HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 };
 
@@ -264,7 +257,6 @@ export const create_image = async (
 			headers: headers,
 			data: data,
 		}).then((res) => {
-			// await check_response(resp)
 			if (res.status === 201) {
 				console.log(`Successfully created image of the sticky note with the name ${img.name}.`);
 			}
@@ -273,7 +265,6 @@ export const create_image = async (
 	} catch (err: any) {
 		console.log(err.response?.data, err.response?.data?.context);
 		return '-1';
-		//   throw new HttpException('Error creating miro board', HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 };
 
@@ -315,13 +306,11 @@ export const create_line = async (
 			},
 			data: payload,
 		}).then((res) => {
-			// await check_response(resp)
 			return res;
 		});
 	} catch (err: any) {
 		console.log(err.response?.data, err.response?.data?.context);
 		return '-1';
-		//   throw new HttpException('Error creating miro board', HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 };
 
@@ -372,7 +361,6 @@ export const create_sticky_note = async (
 			},
 			data: payload,
 		}).then((res) => {
-			// await check_response(resp)
 			if (res.status === 201) {
 				console.log(`Successfully created sticky note with with the text ${text}.`);
 			}
@@ -381,7 +369,6 @@ export const create_sticky_note = async (
 	} catch (err: any) {
 		console.log(err.response?.data, err.response?.data?.context);
 		return [-1, '-1'];
-		//   throw new HttpException('Error creating miro board', HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 };
 
@@ -401,21 +388,12 @@ export const deleteItem = async (itemId: string, boardId: string) => {
 				authorization: `Bearer ${bearer}`,
 			},
 		}).then((res) => {
-			// await check_response(res);
 			return res.status;
 		});
 	} catch (err: any) {
 		console.log(err.response?.data, err.response?.data?.context);
-		//   throw new HttpException('Error creating miro board', HttpStatus.INTERNAL_SERVER_ERROR);
+		throw new AxiosError('Error creating miro board', AxiosError.ERR_NETWORK);
 	}
-
-	// response = requests.delete(url, headers=headers)
-	// if DEBUG_PRINT_RESPONSES:
-	//    print(await response.text())
-
-	// async with session.delete(url, headers=headers) as resp:
-	// 	await check_response(resp)
-	// 	return resp.status
 };
 
 // DELETE FRAME
@@ -432,11 +410,10 @@ export const deleteFrame = async (frameId: string, boardId: string) => {
 				authorization: `Bearer ${bearer}`,
 			},
 		}).then((res) => {
-			// await check_response(res);
 			return res.status;
 		});
 	} catch (err: any) {
 		console.log(err.response?.data, err.response?.data?.context);
-		//   throw new HttpException('Error creating miro board', HttpStatus.INTERNAL_SERVER_ERROR);
+		throw new AxiosError('Error creating miro board', AxiosError.ERR_NETWORK);
 	}
 };
