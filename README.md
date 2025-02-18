@@ -129,9 +129,6 @@ The Printing Consumer uses the Miro App ([sticky-notes-miro-app-scanner-printer-
 
 <br/>
 
-### Setup Miro Access Token for Usage of Miro REST API
-***Follow the instructions inside:*** [README_how_to_create_miro_auth_token](https://github.com/4realDev/sticky-notes-miro-app-scanner-printer-matrix/blob/main/README_how_to_create_miro_auth_token.pdf) or Miro Setup Documentation [Quickstart](https://developers.miro.com/docs/rest-api-build-your-first-hello-world-app)
-
 ### Sticky Note Scanner API
 https://github.com/4realDev/sticky-notes-scanner-server-and-api
 
@@ -142,13 +139,20 @@ These are then automatically uploaded to Miro and updated at definable intervals
 This TensorFlow custom object detection model has already been trained with thousands of notes from real workshop results.
 The repository for the training of the custom object detection model is the following: https://github.com/4realDev/tensorflow-custom-object-detection-model-training
 
+<br/>
+
 ![image](https://github.com/user-attachments/assets/f449447b-4689-4751-9360-7dd15592d273)
 
 <br/>
 
-![image](https://github.com/user-attachments/assets/94702c2e-ceb2-4370-a0af-793ba313ec4a)
+### Setup Miro Access Token for Usage of Miro REST API
+***Follow the instructions inside:*** [README_how_to_create_miro_auth_token](https://github.com/4realDev/sticky-notes-miro-app-scanner-printer-matrix/blob/main/README_how_to_create_miro_auth_token.pdf) or Miro Setup Documentation [Quickstart](https://developers.miro.com/docs/rest-api-build-your-first-hello-world-app)
 
-### UI Explaination:
+<br/>
+
+### UI Explaination
+
+![image](https://github.com/user-attachments/assets/94702c2e-ceb2-4370-a0af-793ba313ec4a)
 
 ---
 
