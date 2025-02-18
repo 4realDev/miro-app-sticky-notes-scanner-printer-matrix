@@ -145,6 +145,11 @@ The repository for the training of the custom object detection model is the foll
 
 ![image](https://github.com/user-attachments/assets/94702c2e-ceb2-4370-a0af-793ba313ec4a)
 
+### Setup Miro Access Token for Usage of Miro REST API
+***Follow the instructions inside:*** [README_how_to_create_miro_auth_token](https://github.com/4realDev/sticky-notes-miro-app-scanner-printer-matrix/blob/main/README_how_to_create_miro_auth_token.pdf)\
+or\
+Miro Setup Documentation [Quickstart](https://developers.miro.com/docs/rest-api-build-your-first-hello-world-app)
+
 ### UI Explaination:
 
 ---
