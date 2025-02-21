@@ -40,7 +40,7 @@ This enables new possibilities for hybrid workshops.
 - Integrated Miro app with preview
 - Fast and virtually in "real time"
 
-### How to works
+### How it works
 **To fully use the Sticky Note Printer there have to be three roles:**
 -	Printing Provider as `Python Executable` (Workshop Facilitator) -> [https://github.com/4realDev/python-sticky-notes-printer-provider-gui](https://github.com/4realDev/python-sticky-notes-printer-provider-gui)
 -	Printing Consumer as `ReactJS Miro App` (Remote Participants) -> [https://github.com/4realDev/sticky-notes-miro-app-scanner-printer-matrix](https://github.com/4realDev/sticky-notes-miro-app-scanner-printer-matrix)
