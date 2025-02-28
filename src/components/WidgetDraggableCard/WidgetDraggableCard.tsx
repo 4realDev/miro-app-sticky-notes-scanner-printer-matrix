@@ -1,33 +1,14 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { memo } from 'react';
 import styles from './WidgetDraggableCard.module.scss';
+import { MatrixDraggleId } from '../MatrixWizard/MatrixWizard/MatrixWizard';
 
 type WidgetDraggableCard = {
 	title: string;
 	thumbnail: string;
-	createWidgetMethod: (x: number, y: number) => Promise<void>;
+	id?: MatrixDraggleId;
 };
 
-const WidgetDraggableCard = ({ title, thumbnail, createWidgetMethod }: WidgetDraggableCard) => {
-	const dropHandler = useCallback(
-		async ({ x, y }) => {
-			await createWidgetMethod(x, y);
-		},
-		[createWidgetMethod]
-	);
-
-	useEffect(() => {
-		// register event once component mounts
-		// event handler calls a function when the dragged panel item is dropped on the board
-		console.log('component mount');
-		miro.board.ui.on('drop', dropHandler);
-
-		// unregister event on component unmount
-		return () => {
-			console.log('component unmount');
-			miro.board.ui.off('drop', dropHandler);
-		};
-	}, []);
-
+const WidgetDraggableCard = ({ title, thumbnail, id }: WidgetDraggableCard) => {
 	return (
 		<div className={styles.wizard__draggableCardContainer}>
 			<div className={styles.wizard__draggableCardText}>{title}</div>
@@ -35,6 +16,7 @@ const WidgetDraggableCard = ({ title, thumbnail, createWidgetMethod }: WidgetDra
 				src={thumbnail}
 				draggable={false}
 				className='miro-draggable'
+				id={id}
 				height='50'
 				style={{ cursor: 'pointer' }}
 			/>
@@ -42,4 +24,4 @@ const WidgetDraggableCard = ({ title, thumbnail, createWidgetMethod }: WidgetDra
 	);
 };
 
-export default WidgetDraggableCard;
+export default memo(WidgetDraggableCard);

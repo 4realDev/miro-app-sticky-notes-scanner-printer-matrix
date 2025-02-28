@@ -1,7 +1,7 @@
 // IMPORTANT: AFTER EACH DEPLOY TO FILEZILLA - APP MUST BE REINSTALLED VIA LINK!
 // IMPORTANT: WHEN UPLOADING NEW APP VERSION - REMEMBER TO CLEAR THE CACHE
 
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styles from './MatrixWizard.module.scss';
 import { StepButton, StepLabel } from '@mui/material';
 import Stepper from '@mui/material/Stepper';
@@ -32,8 +32,9 @@ import { clearSessionStorageAndStates, useSessionStorage } from '../../useSessio
 import Button from '../../ui/Button/Button';
 import SortByDifficultyImg from '../../Icons/SortByDifficultyImg';
 import specialCardThumbnail from '../../../assets/special_card_thumbnail.png';
+import matrixOriginThumbnail from '../../../assets/matrix_origin.png';
 import WidgetDraggableCard from '../../WidgetDraggableCard/WidgetDraggableCard';
-import { createMatrixCard } from './utils';
+import { createMatrixCard, createMatrixStartPoint } from './utils';
 
 const miro = window.miro;
 
@@ -71,6 +72,23 @@ const MATRIX_QUARTER_CATEGORIES = {
 	BOTTOM_LEFT: { color: '#CCF8C7', colorText: '#0C7A00', prio: 2 }, // low hanging fruits
 	BOTTOM_RIGHT: { color: '#F8D1D0', colorText: '#7A0200', prio: 4 }, // focus (most important)
 } as const;
+
+export enum MatrixDraggleId {
+	Card = 'card',
+	StartingPoint = 'StartingPoint',
+}
+
+const matrixDraggableHandler: Record<
+	string,
+	Record<string, (x: number, y: number) => Promise<void>>
+> = {
+	[MatrixDraggleId.Card]: {
+		handler: createMatrixCard,
+	},
+	[MatrixDraggleId.StartingPoint]: {
+		handler: createMatrixStartPoint,
+	},
+};
 
 const MATRIX_LABELS_FONT_FAMILY: FontFamily = 'plex_sans';
 const MATRIX_AXIS_COLOR = '#000000';
@@ -219,6 +237,23 @@ export const MatrixWizard = () => {
 		number,
 		React.Dispatch<React.SetStateAction<number>>
 	];
+
+	const dropHandler = useCallback(async ({ x, y, target }) => {
+		await matrixDraggableHandler[target.id as string].handler(x, y);
+	}, []);
+
+	useEffect(() => {
+		// register event once component mounts
+		// event handler calls a function when the dragged panel item is dropped on the board
+		// Enable the 'drop' event on the app panel. Active on 'miro-draggable' HTML elements
+		const registerEvent = async () => miro.board.ui.on('drop', dropHandler);
+		registerEvent();
+
+		// unregister event on component unmount
+		return () => {
+			miro.board.ui.off('drop', dropHandler);
+		};
+	}, []);
 
 	const axisArrowWidth = 40;
 	const axisArrowHeight = 40;
@@ -725,9 +760,24 @@ export const MatrixWizard = () => {
 		// necessary to setup the padding for the widgets to the matrix in the first step and to set the miro-zoom-viewport correctly
 		const widgetMaxHeight = Math.max(...filteredSelectedWidgets.map((selectedWidget) => selectedWidget.height)); // prettier-ignore
 
-		// if "matrixWidgetSelection.length === 0" get widgetWithMinPosX and Y, else use the already saved "minWidgetPos"
-		const minPosX = reselectWidgets ? widgetWithMinPosX.x : minWidgetPosX;
-		const minPosY = reselectWidgets ? widgetWithMinPosY.y : minWidgetPosY;
+		let minPosX = 0;
+		let minPosY = 0;
+
+		const allShapeItems = (await miro.board.get({
+			type: ['shape'],
+		})) as Array<Shape>;
+
+		const matrixStartPoint = allShapeItems.find((shape: any) => shape.content.includes('[matrix]'));
+
+		// if "matrixStartPoint" exists, use coordinates of the start point
+		// else if "matrixWidgetSelection.length === 0" get widgetWithMinPosX and Y, else use the already saved "minWidgetPos"
+		if (matrixStartPoint) {
+			minPosX = matrixStartPoint.x;
+			minPosY = matrixStartPoint.y - widgetMaxHeight;
+		} else {
+			minPosX = reselectWidgets ? widgetWithMinPosX.x : minWidgetPosX;
+			minPosY = reselectWidgets ? widgetWithMinPosY.y : minWidgetPosY;
+		}
 
 		let xAxisCoorOriginX = 0;
 		let xAxisCoorOriginY = 0;
@@ -824,8 +874,8 @@ export const MatrixWizard = () => {
 				await alignWidgetsVerticallyByNumericTag(selectedWidgetsSortedByNumericTag, coorOriginY!!);
 
 			const [yAxisCoorOriginX, yAxisCoorOriginY] = await drawCoordinateSystemYAxis(
-				coorOriginX!!,
-				coorOriginY!!,
+				coorOriginX,
+				coorOriginY,
 				totalWidgetHeightAfterVerticalAlignmentWithNumericTag +
 					additionalPaddingBetweenXAxisAndBottomMostWidget
 			);
@@ -1410,11 +1460,15 @@ export const MatrixWizard = () => {
 						/>
 					)}
 				</div>
-
+				<WidgetDraggableCard
+					thumbnail={matrixOriginThumbnail}
+					title={'Matrix Start Point (Generating above):'}
+					id={MatrixDraggleId.StartingPoint}
+				/>
 				<WidgetDraggableCard
 					thumbnail={specialCardThumbnail}
 					title={'Draggable Special Card:'}
-					createWidgetMethod={createMatrixCard}
+					id={MatrixDraggleId.Card}
 				/>
 				<div className={styles.wizard__hint}>
 					{step > 0 && (

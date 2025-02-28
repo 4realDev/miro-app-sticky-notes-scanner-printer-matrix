@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import axios from 'axios';
 import styles from './StickyNoteScannerApp.module.scss';
 import {
@@ -17,7 +17,6 @@ import Checkbox from '../ui/Checkbox/Checkbox';
 import Button from '../ui/Button/Button';
 import Printer from '../Icons/Printer';
 import CustomFileInput from '../ui/CustomFileInput/CustomFileInput';
-import Refresh from '../Icons/Refresh';
 import scanningStartingPointThumbnail from '../../assets/scanning_starting_point.png';
 import WidgetDraggableCard from '../WidgetDraggableCard/WidgetDraggableCard';
 import { createScanningStartPoint } from './utils';
@@ -51,8 +50,21 @@ const StickyNoteScannerApp = () => {
 	const [checkBoxUseExistingBoardForScanning, setCheckBoxCreateNewMiroBoard] = useState(false);
 	const [inputBoardName, setInputBoardName] = useState('');
 
+	const dropHandler = useCallback(async ({ x, y }) => {
+		await createScanningStartPoint(x, y);
+	}, []);
+
 	useEffect(() => {
 		showAvailableMiroBoardSelection();
+
+		// event handler calls a function when the dragged panel item is dropped on the board
+		// Enable the 'drop' event on the app panel. Active on 'miro-draggable' HTML elements
+		const registerEvent = async () => miro.board.ui.on('drop', dropHandler);
+		registerEvent();
+
+		return () => {
+			miro.board.ui.off('drop', dropHandler);
+		};
 	}, []);
 
 	const handleChangeCheckBoxDebug = () => {
@@ -494,7 +506,6 @@ const StickyNoteScannerApp = () => {
 				<WidgetDraggableCard
 					title={'Scanning Starting Point:'}
 					thumbnail={scanningStartingPointThumbnail}
-					createWidgetMethod={createScanningStartPoint}
 				/>
 				<br />
 				<Button
